@@ -25,7 +25,7 @@ require(stats)
 
 importing data
 ```{r}
-series = read.csv('~/Desktop/NCSA/CGManalyzer-datasets/ID01.csv')
+series = read.csv('~/Desktop/NCSA_genomics/CGManalyzer-datasets/ID01.csv')
 series$glucoseValue[series$glucoseValue==0.0] <- NA
 
 series = na.omit(series)
@@ -1208,8 +1208,49 @@ ioa_spline
 ```
 
 
-
+Compating fractional biases for all three methods
 ```{r}
-
+l=c('5','10','20','25','50')
+plot(NULL,NULL, xaxt='n', xlim = c(1,5), ylim = c(0,0.002),xlab = 'Gap Size', ylab = 'Fractional Bias', main = 'Comparing Fractional Bias')
+axis(1,at=seq(1:5),labels = l)
+legend("topleft", c('na.approx', 'na.interp', 'na.spline'), col = c('red','blue','green'),lwd=2,cex=.75)
+lines(frac_bias_approx, col = 'red',lwd=4)
+lines(frac_bias_interp, col = 'blue',lwd=2)
+lines(frac_bias_spline, col = 'green',lwd=2)
 ```
 
+
+Compating mean absolute error for all three methods
+```{r}
+l=c('5','10','20','25','50')
+plot(NULL,NULL, xaxt='n', xlim = c(1,5), ylim = c(2.775,2.80),xlab = 'Gap Size', ylab = 'Mean Absolute Error', main = 'Comparing Mean Absolute Error')
+axis(1,at=seq(1:5),labels = l)
+legend("topleft", c('na.approx', 'na.interp', 'na.spline'), col = c('red','blue','green'),lwd=2,cex=.75)
+lines(mad_approx, col = 'red',lwd=4)
+lines(mad_interp, col = 'blue',lwd=2)
+lines(mad_spline, col = 'green',lwd=2)
+```
+
+
+Compating RMSE for all three methods
+```{r}
+l=c('5','10','20','25','50')
+plot(NULL,NULL, xaxt='n', xlim = c(1,5), ylim = c(0,0.15),xlab = 'Gap Size', ylab = 'RMSE', main = 'Comparing RMSE')
+axis(1,at=seq(1:5),labels = l)
+legend("topleft", c('na.approx', 'na.interp', 'na.spline'), col = c('red','blue','green'),lwd=2,cex=.75)
+lines(rmse_approx, col = 'red',lwd=4)
+lines(rmse_interp, col = 'blue',lwd=2)
+lines(rmse_spline, col = 'green',lwd=2)
+```
+
+
+Compating index of agreement for all three methods
+```{r}
+l=c('5','10','20','25','50')
+plot(NULL,NULL, xaxt='n', xlim = c(1,5), ylim = c(0.995,1),xlab = 'Gap Size', ylab = 'Index of Agreement', main = 'Comparing Index of Agreement')
+axis(1,at=seq(1:5),labels = l)
+legend("topright", c('na.approx', 'na.interp', 'na.spline'), col = c('red','blue','green'),lwd=2,cex=.75)
+lines(ioa_approx, col = 'red',lwd=4)
+lines(ioa_interp, col = 'blue',lwd=2)
+lines(ioa_spline, col = 'green',lwd=2)
+```

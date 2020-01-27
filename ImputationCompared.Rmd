@@ -34,6 +34,12 @@ plot(series$glucoseValue, type='l', ylab='Glucose Level')
 
 ```
 
+converting from mmols to mg/dl
+```{r}
+series$glucoseValue = series$glucoseValue*18
+```
+
+
 sampling seed points
 ```{r}
 seed_points <- sample(1:2400, 100, replace = FALSE)
@@ -112,6 +118,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_interp_5)
 rm(mean_mad_interp_5)
 rm(fractional_bias_interp_5)
@@ -121,8 +129,6 @@ rm(mean_rmse_interp_5)
 rm(ioa_interp_5)
 rm(mean_ioa_interp_5)
 
-
-```
 
 
 Method = {forecast}na.interp 
@@ -187,6 +193,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_interp_10)
 rm(mean_mad_interp_10)
 rm(fractional_bias_interp_10)
@@ -197,7 +205,7 @@ rm(ioa_interp_10)
 rm(mean_ioa_interp_10)
 
 
-```
+
 
 
 Method = {forecast}na.interp 
@@ -261,6 +269,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_interp_20)
 rm(mean_mad_interp_20)
 rm(fractional_bias_interp_20)
@@ -270,7 +280,7 @@ rm(mean_rmse_interp_20)
 rm(ioa_interp_20)
 rm(mean_ioa_interp_20)
 
-```
+
 
 
 Method = {forecast}na.interp 
@@ -335,6 +345,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_interp_25)
 rm(mean_mad_interp_25)
 rm(fractional_bias_interp_25)
@@ -343,8 +355,6 @@ rm(rmse_interp_25)
 rm(mean_rmse_interp_25)
 rm(ioa_interp_25)
 rm(mean_ioa_interp_25)
-
-```
 
 
 Method = {forecast}na.interp 
@@ -409,6 +419,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_interp_50)
 rm(mean_mad_interp_50)
 rm(fractional_bias_interp_50)
@@ -418,7 +430,8 @@ rm(mean_rmse_interp_50)
 rm(ioa_interp_50)
 rm(mean_ioa_interp_50)
 
-```
+
+
 Method = {forecast}na.interp 
 Gap = 100
 ```{r}
@@ -481,6 +494,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_interp_100)
 rm(mean_mad_interp_100)
 rm(fractional_bias_interp_100)
@@ -490,7 +505,7 @@ rm(mean_rmse_interp_100)
 rm(ioa_interp_100)
 rm(mean_ioa_interp_100)
 
-```
+
 
 
 na.interp final values
@@ -500,6 +515,8 @@ frac_bias_interp
 rmse_interp
 ioa_interp
 ```
+
+
 
 na.approx error lists for plotting
 ```{r}
@@ -572,6 +589,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_approx_5)
 rm(mean_mad_approx_5)
 rm(fractional_bias_approx_5)
@@ -582,7 +601,7 @@ rm(ioa_approx_5)
 rm(mean_ioa_approx_5)
 
 
-```
+
 
 
 Method = {zoo}na.approx
@@ -647,6 +666,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_approx_10)
 rm(mean_mad_approx_10)
 rm(fractional_bias_approx_10)
@@ -656,8 +677,6 @@ rm(mean_rmse_approx_10)
 rm(ioa_approx_10)
 rm(mean_ioa_approx_10)
 
-
-```
 
 
 Method = {zoo}na.approx
@@ -722,6 +741,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_approx_20)
 rm(mean_mad_approx_20)
 rm(fractional_bias_approx_20)
@@ -732,7 +753,7 @@ rm(ioa_approx_20)
 rm(mean_ioa_approx_20)
 
 
-```
+
 
 
 Method = {zoo}na.approx
@@ -797,6 +818,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_approx_25)
 rm(mean_mad_approx_25)
 rm(fractional_bias_approx_25)
@@ -807,7 +830,7 @@ rm(ioa_approx_25)
 rm(mean_ioa_approx_25)
 
 
-```
+
 
 
 Method = {zoo}na.approx
@@ -872,6 +895,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_approx_50)
 rm(mean_mad_approx_50)
 rm(fractional_bias_approx_50)
@@ -882,7 +907,7 @@ rm(ioa_approx_50)
 rm(mean_ioa_approx_50)
 
 
-```
+
 
 
 Method = {zoo}na.approx
@@ -947,6 +972,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_approx_100)
 rm(mean_mad_approx_100)
 rm(fractional_bias_approx_100)
@@ -955,10 +982,6 @@ rm(rmse_approx_100)
 rm(mean_rmse_approx_100)
 rm(ioa_approx_100)
 rm(mean_ioa_approx_100)
-
-
-```
-
 
 
 na.approx final values
@@ -977,6 +1000,7 @@ frac_bias_spline = c()
 rmse_spline = c()
 ioa_spline = c()
 ```
+
 
 Method = {zoo}na.spline
 Gap = 5
@@ -1040,6 +1064,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_spline_5)
 rm(mean_mad_spline_5)
 rm(fractional_bias_spline_5)
@@ -1049,7 +1075,7 @@ rm(mean_rmse_spline_5)
 rm(ioa_spline_5)
 rm(mean_ioa_spline_5)
 
-```
+
 
 
 Method = {zoo}na.spline
@@ -1114,6 +1140,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_spline_10)
 rm(mean_mad_spline_10)
 rm(fractional_bias_spline_10)
@@ -1123,7 +1151,7 @@ rm(mean_rmse_spline_10)
 rm(ioa_spline_10)
 rm(mean_ioa_spline_10)
 
-```
+
 
 
 Method = {zoo}na.spline
@@ -1188,6 +1216,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_spline_20)
 rm(mean_mad_spline_20)
 rm(fractional_bias_spline_20)
@@ -1197,7 +1227,7 @@ rm(mean_rmse_spline_20)
 rm(ioa_spline_20)
 rm(mean_ioa_spline_20)
 
-```
+
 
 
 Method = {zoo}na.spline
@@ -1262,6 +1292,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_spline_25)
 rm(mean_mad_spline_25)
 rm(fractional_bias_spline_25)
@@ -1271,7 +1303,7 @@ rm(mean_rmse_spline_25)
 rm(ioa_spline_25)
 rm(mean_ioa_spline_25)
 
-```
+
 
 
 Method = {zoo}na.spline
@@ -1336,6 +1368,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_spline_50)
 rm(mean_mad_spline_50)
 rm(fractional_bias_spline_50)
@@ -1345,7 +1379,7 @@ rm(mean_rmse_spline_50)
 rm(ioa_spline_50)
 rm(mean_ioa_spline_50)
 
-```
+
 
 
 Method = {zoo}na.spline
@@ -1410,6 +1444,8 @@ rm(temp4)
 rm(x)
 rm(i)
 rm(j)
+```
+
 rm(mad_spline_100)
 rm(mean_mad_spline_100)
 rm(fractional_bias_spline_100)
@@ -1419,7 +1455,7 @@ rm(mean_rmse_spline_100)
 rm(ioa_spline_100)
 rm(mean_ioa_spline_100)
 
-```
+
 
 
 na.spline error lists for plotting
@@ -1434,44 +1470,215 @@ ioa_spline
 Compating fractional biases for all three methods
 ```{r}
 l=c('5','10','20','25','50','100')
-plot(NULL,NULL, xaxt='n', xlim = c(1,6), ylim = c(0,0.009),xlab = 'Gap Size', ylab = 'Fractional Bias', main = 'Comparing Fractional Bias')
+plot(NULL,NULL, xaxt='n', xlim = c(1,6), ylim = c(-2,2),xlab = 'Gap Size', ylab = 'Fractional Bias', main = 'Comparing Fractional Bias')
 axis(1,at=seq(1:6),labels = l)
 legend("topleft", c('na.approx', 'na.interp', 'na.spline'), col = c('red','blue','green'),lwd=2,cex=.75)
-lines(frac_bias_approx, col = 'red',lwd=4)
-lines(frac_bias_interp, col = 'blue',lwd=2)
+lines(frac_bias_approx, col = 'red',lwd=6)
+lines(frac_bias_interp, col = 'blue',lwd=4)
 lines(frac_bias_spline, col = 'green',lwd=2)
+cat("\n\nFractional Bias Values for na.approx are:\n",frac_bias_approx)
+cat("\n\nFractional Bias Values for na.interp are:\n",frac_bias_interp)
+cat("\n\nFractional Bias Values for na.spline are:\n",frac_bias_spline)
 ```
 
 
 Compating mean absolute difference for all three methods
 ```{r}
-plot(NULL,NULL, xaxt='n', xlim = c(1,6), ylim = c(2.72,2.82),xlab = 'Gap Size', ylab = 'Mean Absolute Difference', main = 'Comparing Mean Absolute Difference')
+plot(NULL,NULL, xaxt='n', xlim = c(1,6), ylim = c(45,55),xlab = 'Gap Size', ylab = 'Mean Absolute Difference', main = 'Comparing Mean Absolute Difference')
 axis(1,at=seq(1:6),labels = l)
 legend("topleft", c('na.approx', 'na.interp', 'na.spline'), col = c('red','blue','green'),lwd=2,cex=.75)
 lines(mad_approx, col = 'red',lwd=4)
 lines(mad_interp, col = 'blue',lwd=2)
 lines(mad_spline, col = 'green',lwd=2)
+cat("\n\nMean Absolute Difference Values for na.approx are:\n",mad_approx)
+cat("\n\nMean Absolute Difference Values for na.interp are:\n",mad_interp)
+cat("\n\nMean Absolute Difference for na.spline are:\n",mad_spline)
 ```
 
 
 Compating RMSE for all three methods
 ```{r}
 
-plot(NULL,NULL, xaxt='n', xlim = c(1,6), ylim = c(0,0.4),xlab = 'Gap Size', ylab = 'RMSE', main = 'Comparing RMSE')
+plot(NULL,NULL, xaxt='n', xlim = c(1,6), ylim = c(0,10),xlab = 'Gap Size', ylab = 'RMSE', main = 'Comparing RMSE')
 axis(1,at=seq(1:6),labels = l)
 legend("topleft", c('na.approx', 'na.interp', 'na.spline'), col = c('red','blue','green'),lwd=2,cex=.75)
 lines(rmse_approx, col = 'red',lwd=4)
 lines(rmse_interp, col = 'blue',lwd=2)
 lines(rmse_spline, col = 'green',lwd=2)
+
+cat("\n\nRMSE Values for na.approx are:\n",rmse_approx)
+cat("\n\nRMSE Values for na.interp are:\n",rmse_interp)
+cat("\n\nRMSE for na.spline are:\n",rmse_spline)
+
 ```
 
 
 Compating index of agreement for all three methods
 ```{r}
-plot(NULL,NULL, xaxt='n', xlim = c(1,6), ylim = c(0.982,1),xlab = 'Gap Size', ylab = 'Index of Agreement', main = 'Comparing Index of Agreement')
+plot(NULL,NULL, xaxt='n', xlim = c(1,6), ylim = c(0,1),xlab = 'Gap Size', ylab = 'Index of Agreement', main = 'Comparing Index of Agreement')
 axis(1,at=seq(1:6),labels = l)
-legend("topright", c('na.approx', 'na.interp', 'na.spline'), col = c('red','blue','green'),lwd=2,cex=.75)
-lines(ioa_approx, col = 'red',lwd=4)
-lines(ioa_interp, col = 'blue',lwd=2)
+legend("bottomright", c('na.approx', 'na.interp', 'na.spline'), col = c('red','blue','green'),lwd=2,cex=.75)
+lines(ioa_approx, col = 'red',lwd=6)
+lines(ioa_interp, col = 'blue',lwd=4)
 lines(ioa_spline, col = 'green',lwd=2)
+cat("Index of Agreement Values for na.approx are:\n",ioa_approx)
+cat("\n\nIndex of Agreement Values for na.interp are:\n",ioa_interp)
+cat("\n\nIndex of Agreement Values for na.spline are:\n",ioa_spline)
 ```
+
+
+Boxplots for Fractional Bias
+```{r}
+par(mfrow = c(2,3),cex.main=1)
+boxplot(fractional_bias_approx_5,fractional_bias_interp_5,fractional_bias_spline_5, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 5")
+
+boxplot(fractional_bias_approx_10,fractional_bias_interp_10,fractional_bias_spline_10, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 10")
+
+boxplot(fractional_bias_approx_20,fractional_bias_interp_20,fractional_bias_spline_20, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 20")
+
+boxplot(fractional_bias_approx_25,fractional_bias_interp_25,fractional_bias_spline_25, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 25")
+
+boxplot(fractional_bias_approx_50,fractional_bias_interp_50,fractional_bias_spline_50, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 50")
+
+boxplot(fractional_bias_approx_100,fractional_bias_interp_100,fractional_bias_spline_100, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 100")
+
+mtext("Comparing Fractional Bias", side=3, line = -16, outer = TRUE,font=2)
+
+```
+
+
+Boxplots for Index of Agreement
+```{r}
+par(mfrow = c(2,3),cex.main=1)
+boxplot(ioa_approx_5,ioa_interp_5,ioa_spline_5, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 5")
+
+boxplot(ioa_approx_10,ioa_interp_10,ioa_spline_10, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 10")
+
+boxplot(ioa_approx_20,ioa_interp_20,ioa_spline_20, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 20")
+
+boxplot(ioa_approx_25,ioa_interp_25,ioa_spline_25, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 25")
+
+boxplot(ioa_approx_50,ioa_interp_50,ioa_spline_50, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 50")
+
+boxplot(ioa_approx_100,ioa_interp_100,ioa_spline_100, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 100")
+
+mtext("Comparing Index of Agreement", side=3, line = -16, outer = TRUE,font=2)
+
+```
+
+
+Boxplots for RMSE
+```{r}
+par(mfrow = c(2,3),cex.main=1)
+boxplot(rmse_approx_5,rmse_interp_5,rmse_spline_5, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 5")
+
+boxplot(rmse_approx_10,rmse_interp_10,rmse_spline_10, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 10")
+
+boxplot(rmse_approx_20,rmse_interp_20,rmse_spline_20, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 20")
+
+boxplot(rmse_approx_25,rmse_interp_25,rmse_spline_25, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 25")
+
+boxplot(rmse_approx_50,rmse_interp_50,rmse_spline_50, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 50")
+
+boxplot(rmse_approx_100,rmse_interp_100,rmse_spline_100, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 100")
+
+mtext("Comparing RMSE", side=3, line = -16, outer = TRUE,font=2)
+
+```
+
+
+
+Boxplots for mean absolute difference
+```{r}
+par(mfrow = c(2,3),cex.main=1)
+boxplot(mad_approx_5,mad_interp_5,mad_spline_5, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 5")
+
+boxplot(mad_approx_10,mad_interp_10,mad_spline_10, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 10")
+
+boxplot(mad_approx_20,mad_interp_20,mad_spline_20, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 20")
+
+boxplot(mad_approx_25,mad_interp_25,mad_spline_25, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 25")
+
+boxplot(mad_approx_50,mad_interp_50,mad_spline_50, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 50")
+
+boxplot(mad_approx_100,mad_interp_100,mad_spline_100, 
+        names = c("approx","interp","spline"),
+        col = c("red","blue","green"),
+        main = "Gap Size = 100")
+
+mtext("Comparing Mean Absolute Difference", side=3, line = -16, outer = TRUE,font=2)
+
+```
+
+
+
+

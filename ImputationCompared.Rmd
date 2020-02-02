@@ -1533,32 +1533,44 @@ par(mfrow = c(2,3),cex.main=1)
 boxplot(fractional_bias_approx_5,fractional_bias_interp_5,fractional_bias_spline_5, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 5")
+        main = "Gap Size = 5",
+        ylim = c(min(fractional_bias_approx_5,fractional_bias_interp_5,fractional_bias_spline_5), max(fractional_bias_approx_5,fractional_bias_interp_5,fractional_bias_spline_5))
+        )
 
 boxplot(fractional_bias_approx_10,fractional_bias_interp_10,fractional_bias_spline_10, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 10")
+        main = "Gap Size = 10",
+        ylim = c(min(fractional_bias_approx_10,fractional_bias_interp_10,fractional_bias_spline_10), max(fractional_bias_approx_10,fractional_bias_interp_10,fractional_bias_spline_10))
+        )
 
 boxplot(fractional_bias_approx_20,fractional_bias_interp_20,fractional_bias_spline_20, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 20")
+        main = "Gap Size = 20",
+        ylim = c(min(fractional_bias_approx_20,fractional_bias_interp_20,fractional_bias_spline_20), max(fractional_bias_approx_20,fractional_bias_interp_20,fractional_bias_spline_20))
+        )
 
 boxplot(fractional_bias_approx_25,fractional_bias_interp_25,fractional_bias_spline_25, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 25")
+        main = "Gap Size = 25",
+        ylim = c(min(fractional_bias_approx_25,fractional_bias_interp_25,fractional_bias_spline_25), max(fractional_bias_approx_25,fractional_bias_interp_25,fractional_bias_spline_25))
+        )
 
 boxplot(fractional_bias_approx_50,fractional_bias_interp_50,fractional_bias_spline_50, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 50")
+        main = "Gap Size = 50",
+        ylim = c(min(fractional_bias_approx_50,fractional_bias_interp_50,fractional_bias_spline_50), max(fractional_bias_approx_50,fractional_bias_interp_50,fractional_bias_spline_50))
+        )
 
 boxplot(fractional_bias_approx_100,fractional_bias_interp_100,fractional_bias_spline_100, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 100")
+        main = "Gap Size = 100",
+        ylim = c(min(fractional_bias_approx_100,fractional_bias_interp_100,fractional_bias_spline_100), max(fractional_bias_approx_100,fractional_bias_interp_100,fractional_bias_spline_100))
+        )
 
 mtext("Comparing Fractional Bias", side=3, line = -16, outer = TRUE,font=2)
 
@@ -1571,32 +1583,44 @@ par(mfrow = c(2,3),cex.main=1)
 boxplot(ioa_approx_5,ioa_interp_5,ioa_spline_5, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 5")
+        main = "Gap Size = 5",
+        ylim = c(min(ioa_approx_5,ioa_interp_5,ioa_spline_5), max(ioa_approx_5,ioa_interp_5,ioa_spline_5))
+        )
 
 boxplot(ioa_approx_10,ioa_interp_10,ioa_spline_10, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 10")
+        main = "Gap Size = 10",
+        ylim = c(min(ioa_approx_10,ioa_interp_10,ioa_spline_10), max(ioa_approx_10,ioa_interp_10,ioa_spline_10))
+        )
 
 boxplot(ioa_approx_20,ioa_interp_20,ioa_spline_20, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 20")
+        main = "Gap Size = 20",
+        ylim = c(min(ioa_approx_20,ioa_interp_20,ioa_spline_20), max(ioa_approx_20,ioa_interp_20,ioa_spline_20))
+        )
 
 boxplot(ioa_approx_25,ioa_interp_25,ioa_spline_25, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 25")
+        main = "Gap Size = 25",
+        ylim = c(min(ioa_approx_25,ioa_interp_25,ioa_spline_25), max(ioa_approx_25,ioa_interp_25,ioa_spline_25))
+        )
 
 boxplot(ioa_approx_50,ioa_interp_50,ioa_spline_50, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 50")
+        main = "Gap Size = 50",
+        ylim = c(min(ioa_approx_50,ioa_interp_50,ioa_spline_50), max(ioa_approx_50,ioa_interp_50,ioa_spline_50))
+        )
 
 boxplot(ioa_approx_100,ioa_interp_100,ioa_spline_100, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 100")
+        main = "Gap Size = 100",
+        ylim = c(min(ioa_approx_100,ioa_interp_100,ioa_spline_100), max(ioa_approx_100,ioa_interp_100,ioa_spline_100))
+        )
 
 mtext("Comparing Index of Agreement", side=3, line = -16, outer = TRUE,font=2)
 
@@ -1609,32 +1633,44 @@ par(mfrow = c(2,3),cex.main=1)
 boxplot(rmse_approx_5,rmse_interp_5,rmse_spline_5, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 5")
+        main = "Gap Size = 5",
+        ylim = c(min(rmse_approx_5,rmse_interp_5,rmse_spline_5),max(rmse_approx_5,rmse_interp_5,rmse_spline_5))
+        )
 
 boxplot(rmse_approx_10,rmse_interp_10,rmse_spline_10, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 10")
+        main = "Gap Size = 10",
+        ylim = c(min(rmse_approx_10,rmse_interp_10,rmse_spline_10), max(rmse_approx_10,rmse_interp_10,rmse_spline_10))
+        )
 
 boxplot(rmse_approx_20,rmse_interp_20,rmse_spline_20, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 20")
+        main = "Gap Size = 20",
+        ylim = c(min(rmse_approx_20,rmse_interp_20,rmse_spline_20), max(rmse_approx_20,rmse_interp_20,rmse_spline_20))
+        )
 
 boxplot(rmse_approx_25,rmse_interp_25,rmse_spline_25, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 25")
+        main = "Gap Size = 25",
+        ylim = c(min(rmse_approx_25,rmse_interp_25,rmse_spline_25), max(rmse_approx_25,rmse_interp_25,rmse_spline_25))
+        )
 
 boxplot(rmse_approx_50,rmse_interp_50,rmse_spline_50, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 50")
+        main = "Gap Size = 50",
+        ylim = c(min(rmse_approx_50,rmse_interp_50,rmse_spline_50), max(rmse_approx_50,rmse_interp_50,rmse_spline_50))
+        )
 
 boxplot(rmse_approx_100,rmse_interp_100,rmse_spline_100, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 100")
+        main = "Gap Size = 100",
+       ylim = c(min(rmse_approx_100,rmse_interp_100,rmse_spline_100), max(rmse_approx_100,rmse_interp_100,rmse_spline_100))
+        )
 
 mtext("Comparing RMSE", side=3, line = -16, outer = TRUE,font=2)
 
@@ -1648,32 +1684,44 @@ par(mfrow = c(2,3),cex.main=1)
 boxplot(mad_approx_5,mad_interp_5,mad_spline_5, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 5")
+        main = "Gap Size = 5",
+        ylim = c(min(mad_approx_5,mad_interp_5,mad_spline_5), max(mad_approx_5,mad_interp_5,mad_spline_5))
+        )
 
 boxplot(mad_approx_10,mad_interp_10,mad_spline_10, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 10")
+        main = "Gap Size = 10",
+        ylim = c(min(mad_approx_10,mad_interp_10,mad_spline_10), max(mad_approx_10,mad_interp_10,mad_spline_10))
+        )
 
 boxplot(mad_approx_20,mad_interp_20,mad_spline_20, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 20")
+        main = "Gap Size = 20",
+        ylim = c(min(mad_approx_20,mad_interp_20,mad_spline_20), max(mad_approx_20,mad_interp_20,mad_spline_20))
+        )
 
 boxplot(mad_approx_25,mad_interp_25,mad_spline_25, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 25")
+        main = "Gap Size = 25",
+        ylim = c(min(mad_approx_25,mad_interp_25,mad_spline_25), max(mad_approx_25,mad_interp_25,mad_spline_25))
+        )
 
 boxplot(mad_approx_50,mad_interp_50,mad_spline_50, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 50")
+        main = "Gap Size = 50",
+        ylim = c(min(mad_approx_50,mad_interp_50,mad_spline_50), max(mad_approx_50,mad_interp_50,mad_spline_50))
+        )
 
 boxplot(mad_approx_100,mad_interp_100,mad_spline_100, 
         names = c("approx","interp","spline"),
         col = c("red","blue","green"),
-        main = "Gap Size = 100")
+        main = "Gap Size = 100",
+        ylim = c(min(mad_approx_100,mad_interp_100,mad_spline_100), max(mad_approx_100,mad_interp_100,mad_spline_100))
+        )
 
 mtext("Comparing Mean Absolute Difference", side=3, line = -16, outer = TRUE,font=2)
 

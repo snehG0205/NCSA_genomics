@@ -1273,19 +1273,19 @@ new_values = c()
 
   
   #calculating mean absolute difference
-  temp1 = mad(series_new$glucoseValue)
+  temp1 = mad(new_values)
   mad_spline_5 = c(mad_spline_5,temp1)
   
   #calculating fractional bias
-  temp2 = compute.fb(series_new$glucoseValue,series$glucoseValue)
+  temp2 = compute.fb(new_values,old_values)
   fractional_bias_spline_5 = c(fractional_bias_spline_5, temp2)
   
   #calculating RMSE
-  temp3 = compute.rmse(series_new$glucoseValue,series$glucoseValue)
+  temp3 = compute.rmse(new_values,old_values)
   rmse_spline_5 = c(rmse_spline_5,temp3)
   
   #calculatind IOA
-  x = data.frame("real" = series$glucoseValue, 'imputed' = series_new$glucoseValue)
+  x = data.frame("real" = old_values, 'imputed' = new_values)
   temp4 = modStats(x,mod = "imputed",obs = "real", statistic = c("IOA"))
   ioa_spline_5 = c(ioa_spline_5, temp4$IOA)
   

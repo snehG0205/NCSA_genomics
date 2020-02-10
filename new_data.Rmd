@@ -1,0 +1,46 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Cleansing and transforming //RUN ONLY ONCE//
+```{r}
+data = read.table("~/Desktop/NCSA_genomics/data_sophia.txt",header=FALSE)
+#data
+
+data$Display_Time <- paste(data$V1,"_",data$V2)
+data$Internal_Time <- paste(data$V5,"_",data$V6)
+data <- data[,!names(data) %in% c("V1","V2","V5","V6")]
+colnames(data)[1] <- "GlucoseValue"
+colnames(data)[2] <- "SubjectId"
+data <- data[-c(1),]
+data
+```
+
+
+```{r}
+one <- split(data,data$SubjectId)
+one <- one[-length(one)]
+one[[16]]
+one[[33]]
+one[[35]]
+one[[42]]
+one[[43]]
+one[[44]]
+```
+
+
+
+```{r}
+#length(one)
+
+for (i in c(1:length(one)) ){
+  print(i)
+  #print(length(one[[i]]))
+  one[[i]]$GlucoseValue <- as.numeric(as.character(one[[i]]$GlucoseValue))
+}
+
+
+```
+
+
+

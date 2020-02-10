@@ -1,0 +1,95 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+install.packages('foreign')
+install.packages("MASS")
+install.packages("Hmisc")
+install.packages("reshape2")
+install.packages("plotly")
+
+
+
+```{r}
+library(foreign)
+library(MASS)
+library(Hmisc)
+library(reshape2)
+library(plotly)
+```
+
+
+
+
+```{r}
+method = rep(c("na.interp","na.approx","na.spline"), each=600)
+gaps = rep(c(5,10,20,25,50,100),times=c(100,100,100,100,100,100))
+gaps = c(gaps,gaps,gaps)
+fractional_bias_all = c(fractional_bias_interp_5, fractional_bias_interp_10, fractional_bias_interp_20, fractional_bias_interp_25, fractional_bias_interp_50, fractional_bias_interp_100, fractional_bias_approx_5, fractional_bias_approx_10, fractional_bias_approx_20, fractional_bias_approx_25, fractional_bias_approx_50, fractional_bias_approx_100, fractional_bias_spline_5, fractional_bias_spline_10, fractional_bias_spline_20, fractional_bias_spline_25, fractional_bias_spline_50, fractional_bias_spline_100)
+
+ioa_all = c(ioa_interp_5, ioa_interp_10, ioa_interp_20, ioa_interp_25, ioa_interp_50, ioa_interp_100 ,ioa_approx_5, ioa_approx_10, ioa_approx_20, ioa_approx_25, ioa_approx_50, ioa_approx_100, ioa_spline_5, ioa_spline_10, ioa_spline_20, ioa_spline_25, ioa_spline_50, ioa_spline_100)
+
+mad_all = c(mad_interp_5, mad_interp_10, mad_interp_20, mad_interp_25, mad_interp_50, mad_interp_100, mad_approx_5, mad_approx_10, mad_approx_20, mad_approx_25, mad_approx_50, mad_approx_100, mad_spline_5, mad_spline_10, mad_spline_20, mad_spline_25, mad_spline_50, mad_spline_100)
+
+rmse_all = c(rmse_interp_5, rmse_interp_10, rmse_interp_20,rmse_interp_25, rmse_interp_50, rmse_interp_100, rmse_approx_5, rmse_approx_10, rmse_approx_20, rmse_approx_25, rmse_approx_50, rmse_approx_100, rmse_spline_5, rmse_spline_10, rmse_spline_20, rmse_spline_25, rmse_spline_50, rmse_spline_100)
+
+df = data.frame("method"=method, "gaps"=gaps, "fractionalBias"=fractional_bias_all, "indexOfAgreement"=ioa_all, "RMSE"=rmse_all, "meanAbsoluteDifference"=mad_all)
+df
+```
+
+
+```{r}
+p <- ggplot(df, aes(gaps, fractionalBias)) +
+    geom_boxplot(size = .75) +
+    facet_grid(gaps~method, margins = TRUE)
+
+p <- ggplotly(p)
+
+p
+```
+
+
+```{r}
+colors = c("red","blue","green")
+label_gap = c("5","10","20","25","50","100")
+label_methods = c("na.interp","na.approx","na.spline")
+```
+
+
+
+```{r}
+
+boxplot(df$fractionalBias~method+gaps, outcol="orange",xaxt='n',ylab="Fractional Bias", xlab = "Gap Sizes", main = "Comparing Fractional Bias", col=colors)
+axis(1, at=seq(2,18,by=3), labels=label_gap[1:6])
+legend("topleft",label_methods, col = colors, title = 'Methods', lwd=2,cex=.75)
+```
+
+```{r}
+boxplot(df$indexOfAgreement~method+gaps, outcol="orange",xaxt='n',ylab="Index of Agreement", xlab = "Gap Sizes", main = "Comparing Index of Agreement", col=colors)
+axis(1, at=seq(2,18,by=3), labels=label_gap[1:6])
+legend("bottomleft",label_methods, col = colors, title = 'Methods', lwd=2,cex=.75)
+```
+
+
+
+```{r}
+boxplot(df$RMSE~method+gaps, outcol="orange",xaxt='n',ylab="RMSE", xlab = "Gap Sizes", main = "Comparing RMSE", col=colors)
+axis(1, at=seq(2,18,by=3), labels=label_gap[1:6])
+legend("topleft",label_methods, col = colors, title = 'Methods', lwd=2,cex=.75)
+```
+
+
+
+```{r}
+boxplot(df$meanAbsoluteDifference~method+gaps, outcol="orange",xaxt='n',ylab="Mean Absolute Difference", xlab = "Gap Sizes", main = "Comparing Mean Absolute Difference", col=colors)
+axis(1, at=seq(2,18,by=3), labels=label_gap[1:6])
+legend("topleft",label_methods, col = colors, title = 'Methods', lwd=2,cex=.75)
+```
+
+
+
+
+

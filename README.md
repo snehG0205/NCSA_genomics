@@ -33,4 +33,5 @@ Sophia's plots
 
 
 ############# Screenshots #############
+
 Screenshots of various algorithms in works

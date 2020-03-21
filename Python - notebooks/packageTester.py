@@ -92,7 +92,7 @@ obj.plot(diabetic_1_faulty['glucoseValue'].tolist(),diabetic_1['glucoseValue'].t
 obj.getMetrics(predicted,true)
 
 
-
+'''
 #repeating the same for diabetic type 2
 start, end = obj.createGap(diabetic_2)
 gap_tester_diabetic_2 = diabetic_2.iloc[start:end+2]
@@ -137,3 +137,4 @@ obj.plot(non_diabetic_faulty['glucoseValue'].tolist(),non_diabetic['glucoseValue
 obj.getMetrics(predicted,true)
 
 print("End")
+'''

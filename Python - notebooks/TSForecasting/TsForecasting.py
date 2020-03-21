@@ -70,7 +70,7 @@ class TimeSeriesForecast:
         lstm_model.add(Dense(1))
         lstm_model.compile(loss='mean_squared_error', optimizer='adam')
         early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
-        #history_lstm_model = lstm_model.fit(X_train_lmse, y_train, epochs=10, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
+        history_lstm_model = lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
     
         return lstm_model
     
@@ -261,7 +261,7 @@ class TimeSeriesForecast:
         
         #df = readData()
         for i in range(start,end):
-            df['glucoseValue'][i]=0
+            df[df.columns[0]][i]=0
         
         return df
     

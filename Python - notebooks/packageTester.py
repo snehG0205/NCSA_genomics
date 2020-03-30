@@ -20,17 +20,36 @@ def trainingData():
         data: training dataframe with index => DisplayTime value => GlucoseValues
     """
     
-    data = pd.read_csv("~/Desktop/NCSA_genomics/Data/data_hall.txt", sep="\t", engine="python") #use your path
+    data = pd.read_csv("~/Desktop/NCSA_genomics/Data/data_hall.txt", sep="\t") #use your path
     #data.head()
-    
+    data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+    data['time_gap'] = data['Display Time']- data['Display Time'].shift(1)
+    meta = pd.read_csv("~/Desktop/NCSA_genomics/Data/Hall_meta.csv") 
+    for subjectId, df in data.groupby('subjectId'):
+        print("==============================================================")
+        print("Subject ID: "+str(subjectId))
+        temp = meta[meta["ID"]==subjectId]
+        print("Status: "+str(temp["status"].values[0]))
+        #print(df)
+        #print(df['GlucoseValue'].describe())
+        #100*(len(df[df["time_gap"]>str("00:05:00")])/df['GlucoseValue'].count())
+        print("Length of the readings: "+str(df['GlucoseValue'].count()))
+        print("Max. Glucose value: "+str(df['GlucoseValue'].max()))
+        print("Min. Glucose value: "+str(df['GlucoseValue'].min()))
+        print("Mean Glucose value: "+str(round(df['GlucoseValue'].mean(),3)))
+        print("Missing Values: "+str(len(df[df["time_gap"]>str("00:05:00")])))
+        print("Percent of missing values: "+str(round(100*(len(df[df["time_gap"]>str("00:05:00")])/df['GlucoseValue'].count()),2))+"%")
+        #print(df['DisplayTime'])
+        print()
+        print("Days: "+str(df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]))
     
     #dropping columns we don't need
     
     
-    data.drop(['subjectId', 'Internal Time'], axis=1, inplace=True)
+    data.drop(['subjectId', 'Internal Time', 'time_gap'], axis=1, inplace=True)
     
     #Converting the Display Time to 'datetime' so that it can be used as an index
-    data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+    #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
     data = data.set_index(['Display Time'], drop=True)
     #data.head()
     
@@ -45,22 +64,33 @@ def testingData():
         data: testing dataframe with index => DisplayTime value => GlucoseValues
     """
     #reading datasets for training
-    diabetic_1 = pd.read_csv("/Users/snehgajiwala/Desktop/NCSA_genomics/Data/CGManalyzer-datasets/test/ID01.csv")
-    diabetic_2 = pd.read_csv("/Users/snehgajiwala/Desktop/NCSA_genomics/Data/CGManalyzer-datasets/test/ID11.csv")
-    prediabetic = pd.read_csv("/Users/snehgajiwala/Desktop/NCSA_genomics/Data/CGManalyzer-datasets/test/ID21.csv")
-    nondiabetic = pd.read_csv("/Users/snehgajiwala/Desktop/NCSA_genomics/Data/CGManalyzer-datasets/test/ID29.csv")
+    data = pd.read_csv("~/Desktop/NCSA_genomics/Data/CGManalyzer.csv")
+
+    diabetic_1 = data[data['ID'] == "ID01"]
+    diabetic_2 = data[data['ID'] == "ID11"]
+    prediabetic = data[data['ID'] == "ID21"]
+    nondiabetic = data[data['ID'] == "ID29"]
+    
+#     diabetic_1 = pd.read_csv("/Users/snehgajiwala/Desktop/NCSA_genomics/Data/CGManalyzer-datasets/test/ID01.csv")
+#     diabetic_2 = pd.read_csv("/Users/snehgajiwala/Desktop/NCSA_genomics/Data/CGManalyzer-datasets/test/ID11.csv")
+#     prediabetic = pd.read_csv("/Users/snehgajiwala/Desktop/NCSA_genomics/Data/CGManalyzer-datasets/test/ID21.csv")
+#     nondiabetic = pd.read_csv("/Users/snehgajiwala/Desktop/NCSA_genomics/Data/CGManalyzer-datasets/test/ID29.csv")
     
     #Converting the Display Time to 'timeStamp' so that it can be used as an index
     diabetic_1['timeStamp'] = diabetic_1['timeStamp'].apply(lambda x: pd.datetime.strptime(x, '%Y:%m:%d:%H:%M'))
+    diabetic_1.drop(['ID'], axis=1, inplace=True)
     diabetic_1 = diabetic_1.set_index(['timeStamp'], drop=True)
     
     prediabetic['timeStamp'] = prediabetic['timeStamp'].apply(lambda x: pd.datetime.strptime(x, '%Y:%m:%d:%H:%M'))
+    prediabetic.drop(['ID'], axis=1, inplace=True)
     prediabetic = prediabetic.set_index(['timeStamp'], drop=True)
     
     nondiabetic['timeStamp'] = nondiabetic['timeStamp'].apply(lambda x: pd.datetime.strptime(x, '%Y:%m:%d:%H:%M'))
+    nondiabetic.drop(['ID'], axis=1, inplace=True)
     nondiabetic = nondiabetic.set_index(['timeStamp'], drop=True)
     
     diabetic_2['timeStamp'] = diabetic_2['timeStamp'].apply(lambda x: pd.datetime.strptime(x, '%Y:%m:%d:%H:%M'))
+    diabetic_2.drop(['ID'], axis=1, inplace=True)
     diabetic_2 = diabetic_2.set_index(['timeStamp'], drop=True)
     
     return diabetic_1, diabetic_2, prediabetic, nondiabetic
@@ -70,8 +100,8 @@ train_set = trainingData()
 test_set = testingData()
 
 
-obj = TimeSeriesForecast()
-obj.connectivityTester()
+#obj = TimeSeriesForecast()
+#obj.connectivityTester()
 
 lstmModel = obj.trainModel(train_set)
 

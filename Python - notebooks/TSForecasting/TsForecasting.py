@@ -26,26 +26,52 @@ import random
 
 import warnings  
 warnings.filterwarnings('ignore')
+    
 
 class TimeSeriesForecast:
-    def trainModel(self, train):
-        """
-        Training LSTM model
-        input:
-            train: training dataframe
-        output:
-            lstm_model: trainied lstm model
-        """
+    lstm_model = None
+    def __init__(self):
+        data = pd.read_csv("~/Desktop/NCSA_genomics/Data/data_hall.txt", sep="\t") #use your path
+        #data.head()
+        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        data['time_gap'] = data['Display Time']- data['Display Time'].shift(1)
+        meta = pd.read_csv("~/Desktop/NCSA_genomics/Data/Hall_meta.csv") 
+        for subjectId, df in data.groupby('subjectId'):
+            print("==============================================================")
+            print("Subject ID: "+str(subjectId))
+            temp = meta[meta["ID"]==subjectId]
+            print("Status: "+str(temp["status"].values[0]))
+            #print(df)
+            #print(df['GlucoseValue'].describe())
+            #100*(len(df[df["time_gap"]>str("00:05:00")])/df['GlucoseValue'].count())
+            print("Length of the readings: "+str(df['GlucoseValue'].count()))
+            print("Max. Glucose value: "+str(df['GlucoseValue'].max()))
+            print("Min. Glucose value: "+str(df['GlucoseValue'].min()))
+            print("Mean Glucose value: "+str(round(df['GlucoseValue'].mean(),3)))
+            print("Missing Values: "+str(len(df[df["time_gap"]>str("00:05:00")])))
+            print("Percent of missing values: "+str(round(100*(len(df[df["time_gap"]>str("00:05:00")])/df['GlucoseValue'].count()),2))+"%")
+            #print(df['DisplayTime'])
+            print()
+            print("Days: "+str(df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]))
         
-        #scaling => translates each feature individually such that it is in the given range on the training set
-        #to ensure the unit if our data is not a factor
-    
+        #dropping columns we don't need
+        
+        
+        data.drop(['subjectId', 'Internal Time', 'time_gap'], axis=1, inplace=True)
+        
+        #Converting the Display Time to 'datetime' so that it can be used as an index
+        #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        data = data.set_index(['Display Time'], drop=True)
+        #data.head()
+        
+        #train = data
+
         scaler = MinMaxScaler(feature_range=(0, 1))
-        train_sc = scaler.fit_transform(train)
+        train_sc = scaler.fit_transform(data)
     
         #Reshaping the data to work for an LSTM network
     
-        train_sc_df = pd.DataFrame(train_sc, columns=['Y'], index=train.index)
+        train_sc_df = pd.DataFrame(train_sc, columns=['Y'], index=data.index)
     
     
         for s in range(1,2):
@@ -65,16 +91,15 @@ class TimeSeriesForecast:
         print('Train shape: ', X_train_lmse.shape)
         
     
-        lstm_model = Sequential()
-        lstm_model.add(LSTM(7, input_shape=(1, X_train_lmse.shape[1]), activation='relu', kernel_initializer='lecun_uniform', return_sequences=False))
-        lstm_model.add(Dense(1))
-        lstm_model.compile(loss='mean_squared_error', optimizer='adam')
+        self.lstm_model = Sequential()
+        self.lstm_model.add(LSTM(7, input_shape=(1, X_train_lmse.shape[1]), activation='relu', kernel_initializer='lecun_uniform', return_sequences=False))
+        self.lstm_model.add(Dense(1))
+        self.lstm_model.compile(loss='mean_squared_error', optimizer='adam')
         early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
-        history_lstm_model = lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
+        history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
     
-        return lstm_model
-    
-    def testModel(self, lstm_model,test):
+
+    def testModel(self,test):
         """
         Testing the LSTM model
         input:
@@ -102,11 +127,11 @@ class TimeSeriesForecast:
         X_test_lmse = X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
         
         #print(X_test_lmse)
-        y_pred_test_lstm = lstm_model.predict(X_test_lmse)
+        y_pred_test_lstm = self.lstm_model.predict(X_test_lmse)
         
         #print("The R2 score on the Test set is:\t{:0.3f}".format(r2_score(y_test, y_pred_test_lstm)))
         
-        lstm_test_mse = lstm_model.evaluate(X_test_lmse, y_test, batch_size=1)
+        lstm_test_mse = self.lstm_model.evaluate(X_test_lmse, y_test, batch_size=1)
        
         print('LSTM: %f'%lstm_test_mse)
         

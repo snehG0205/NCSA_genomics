@@ -21,8 +21,12 @@ from keras.layers import LSTM
 
 from scipy import stats
 
+from tabulate import tabulate
+pdtabulate=lambda df:tabulate(df,headers='keys')
 
 import random
+
+import dateutil.parser as dparser
 
 import warnings  
 warnings.filterwarnings('ignore')
@@ -33,34 +37,26 @@ class TimeSeriesForecast:
     def __init__(self):
         data = pd.read_csv("~/Desktop/NCSA_genomics/Data/data_hall.txt", sep="\t") #use your path
         #data.head()
-        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        data['time_gap'] = data['Display Time']- data['Display Time'].shift(1)
-        meta = pd.read_csv("~/Desktop/NCSA_genomics/Data/Hall_meta.csv") 
-        for subjectId, df in data.groupby('subjectId'):
-            print("==============================================================")
-            print("Subject ID: "+str(subjectId))
-            temp = meta[meta["ID"]==subjectId]
-            print("Status: "+str(temp["status"].values[0]))
-            #print(df)
-            #print(df['GlucoseValue'].describe())
-            #100*(len(df[df["time_gap"]>str("00:05:00")])/df['GlucoseValue'].count())
-            print("Length of the readings: "+str(df['GlucoseValue'].count()))
-            print("Max. Glucose value: "+str(df['GlucoseValue'].max()))
-            print("Min. Glucose value: "+str(df['GlucoseValue'].min()))
-            print("Mean Glucose value: "+str(round(df['GlucoseValue'].mean(),3)))
-            print("Missing Values: "+str(len(df[df["time_gap"]>str("00:05:00")])))
-            print("Percent of missing values: "+str(round(100*(len(df[df["time_gap"]>str("00:05:00")])/df['GlucoseValue'].count()),2))+"%")
-            #print(df['DisplayTime'])
-            print()
-            print("Days: "+str(df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]))
-        
+        #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+     
         #dropping columns we don't need
         
         
-        data.drop(['subjectId', 'Internal Time', 'time_gap'], axis=1, inplace=True)
+        data.drop(['subjectId', 'Internal Time'], axis=1, inplace=True)
         
         #Converting the Display Time to 'datetime' so that it can be used as an index
-        #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        length = data.shape[0]
+        length
+
+        # for i in range(0,length):
+        # 	s = str(data.iloc[i]['Display Time'])
+        # 	k=None
+        # 	k = ''.join(e for e in s if e.isalnum())
+        # 	z = dparser.parse(k,fuzzy=True)
+        # 	x = ""+str(z.year)+"-"+str(z.month)+"-"+str(z.day)+" "+str(z.hour)+":"+str(z.minute)+":"+str(z.second)
+        # 	data = data.replace(to_replace = s, value = x)
+
+        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
         data = data.set_index(['Display Time'], drop=True)
         #data.head()
         
@@ -98,6 +94,29 @@ class TimeSeriesForecast:
         early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
         history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
     
+    def dataDescribe(self):
+    	data = pd.read_csv("~/Desktop/NCSA_genomics/Data/data_hall.txt", sep="\t", engine="python") #use your path
+    	data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+    	data['time_gap'] = data['Display Time']- data['Display Time'].shift(1)
+    	meta = pd.read_csv("~/Desktop/NCSA_genomics/Data/Hall_meta.csv")
+    	data_description = pd.DataFrame()
+
+    	for subjectId, df in data.groupby('subjectId'):
+    		subj_id = str(subjectId)
+    		temp = meta[meta["ID"]==subjectId]
+    		status = str(temp["status"].values[0])
+    		l_of_r = str(df['GlucoseValue'].count())
+    		maxGV = str(df['GlucoseValue'].max())
+    		minGV = str(df['GlucoseValue'].min())
+    		meanGV = str(round(df['GlucoseValue'].mean(),3))
+    		miss_val = str(len(df[df["time_gap"]>str("00:05:00")]))
+    		P_miss_val = str(round(100*(len(df[df["time_gap"]>str("00:05:00")])/df['GlucoseValue'].count()),2))+"%"
+    		days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
+    		temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings:':[l_of_r], 'Max. Glucose Value':[maxGV], 'Mean Glucose Value':[meanGV], 'Missing Values':[miss_val], 'Percent of missing values':[P_miss_val], 'Days':[days]})
+    		data_description = pd.concat([temp_df,data_description],ignore_index=True)
+
+    	display(data_description)
+
 
     def testModel(self,test):
         """

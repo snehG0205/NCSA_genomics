@@ -1,0 +1,11 @@
+pandas
+numpy
+matplotlib
+sklearn
+keras
+scipy
+tabulate
+random
+re
+dateutil
+warnings

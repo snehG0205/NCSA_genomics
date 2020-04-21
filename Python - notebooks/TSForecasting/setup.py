@@ -15,4 +15,11 @@ author='Sneh',
 author_email='sneh.tools@gmail.com',
 license='MIT',
 packages=['TSForecasting'],
+include_package_data=True,
+ package_data={
+        # If any package contains *.txt files, include them:
+        "": ["*.txt","*.csv"]},
+install_requires=[
+          'pandas', 'numpy', 'matplotlib', 'sklearn', 'keras', 'scipy', 'tabulate', 'random', 're', 'dateutil', 'warnings'
+      ],
 zip_safe=False)

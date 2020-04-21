@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: TSForecasting
+Version: 0.1
+Summary: Package for TS imputations using LSTM
+Home-page: #
+Author: Sneh
+Author-email: sneh.tools@gmail.com
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN

@@ -41,12 +41,18 @@ class TimeSeriesForecast:
 
     def_testing = pd.read_csv(cwd+'/TSForecasting/Data/Hall_test.txt', sep=",")
 
+    hall_refined = pd.read_csv(cwd+'/TSForecasting/Data/Hall_data.csv')
+
+    hall_raw = pd.read_csv(cwd+'/TSForecasting/Data/data_hall_raw.csv')
+
+    hall_meta = pd.read_csv(cwd+'/TSForecasting/Data/Hall_meta.csv')
+
     def __init__(self):
         """
         The __init__ method initializes and trains the LSTM model on the embedded Hall Dataset
-        input:
+        Input:
             None
-        output:
+        Output:
             A trained model that can be used for imputations
         """
         data = pd.read_csv(self.cwd+'/TSForecasting/Data/Hall_data.csv') #use your path
@@ -110,12 +116,12 @@ class TimeSeriesForecast:
     def datePreprocess(self,data):
         """
         The datePreprocess method is used to preprocess the testing data
-        it indentifies the date and converts it to the standard datetime format
-        it also converts the Timestamp to the index
-        input:
-            data: dataset we wish to convert the timestamp of
-        output:
-            data: dataset with the converted timestamp
+        It indentifies the date and converts it to the standard datetime format
+        It also converts the Timestamp to the index
+        Input:
+            data: dataset we wish to convert the timestamp of {type: pandas DataFrame}
+        Output:
+            data: dataset with the converted timestamp {type: pandas DataFrame}
         """
         # data = data.reset_index()
         length = data.shape[0]
@@ -134,35 +140,11 @@ class TimeSeriesForecast:
     def train(self, data):
         """
         The train method is used to train the model on user supplied data
-        input:
-            data: dataset we want to train the model on
-        output:
-            A trained model that can be used for imputations
-        """
-		#use your path
-        #data.head()
-        #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-     
-        #dropping columns we don't need
-        
-        
-        
-        
-        #Converting the Display Time to 'datetime' so that it can be used as an index
-        # length = data.shape[0]
-        #length
-
-        # for i in range(0,length):
-        #     s = str(data.iloc[i]['Display Time'])
-        #     k = re.sub("[^0-9]", "", s)
-        #     datetimeObj = parse(k) 
-        #     data = data.replace(to_replace = s, value = datetimeObj)
-
-        # data['Timestamp'] = data['Timestamp'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        # data = data.set_index(['Timestamp'], drop=True)
-        #data.head()
-        
-        #train = data
+        Input:
+            data: dataset we want to train the model on {type: pandas DataFrame}
+        Output:
+            A model trained on the supplied data that can be used for imputations
+        """        
 
         data = self.datePreprocess(data)
 
@@ -199,137 +181,56 @@ class TimeSeriesForecast:
         history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=3, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
 
 
-    def dataDescribe(self):
+    def rawData(self):
         """
-        The dataDescribe method provides a statistical description of the data in the form of tables and graphs
+        The rawData method provides a statistical description of the raw Hall data in the form of tables and graphs
+        This raw data contains large gaps in the time series' of individuals
+        It is therefore preprocessed to trim the time series' with smaller gaps and split the time series' with larger gaps
         input:
-            data: The Hall dataset that is embedded in the package and used to pre train the model
+            None
         output:
-            A tabular and graphical representation of the statistical analysis of the Hall dataset
+            A tabular and graphical representation of the statistical analysis of the raw Hall dataset
             
         """
-        data = pd.read_csv(self.cwd+'/TSForecasting/Data/Hall_data.csv') #use your path
-        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        data['time_gap'] = data['Display Time']- data['Display Time'].shift(1)
-        meta = pd.read_csv(self.cwd+'/TSForecasting/Data/Hall_meta.csv')
-        data_description = pd.DataFrame()
-        
-        for subjectId, df in data.groupby('subjectId'):
-            subj_id = str(subjectId)
-            temp = meta[meta["ID"]==subjectId]
-            status = str(temp["status"].values[0])
-            l_of_r = df['GlucoseValue'].count()
-            maxGV = str(df['GlucoseValue'].max())
-            minGV = str(df['GlucoseValue'].min())
-            meanGV = round(df['GlucoseValue'].mean(),3)
-            miss_val = len(df[df["time_gap"]>str("00:05:10")])
-            P_miss_val = round(100*(len(df[df["time_gap"]>str("00:05:00")])/df['GlucoseValue'].count()),2)
-            days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
-            start_time = str(df['Display Time'].iloc[0])
-            end_time = str(df['Display Time'].iloc[-1])
-            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Mean Glucose Value':[meanGV], 'Missing Values':[miss_val], 'Percent of missing values':[P_miss_val], 'Days':[days],'Start':[start_time],'End':[end_time]})
-            data_description = pd.concat([temp_df,data_description],ignore_index=True)
+        # data = self.hall_raw #use your path
+        data = self.hall_raw #use your path
+        self.dataDescribe(data)
+
+
+    def processedData(self):
+        """
+        TThe processedData method provides a statistical description of the raw Hall data in the form of tables and graphs
+        This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
+        input:
+            None
+        output:
+            A tabular and graphical representation of the statistical analysis of the processed Hall dataset
             
-        display(data_description)
+        """
+        data = self.hall_refined #use your path
+        self.dataDescribe(data)
 
-        fig = plt.figure()
-        ax = fig.add_axes([0,0,1,1])
-        fig.set_size_inches(18.5, 10.5)
-        fig.suptitle('Length of the time series\' for all individuals' , fontsize=20)
-        plt.xlabel('Subject ID', fontsize=16)
-        plt.ylabel('Length of readings', fontsize=16)
-        plt.xticks(rotation='vertical')
-        ax.bar(data_description['Subject ID'].tolist(),data_description['Length of readings'].tolist())
-        plt.show()
-        
-        days = []
-        for i in data_description['Days']:
-            days.append(i.days)
+    
+    def plotSpecific(self,uid):
+        """
+        The plotSpecific method plots the graph of the Glucose Values of a single Subject ID
+        Input:
+            uid: Subject ID of the user to plot {type: String}
+        Output:
+            A plot of the Subject ID's Glucose Values
+        """
+        data = self.hall_refined
+        new = data[data['subjectId']==str(uid)]
+        new = new.astype({'GlucoseValue':int})
+        plt.figure(figsize=(20, 8))
 
-        fig = plt.figure()
-        ax = fig.add_axes([0,0,1,1])
-        fig.set_size_inches(18.5, 10.5)
-        fig.suptitle('Days in time series\' for all individuals' , fontsize=20)
-        plt.xlabel('Subject ID', fontsize=16)
-        plt.ylabel('Days', fontsize=16)
-        plt.xticks(rotation='vertical')
-        ax.bar(data_description['Subject ID'].tolist(),days)
-        plt.show()
+        plt.plot(new['GlucoseValue'], label='True', color='#2280f2', linewidth=2.5)
 
-        #data_description['Percent of missing values'] = pd.to_numeric(data_description['Percent of missing values'])
-        fig = plt.figure()
-        ax = fig.add_axes([0,0,1,1])
-        fig.set_size_inches(18.5, 10.5)
-        fig.suptitle('Percent of missing values for all individuals' , fontsize=20)
-        plt.xlabel('Subject ID', fontsize=16)
-        plt.ylabel('Percent of missing values', fontsize=16)
-        plt.xticks(rotation='vertical')
-        ax.bar(data_description['Subject ID'].tolist(),data_description['Percent of missing values'].tolist())
-        plt.show()
+        plt.title("Glucose Values of "+str(uid))
 
-        #data_description['Missing Values'] = pd.to_numeric(data_description['Missing Values'])
-        fig = plt.figure()
-        ax = fig.add_axes([0,0,1,1])
-        fig.set_size_inches(18.5, 10.5)
-        fig.suptitle('Missing Values for all individuals' , fontsize=20)
-        plt.xlabel('Subject ID', fontsize=16)
-        plt.ylabel('Missing Values', fontsize=16)
-        plt.xticks(rotation='vertical')
-        ax.bar(data_description['Subject ID'].tolist(),data_description['Missing Values'].tolist())
-        plt.show()
-
-
-        #data_description['Mean Glucose Value'] = pd.to_numeric(data_description['Mean Glucose Value'])
-        fig = plt.figure()
-        ax = fig.add_axes([0,0,1,1])
-        fig.set_size_inches(18.5, 10.5)
-        fig.suptitle('Mean Glucose Value for all individuals' , fontsize=20)
-        plt.xlabel('Subject ID', fontsize=16)
-        plt.ylabel('Mean Glucose Value', fontsize=16)
-        plt.xticks(rotation='vertical')
-        ax.bar(data_description['Subject ID'].tolist(),data_description['Mean Glucose Value'].tolist())
-        plt.show()
-
-        fig = plt.figure()
-        fig.set_size_inches(42, 42)
-
-        plt.subplot(3, 2, 1)
-        plt.title('Length of the time series\' for all individuals' , fontsize=16)
-        plt.xlabel('Subject ID', fontsize=12)
-        plt.ylabel('Missing Values', fontsize=12)
-        plt.xticks(rotation='vertical')
-        plt.bar(data_description['Subject ID'].tolist(),data_description['Missing Values'].tolist())
-
-        plt.subplot(3, 2, 2)
-        plt.title('Days in time series\' for all individuals' , fontsize=16)
-        plt.xlabel('Subject ID', fontsize=12)
-        plt.ylabel('Days', fontsize=12)
-        plt.xticks(rotation='vertical')
-        plt.bar(data_description['Subject ID'].tolist(),days)
-
-        plt.subplot(3, 2, 3)
-        plt.title('Percent of missing values for all individuals' , fontsize=16)
-        plt.xlabel('Subject ID', fontsize=12)
-        plt.ylabel('Percent of missing values', fontsize=12)
-        plt.xticks(rotation='vertical')
-        plt.bar(data_description['Subject ID'].tolist(),data_description['Percent of missing values'].tolist())
-
-        plt.subplot(3, 2, 4)
-        plt.title('Missing Values for all individuals' , fontsize=16)
-        plt.xlabel('Subject ID', fontsize=12)
-        plt.ylabel('Missing Values', fontsize=12)
-        plt.xticks(rotation='vertical')
-        plt.bar(data_description['Subject ID'].tolist(),data_description['Missing Values'].tolist())
-
-        plt.subplot(3, 2, 5)
-        plt.title('Mean Glucose Value for all individuals' , fontsize=16)
-        plt.xlabel('Subject ID', fontsize=12)
-        plt.ylabel('Mean Glucose Value', fontsize=12)
-        plt.xticks(rotation='vertical')
-        plt.bar(data_description['Subject ID'].tolist(),data_description['Mean Glucose Value'].tolist())
-
-
-        plt.show()
+        plt.xlabel('Observation')
+        plt.ylabel('Glucose Values')
+        plt.show();
 
             
     def impute(self,test_data=def_testing):
@@ -384,6 +285,92 @@ class TimeSeriesForecast:
         test_data.to_csv(self.cwd+"/TSForecasting/Data/ImputedValues.csv") 
         print("File saved!")
         self.plot(test_data)
+
+
+#==================================================================================================================
+    def dataDescribe(self,data):
+        
+        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        print("Here is a glimpse of the data:\n")
+        print(data.head())
+        
+        meta = self.hall_meta
+        data_description = pd.DataFrame()
+        
+        for subjectId, df in data.groupby('subjectId'):
+            df['time_gap'] = df['Display Time']- df['Display Time'].shift(1)
+            subj_id = str(subjectId)
+            temp = meta[meta["ID"]==subj_id]
+            status = str(temp["status"].values[0])
+            l_of_r = df['GlucoseValue'].count()
+            maxGV = str(df['GlucoseValue'].max())
+            minGV = str(df['GlucoseValue'].min())
+            gap_size = df[df['time_gap']>str("00:05:10")]
+            gap_size = max(gap_size.time_gap)
+            miss_val = len(df[df["time_gap"]>str("00:05:10")])
+            P_miss_val = round(100*(len(df[df["time_gap"]>str("00:05:10")])/df['GlucoseValue'].count()),2)
+            days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
+            start_time = str(df['Display Time'].iloc[0])
+            end_time = str(df['Display Time'].iloc[-1])
+            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'Gapsize':[gap_size], 'Missing Values':[miss_val], 'Percent of missing values':[P_miss_val], 'Days':[days],'Start':[start_time],'End':[end_time]})
+            data_description = pd.concat([temp_df,data_description],ignore_index=True)
+
+        temp = None
+            
+        display(data_description)
+
+        display(data_description.describe())
+        
+        days = []
+        for i in data_description['Days']:
+            days.append(i.days)
+
+        gaps = []
+        for i in data_description['Gapsize']:
+            gaps.append(i.days)
+
+
+        fig = plt.figure()
+        fig.set_size_inches(42, 42)
+
+        plt.subplot(3, 2, 1)
+        plt.title('Length of the time series\' for all individuals' , fontsize=16)
+        plt.xlabel('Length', fontsize=12)
+        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.xticks(rotation='vertical')
+        plt.hist(data_description['Length of readings'].tolist())
+
+        plt.subplot(3, 2, 2)
+        plt.title('Days in time series\' for all individuals' , fontsize=16)
+        plt.xlabel('Days', fontsize=12)
+        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.xticks(rotation='vertical')
+        plt.hist(days)
+
+        plt.subplot(3, 2, 3)
+        plt.title('Percent of missing values for all individuals' , fontsize=16)
+        plt.xlabel('Percent of missing values', fontsize=12)
+        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.xticks(rotation='vertical')
+        plt.hist(data_description['Percent of missing values'].tolist())
+
+        plt.subplot(3, 2, 4)
+        plt.title('Missing Values for all individuals' , fontsize=16)
+        plt.xlabel('Missing Values', fontsize=12)
+        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.xticks(rotation='vertical')
+        plt.hist(data_description['Missing Values'].tolist())
+
+        plt.subplot(3, 2, 5)
+        plt.title('Gaps in time series\' for all individuals' , fontsize=16)
+        plt.xlabel('Gaps (in days)', fontsize=12)
+        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.xticks(rotation='vertical')
+        plt.hist(gaps)
+        plt.show()
+
+
+        plt.show()
 
 
     def plot(self, data):
@@ -544,70 +531,5 @@ class TimeSeriesForecast:
         mape_val = self.mape(lstm_pred,test_val)
         print("Mean Absolute Percentage Error is: " + str(round(mape_val)))
         
-    
-    def createGap(self, data):
-        """
-        Creating Gap indexes
-        input:
-            data: dataframe with index => DisplayTime value => GlucoseValues
-        output:
-            start: seed
-            end: seed+gap (gap=300)
-        """
-        
-        seed = random.randint(500,len(data)-500)
-        
-        return seed,seed+500
-    
-    
-    def faultyData(self, df,start,end):
-        """
-        Creating a Gap
-        input:
-            start: seed
-            end: seed+gap (gap=300)
-        output:
-            df: dataframe with index => DisplayTime value => GlucoseValues and a gap from start to end (inputs)
-        """
-        
-        #df = readData()
-        for i in range(start,end):
-            df[df.columns[0]][i]=0
-        
-        return df
-    
 
-# =============================================================================
-# def summaryPlot(p1,t1,p2,t2,p3,t3):
-#     
-#     plt.figure(figsize=(20, 20))
-# 
-#     plt.subplot(3, 1, 1)
-#     plt.plot(p1, label='LSTM', color='red', linewidth=2)
-#     plt.plot(t1, label='True', color='#2280f2', linewidth=2.5)
-#     plt.xlabel('Observation')
-#     plt.ylabel('Glucose Values')
-#     plt.title("Diabetic - 1")
-#     plt.legend()
-#     
-#     
-#     plt.subplot(3, 1, 2)
-#     plt.plot(p2, label='LSTM', color='red', linewidth=2)
-#     plt.plot(t2, label='True', color='#2280f2', linewidth=2.5)
-#     plt.xlabel('Observation')
-#     plt.ylabel('Glucose Values')
-#     plt.title("Prediabetic")
-#     plt.legend()
-#     
-#     plt.subplot(3, 1, 3)
-#     plt.plot(p3, label='LSTM', color='red', linewidth=2)
-#     plt.plot(t3, label='True', color='#2280f2', linewidth=2.5)
-#     plt.xlabel('Observation')
-#     plt.ylabel('Glucose Values')
-#     plt.title("Nondiabetic")
-#     plt.legend()
-#     
-#     
-#     plt.show();
-# =============================================================================
     

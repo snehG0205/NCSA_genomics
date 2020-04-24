@@ -1,5 +1,6 @@
 ﻿ID,status,class
-1636-69-001,NA,3
+1636-69-001,diabetic,2
+1636-69-001-2,diabetic,2
 1636-69-026,pre-diabetic,1
 1636-69-028,non-diabetic,0
 1636-69-032,pre-diabetic,1
@@ -13,6 +14,7 @@
 1636-69-091,diabetic,2
 1636-69-100,non-diabetic,0
 1636-69-104,non-diabetic,0
+1636-69-104-2,non-diabetic,0
 1636-69-107,non-diabetic,0
 1636-69-111,non-diabetic,0
 1636-69-114,pre-diabetic,1
@@ -38,6 +40,7 @@
 2133-017,pre-diabetic,1
 2133-018,diabetic,2
 2133-019,pre-diabetic,1
+2133-019-2,pre-diabetic,1
 2133-020,non-diabetic,0
 2133-021,pre-diabetic,1
 2133-022,non-diabetic,0

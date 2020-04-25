@@ -1,4 +1,4 @@
-Timestamp,GlucoseValue
+Display Time,GlucoseValue
 2015-11-24 00:37:00,123
 2015-11-24 00:42:00,122
 2015-11-24 00:47:00,119

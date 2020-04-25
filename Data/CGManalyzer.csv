@@ -1,4 +1,4 @@
-﻿ID,timeStamp,glucoseValue
+﻿subjectId,Display Time,GlucoseValue
 ID01,2016:06:25:09:14,6
 ID01,2016:06:25:09:17,6
 ID01,2016:06:25:09:20,6

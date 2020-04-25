@@ -64,15 +64,6 @@ class TimeSeriesForecast:
         
         data.drop(['subjectId'], axis=1, inplace=True)
         
-        #Converting the Display Time to 'datetime' so that it can be used as an index
-        length = data.shape[0]
-        length
-
-        # for i in range(0,length):
-        #     s = str(data.iloc[i]['Display Time'])
-        #     k = re.sub("[^0-9]", "", s)
-        #     datetimeObj = parse(k) 
-        #     data = data.replace(to_replace = s, value = datetimeObj)
 
         data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
         data = data.set_index(['Display Time'], drop=True)
@@ -110,7 +101,7 @@ class TimeSeriesForecast:
         self.lstm_model.add(Dense(1))
         self.lstm_model.compile(loss='mean_squared_error', optimizer='adam')
         early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
-        history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=3, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
+        history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
    
     
     def datePreprocess(self,data):
@@ -127,12 +118,12 @@ class TimeSeriesForecast:
         length = data.shape[0]
         for i in range(0,length):
             #print(i)
-            s = str(data.iloc[i]['Timestamp'])
+            s = str(data.iloc[i]['Display Time'])
             k = re.sub("[^0-9]", "", s)
             datetimeObj = parse(k) 
             data = data.replace(to_replace = s, value = datetimeObj)
         
-        data = data.set_index(['Timestamp'], drop=True)
+        data = data.set_index(['Display Time'], drop=True)
         
         return(data)
 
@@ -145,6 +136,11 @@ class TimeSeriesForecast:
         Output:
             A model trained on the supplied data that can be used for imputations
         """        
+        data.drop(['subjectId'], axis=1, inplace=True)
+        
+
+        # data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        # data = data.set_index(['Display Time'], drop=True)
 
         data = self.datePreprocess(data)
 
@@ -178,7 +174,7 @@ class TimeSeriesForecast:
         self.lstm_model.add(Dense(1))
         self.lstm_model.compile(loss='mean_squared_error', optimizer='adam')
         early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
-        history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=3, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
+        history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
 
 
     def rawData(self):
@@ -224,7 +220,7 @@ class TimeSeriesForecast:
         new = new.astype({'GlucoseValue':int})
         plt.figure(figsize=(20, 8))
 
-        plt.plot(new['GlucoseValue'], label='True', color='#2280f2', linewidth=2.5)
+        plt.plot(new['Display Time'],new['GlucoseValue'], label='True', color='#2280f2', linewidth=2.5)
 
         plt.title("Glucose Values of "+str(uid))
 
@@ -293,7 +289,7 @@ class TimeSeriesForecast:
         data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
         print("Here is a glimpse of the data:\n")
         print(data.head())
-        
+        print("\n\n\n")
         meta = self.hall_meta
         data_description = pd.DataFrame()
         
@@ -316,11 +312,15 @@ class TimeSeriesForecast:
             data_description = pd.concat([temp_df,data_description],ignore_index=True)
 
         temp = None
-            
-        display(data_description)
+
+
 
         display(data_description.describe())
-        
+
+        print("Here is the statistical analysis of the data:\n")
+        display(data_description)
+        print("\n\n")
+
         days = []
         for i in data_description['Days']:
             days.append(i.days)
@@ -331,7 +331,8 @@ class TimeSeriesForecast:
 
 
         fig = plt.figure()
-        fig.set_size_inches(42, 42)
+        fig.set_size_inches(36, 36)
+        fig.suptitle("Graphical Analysis of data")
 
         plt.subplot(3, 2, 1)
         plt.title('Length of the time series\' for all individuals' , fontsize=16)

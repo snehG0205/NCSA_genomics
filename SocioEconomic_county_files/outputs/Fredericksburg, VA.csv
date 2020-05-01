@@ -1,0 +1,25 @@
+YEAR,Areaname,STCOU,Median_Household_Income,Poverty_number_of_people,Poverty_percent_of_people,Public_school_enrollment_Fall
+1995-01-01,"Fredericksburg, VA",51630,33262,2907,15.7,2079
+1997-01-01,"Fredericksburg, VA",51630,35484,3046,17.8,2217
+1998-01-01,"Fredericksburg, VA",51630,37357,2410,14.1,2139
+1999-01-01,"Fredericksburg, VA",51630,35502,2192,12.7,2206
+2000-01-01,"Fredericksburg, VA",51630,37137,2267,12.8,2180
+2001-01-01,"Fredericksburg, VA",51630,37695,2247,12.6,2088
+2002-01-01,"Fredericksburg, VA",51630,38551,2476,13.7,2143
+2003-01-01,"Fredericksburg, VA",51630,36499,2577,14.1,2282
+2004-01-01,"Fredericksburg, VA",51630,37406,2630,14.4,2450
+2005-01-01,"Fredericksburg, VA",51630,38314,3050,17.0,2473
+2006-01-01,"Fredericksburg, VA",51630,41823,2783,14.9,2496
+2007-01-01,"Fredericksburg, VA",51630,42954,2585,13.0,2536
+2008-01-01,"Fredericksburg, VA",51630,45620,3118,15.4,2760
+2009-01-01,"Fredericksburg, VA",51630,44211,3581,17.3,2842
+2010-01-01,"Fredericksburg, VA",51630,46288,4109,20.0,3056
+2011-01-01,"Fredericksburg, VA",51630,48733,4260,20.0,3213
+2012-01-01,"Fredericksburg, VA",51630,51104,4496,21.0,3389
+2013-01-01,"Fredericksburg, VA",51630,53653,4898,22.0,3611
+2014-01-01,"Fredericksburg, VA",51630,56625,5398,24.0,3876
+2015-01-01,"Fredericksburg, VA",51630,60106,5960,26.0,4179
+2016-01-01,"Fredericksburg, VA",51630,64132,6592,28.0,4527
+2017-01-01,"Fredericksburg, VA",51630,68765,7319,31.0,4927
+2018-01-01,"Fredericksburg, VA",51630,74101,8160,34.0,5388
+2019-01-01,"Fredericksburg, VA",51630,80251,9130,38.0,5921

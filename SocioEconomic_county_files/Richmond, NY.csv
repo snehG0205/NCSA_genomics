@@ -1,0 +1,15 @@
+YEAR,Areaname,STCOU,Median_Household_Income,Poverty_number_of_people,Poverty_percent_of_people,Public_school_enrollment_Fall
+1995,"Richmond, NY",36085,48489,36851,9.2,0
+1997,"Richmond, NY",36085,51141,39492,9.7,0
+1998,"Richmond, NY",36085,51794,39544,9.5,0
+1999,"Richmond, NY",36085,51096,40374,9.1,0
+2000,"Richmond, NY",36085,54057,39677,8.9,0
+2001,"Richmond, NY",36085,51967,41001,9.1,0
+2002,"Richmond, NY",36085,52987,42569,9.3,0
+2003,"Richmond, NY",36085,54252,46296,10.1,0
+2004,"Richmond, NY",36085,56519,46990,10.2,0
+2005,"Richmond, NY",36085,62279,49690,10.9,0
+2006,"Richmond, NY",36085,67290,45119,9.6,0
+2007,"Richmond, NY",36085,66384,47753,10.1,57098
+2008,"Richmond, NY",36085,72557,49544,10.3,57783
+2009,"Richmond, NY",36085,65388,55407,11.4,58211

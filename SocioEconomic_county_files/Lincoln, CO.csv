@@ -1,0 +1,15 @@
+YEAR,Areaname,STCOU,Median_Household_Income,Poverty_number_of_people,Poverty_percent_of_people,Public_school_enrollment_Fall
+1995,"Lincoln, CO",8073,29498,746,16.1,877
+1997,"Lincoln, CO",8073,29117,823,17.4,952
+1998,"Lincoln, CO",8073,30380,819,17.4,996
+1999,"Lincoln, CO",8073,31337,658,13.0,981
+2000,"Lincoln, CO",8073,33205,743,15.3,1053
+2001,"Lincoln, CO",8073,31848,772,15.9,1038
+2002,"Lincoln, CO",8073,30160,806,16.6,1001
+2003,"Lincoln, CO",8073,31078,709,15.1,984
+2004,"Lincoln, CO",8073,31574,717,15.7,953
+2005,"Lincoln, CO",8073,34960,822,18.0,942
+2006,"Lincoln, CO",8073,35524,787,17.9,956
+2007,"Lincoln, CO",8073,36252,747,17.5,952
+2008,"Lincoln, CO",8073,40384,711,16.8,937
+2009,"Lincoln, CO",8073,37439,686,16.7,933

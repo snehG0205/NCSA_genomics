@@ -1,0 +1,15 @@
+YEAR,Areaname,STCOU,Median_Household_Income,Poverty_number_of_people,Poverty_percent_of_people,Public_school_enrollment_Fall
+1995,"Jackson, CO",8057,27647,164,10.7,333
+1997,"Jackson, CO",8057,29031,206,13.3,327
+1998,"Jackson, CO",8057,30052,226,14.4,316
+1999,"Jackson, CO",8057,31223,230,14.6,327
+2000,"Jackson, CO",8057,33178,223,14.5,306
+2001,"Jackson, CO",8057,32074,204,13.4,309
+2002,"Jackson, CO",8057,31369,205,13.6,304
+2003,"Jackson, CO",8057,31967,189,13.1,301
+2004,"Jackson, CO",8057,33476,173,12.0,279
+2005,"Jackson, CO",8057,34281,198,13.8,263
+2006,"Jackson, CO",8057,36073,225,16.1,245
+2007,"Jackson, CO",8057,39007,195,14.2,248
+2008,"Jackson, CO",8057,40413,208,15.6,218
+2009,"Jackson, CO",8057,41337,204,15.0,232

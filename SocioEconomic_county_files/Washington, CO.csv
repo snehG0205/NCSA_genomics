@@ -1,0 +1,15 @@
+YEAR,Areaname,STCOU,Median_Household_Income,Poverty_number_of_people,Poverty_percent_of_people,Public_school_enrollment_Fall
+1995,"Washington, CO",8121,26978,628,13.3,1016
+1997,"Washington, CO",8121,29870,560,12.2,1060
+1998,"Washington, CO",8121,31397,574,13.2,1064
+1999,"Washington, CO",8121,32279,536,10.9,1064
+2000,"Washington, CO",8121,33193,574,11.9,1022
+2001,"Washington, CO",8121,32923,553,11.5,1025
+2002,"Washington, CO",8121,30079,581,12.1,991
+2003,"Washington, CO",8121,30894,498,10.8,959
+2004,"Washington, CO",8121,32344,476,10.3,955
+2005,"Washington, CO",8121,39779,554,12.1,938
+2006,"Washington, CO",8121,34115,594,13.0,961
+2007,"Washington, CO",8121,38149,589,13.4,982
+2008,"Washington, CO",8121,38982,531,12.4,909
+2009,"Washington, CO",8121,40778,506,12.1,905

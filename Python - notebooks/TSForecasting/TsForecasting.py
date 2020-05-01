@@ -39,13 +39,19 @@ class TimeSeriesForecast:
     
     cwd = os.getcwd()
 
-    def_testing = pd.read_csv(cwd+'/TSForecasting/Data/Hall_test.txt', sep=",")
+    def_testing = pd.read_csv(cwd+'/TSForecasting/Data/test/generated_test.txt', sep=",")
 
-    hall_refined = pd.read_csv(cwd+'/TSForecasting/Data/Hall_data.csv')
+    hall_refined = pd.read_csv(cwd+'/TSForecasting/Data/Hall/Hall_data.csv')
 
-    hall_raw = pd.read_csv(cwd+'/TSForecasting/Data/data_hall_raw.csv')
+    hall_raw = pd.read_csv(cwd+'/TSForecasting/Data/Hall/data_hall_raw.csv')
 
-    hall_meta = pd.read_csv(cwd+'/TSForecasting/Data/Hall_meta.csv')
+    hall_meta = pd.read_csv(cwd+'/TSForecasting/Data/Hall/Hall_meta.csv')
+
+    cgm_appended = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGM_Analyzer_Appended.csv')
+
+    cgm_original = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGManalyzer.csv')
+
+    cgm_meta = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGM-meta.csv')
 
     def __init__(self):
         """
@@ -55,7 +61,7 @@ class TimeSeriesForecast:
         Output:
             A trained model that can be used for imputations
         """
-        data = pd.read_csv(self.cwd+'/TSForecasting/Data/Hall_data.csv') #use your path
+        data = pd.read_csv(self.cwd+'/TSForecasting/Data/CGM/CGManalyzer.csv') #use your path
         #data.head()
         #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
      
@@ -103,6 +109,7 @@ class TimeSeriesForecast:
         early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
         history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
    
+
     
     def datePreprocess(self,data):
         """
@@ -128,7 +135,7 @@ class TimeSeriesForecast:
         return(data)
 
 
-    def train(self, data):
+    def train(self, data = cgm_original):
         """
         The train method is used to train the model on user supplied data
         Input:
@@ -139,10 +146,10 @@ class TimeSeriesForecast:
         data.drop(['subjectId'], axis=1, inplace=True)
         
 
-        # data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        # data = data.set_index(['Display Time'], drop=True)
+        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        data = data.set_index(['Display Time'], drop=True)
 
-        data = self.datePreprocess(data)
+        # data = self.datePreprocess(data)
 
         scaler = MinMaxScaler(feature_range=(0, 1))
         train_sc = scaler.fit_transform(data)
@@ -190,12 +197,12 @@ class TimeSeriesForecast:
         """
         # data = self.hall_raw #use your path
         data = self.hall_raw #use your path
-        self.dataDescribe(data)
+        self.clusteringDataDescribe(data)
 
 
     def processedData(self):
         """
-        TThe processedData method provides a statistical description of the raw Hall data in the form of tables and graphs
+        The processedData method provides a statistical description of the cleaned Hall data in the form of tables and graphs
         This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
         input:
             None
@@ -204,18 +211,19 @@ class TimeSeriesForecast:
             
         """
         data = self.hall_refined #use your path
-        self.dataDescribe(data)
+        self.clusteringDataDescribe(data)
 
     
-    def plotSpecific(self,uid):
+    def plotSpecific(self,uid,data=cgm_original):
         """
         The plotSpecific method plots the graph of the Glucose Values of a single Subject ID
         Input:
             uid: Subject ID of the user to plot {type: String}
+            data: dataset {type: DataFrame}
         Output:
             A plot of the Subject ID's Glucose Values
         """
-        data = self.hall_refined
+        # data = self.cgm_original
         new = data[data['subjectId']==str(uid)]
         new = new.astype({'GlucoseValue':int})
         plt.figure(figsize=(20, 8))
@@ -278,13 +286,84 @@ class TimeSeriesForecast:
         for i in range(b-1,e):
             test_data['GlucoseValue'][i] = lstm_pred[x]
             x+=1
-        test_data.to_csv(self.cwd+"/TSForecasting/Data/ImputedValues.csv") 
+        test_data.to_csv(self.cwd+"/TSForecasting/Data/Output/ImputedValues.csv") 
         print("File saved!")
         self.plot(test_data)
 
 
+    def dataDescribe(self, data = cgm_original, meta = cgm_meta):
+        """
+        The dataDescribe method provides a statistical description of the CGM Analyzer data in the form of tables and graphs
+        This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
+        input:
+            data: CGM Analyzer data {DataFrame}
+            meta: CGM Analyzer data metadata{DataFrame}
+        output:
+            A tabular and graphical representation of the statistical analysis of the processed Hall dataset
+            
+        """
+        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        print("Here is a glimpse of the data:\n")
+        print(data.head())
+        print("\n\n\n")
+        
+        data_description = pd.DataFrame()
+        
+        for subjectId, df in data.groupby('subjectId'):
+            df['time_gap'] = df['Display Time']- df['Display Time'].shift(1)
+            subj_id = str(subjectId)
+            temp = meta[meta["ID"]==subj_id]
+            status = str(temp["status"].values[0])
+            l_of_r = df['GlucoseValue'].count()
+            maxGV = round(df['GlucoseValue'].max(),2)
+            minGV = round(df['GlucoseValue'].min(),2)
+            # gap_size = df[df['time_gap']>str("00:03:10")]
+            # gap_size = max(gap_size.time_gap)
+            days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
+            start_time = str(df['Display Time'].iloc[0])
+            end_time = str(df['Display Time'].iloc[-1])
+            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV],  'Days':[days],'Start':[start_time],'End':[end_time]})
+            data_description = pd.concat([temp_df,data_description],ignore_index=True)
+
+        temp = None
+
+
+
+        display(data_description.describe())
+
+        print("Here is the statistical analysis of the data:\n")
+        display(data_description)
+        print("\n\n")
+
+        days = []
+        for i in data_description['Days']:
+            days.append(i.days)
+
+
+        fig = plt.figure()
+        fig.set_size_inches(36, 36)
+        fig.suptitle("Graphical Analysis of data")
+
+        plt.subplot(2, 1, 1)
+        plt.title('Length of the time series\' for all individuals' , fontsize=16)
+        plt.xlabel('Length', fontsize=12)
+        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.xticks(rotation='vertical')
+        plt.hist(data_description['Length of readings'].tolist())
+
+        plt.subplot(2, 1, 2)
+        plt.title('Days in time series\' for all individuals' , fontsize=16)
+        plt.xlabel('Days', fontsize=12)
+        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.xticks(rotation='vertical')
+        plt.hist(days)
+
+
+        plt.show()
+
+
 #==================================================================================================================
-    def dataDescribe(self,data):
+    def clusteringDataDescribe(self,data):
         
         data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
         print("Here is a glimpse of the data:\n")
@@ -372,7 +451,6 @@ class TimeSeriesForecast:
 
 
         plt.show()
-
 
     def plot(self, data):
         """

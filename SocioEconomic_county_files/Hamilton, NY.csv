@@ -1,0 +1,15 @@
+YEAR,Areaname,STCOU,Median_Household_Income,Poverty_number_of_people,Poverty_percent_of_people,Public_school_enrollment_Fall
+1995,"Hamilton, NY",36041,28543,523,9.9,740
+1997,"Hamilton, NY",36041,31015,572,11.0,721
+1998,"Hamilton, NY",36041,32165,596,11.4,702
+1999,"Hamilton, NY",36041,32233,530,9.8,712
+2000,"Hamilton, NY",36041,33742,502,9.4,713
+2001,"Hamilton, NY",36041,33510,476,9.0,674
+2002,"Hamilton, NY",36041,34312,454,8.5,698
+2003,"Hamilton, NY",36041,34949,500,9.5,676
+2004,"Hamilton, NY",36041,36503,478,9.1,623
+2005,"Hamilton, NY",36041,36403,537,10.5,573
+2006,"Hamilton, NY",36041,39556,497,9.7,598
+2007,"Hamilton, NY",36041,42188,665,13.1,572
+2008,"Hamilton, NY",36041,41882,526,10.5,542
+2009,"Hamilton, NY",36041,43331,523,10.6,552

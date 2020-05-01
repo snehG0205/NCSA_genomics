@@ -1,0 +1,15 @@
+YEAR,Areaname,STCOU,Median_Household_Income,Poverty_number_of_people,Poverty_percent_of_people,Public_school_enrollment_Fall
+1995,"Buffalo, SD",46017,18377,751,40.8,0
+1997,"Buffalo, SD",46017,18444,690,38.9,0
+1998,"Buffalo, SD",46017,16793,710,39.0,0
+1999,"Buffalo, SD",46017,15531,650,31.9,0
+2000,"Buffalo, SD",46017,15231,713,35.3,0
+2001,"Buffalo, SD",46017,15330,612,30.5,1385
+2002,"Buffalo, SD",46017,15025,637,31.8,1375
+2003,"Buffalo, SD",46017,17003,626,30.0,1301
+2004,"Buffalo, SD",46017,17787,665,31.6,0
+2005,"Buffalo, SD",46017,16868,810,39.3,0
+2006,"Buffalo, SD",46017,16986,895,42.8,0
+2007,"Buffalo, SD",46017,17488,1055,50.3,0
+2008,"Buffalo, SD",46017,19182,801,37.7,0
+2009,"Buffalo, SD",46017,18860,893,43.6,0

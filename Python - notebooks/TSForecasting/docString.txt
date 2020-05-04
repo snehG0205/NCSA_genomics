@@ -1,0 +1,67 @@
++-------------------------------------------------------------------------------------------------------------------+
+| 	Method Name 	|				Description				|			Input			|			Output			|
++-------------------------------------------------------------------------------------------------------------------+	
+|		init		|	The __init__ method initializes	and |			None			|	A trained model that 	|
+|					|	trains the LSTM model on the 		|							|	can be used for			|
+|					|	embedded Hall Dataset 				|							|	imputations 			|
+|					|										|							|							|
++-------------------------------------------------------------------------------------------------------------------+
+|	datePreprocess	|	The datePreprocess method is used	|	data: dataset we wish	|	data: dataset with the 	|
+|					|	to preprocess the testing data.		|	to convert the time - 	|	converted timestamp		|
+|					|	It identifies the date and converts |	stamp of {type: 		|							|
+|					|	it to the standard datetime format.	|	dataframe}				|							|
+|					|	It also converts the Timestamp 		|							|							|
+|					|	to the index 						|							|							|
+|					|										|							|							|
++-------------------------------------------------------------------------------------------------------------------+
+|		train		|	The train method is used to train	|	data: dataset we want 	|	A trained model that	|
+|					|	the model on user supplied data 	|	to train the model on	|	can be used for 		|
+|					|	 									|							|	imputations				|
+|					|										|							|							|
++-------------------------------------------------------------------------------------------------------------------+
+|		impute		|	The impute method performs the		|	test: dataset {type:	|	A file with imputed 	|
+|					|	imputations using the trained LSTM 	|	dataframe}			 	|	values				 	|
+|					|	model 								|	lstm_model: trainied 	|							|
+|					|										|	lstm model				|							|
+|					|	 									|							|							|
++-------------------------------------------------------------------------------------------------------------------+
+|	plotSpecific	|	The plotSpecific method plots the	|	uid: Subject ID of the 	|	A plot of the patient's	|
+|					|	graph of the Glucose Values of a 	|	user to plot {type:		|	Glucose values 			|
+|					|	single patient 						|	String}					|							|
+|					|										|	data: dataset {tye: 	|							|
+|					|										|	DataFrame}				|							|
+|					|										|							|							|
++-------------------------------------------------------------------------------------------------------------------+
+|	dataDescribe	|	The dataDescribe method provides &	|	data: CGM Analyzer data	|	A tabular and graphical |
+|					|	statistical description of the CGM 	|	{tye: DataFrame}	 	|	representation of the	|
+|					|	Analyzer data in the form of tables	|	meta: CGM Analyzer data |	statistical analysis of	|
+|					|	and graphs. This processed data has |	metadata {type: 		|	the CGM Anayzer dataset	|
+|					|	large gaps removed in the time 		|	DataFrame}				|							|
+|					|	series' of individuals by trim the 	|							|							|
+|					|	time series' with smaller gaps and	|							|							|
+|					|	split the time series' with larger 	|							|							|
+|					|	gaps  								|							|							|
+|					|	 									|							|							|
++-------------------------------------------------------------------------------------------------------------------+
+|		rawData		|	The rawData method provides a 		|			None			|	A tabular and graphical |
+|					|	statistical description of the raw 	|		 					|	representation of the	|
+|					|	HALL data in the form of tables		|	 						|	statistical analysis of	|
+|					|	and graphs. This raw data large 	|	 						|	the HALL dataset		|
+|					|	gaps in the time series' of 		|							|							|
+|					|	patients It is therefore 	 		|							|							|
+|					|	preprocessed to trim the time		|							|							|
+|					|	series' with smaller gaps & split 	|							|							|
+|					|	the time series' with larger gaps  	|							|							|
+|					|	 									|							|							|
++-------------------------------------------------------------------------------------------------------------------+
+|	processedData	|	The processedData method provides &	|			None			|	A tabular and graphical |
+|					|	statistical description of the CGM 	|		 					|	representation of the	|
+|					|	Analyzer data in the form of tables	|	 						|	statistical analysis of	|
+|					|	and graphs. This processed data has |	 						|	the HALL dataset		|
+|					|	large gaps removed in the time 		|							|							|
+|					|	series' of individuals by trim the 	|							|							|
+|					|	time series' with smaller gaps and	|							|							|
+|					|	split the time series' with larger 	|							|							|
+|					|	gaps  								|							|							|
+|					|	 									|							|							|
++-------------------------------------------------------------------------------------------------------------------+

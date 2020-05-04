@@ -18,11 +18,10 @@ from keras.callbacks import EarlyStopping
 #from keras.optimizers import Adam
 from keras.layers import LSTM
 
+from TSForecasting.mage_calc import MageDataSet
+
 
 from scipy import stats
-
-from tabulate import tabulate
-pdtabulate=lambda df:tabulate(df,headers='keys')
 
 import random
 import re
@@ -55,11 +54,92 @@ class TimeSeriesForecast:
 
     def __init__(self):
         """
-        The __init__ method initializes and trains the LSTM model on the embedded Hall Dataset
-        Input:
-            None
-        Output:
-            A trained model that can be used for imputations
+            Package name: TSForecasting
+            
+            Class name: TimeSeriesForecast
+            
+            filename: TsForecasting
+            
+            Import code: from TSForecasting.TsForecasting import TimeSeriesForecast
+
+            Creating an object: object = TimeSeriesForecast()
+
+            Methods:
+
+            +-------------------------------------------------------------------------------------------------------------------+
+            |   Method Name     |               Description             |           Input           |           Output          |
+            +-------------------------------------------------------------------------------------------------------------------+   
+            |       init        |   The __init__ method initializes and |           None            |   A trained model that    |
+            |                   |   trains the LSTM model on the        |                           |   can be used for         |
+            |                   |   embedded Hall Dataset               |                           |   imputations             |
+            |                   |                                       |                           |                           |
+            +-------------------------------------------------------------------------------------------------------------------+
+            |   datePreprocess  |   The datePreprocess method is used   |   data: dataset we wish   |   data: dataset with the  |
+            |                   |   to preprocess the testing data.     |   to convert the time -   |   converted timestamp     |
+            |                   |   It identifies the date and converts |   stamp of {type:         |                           |
+            |                   |   it to the standard datetime format. |   dataframe}              |                           |
+            |                   |   It also converts the Timestamp      |                           |                           |
+            |                   |   to the index                        |                           |                           |
+            |                   |                                       |                           |                           |
+            +-------------------------------------------------------------------------------------------------------------------+
+            |       train       |   The train method is used to train   |   data: dataset we want   |   A trained model that    |
+            |                   |   the model on user supplied data     |   to train the model on   |   can be used for         |
+            |                   |                                       |                           |   imputations             |
+            |                   |                                       |                           |                           |
+            +-------------------------------------------------------------------------------------------------------------------+
+            |       impute      |   The impute method performs the      |   test: dataset {type:    |   A file with imputed     |
+            |                   |   imputations using the trained LSTM  |   dataframe}              |   values                  |
+            |                   |   model                               |   lstm_model: trainied    |                           |
+            |                   |                                       |   lstm model              |                           |
+            |                   |                                       |                           |                           |
+            +-------------------------------------------------------------------------------------------------------------------+
+            |   plotSpecific    |   The plotSpecific method plots the   |   uid: Subject ID of the  |   A plot of the patient's |
+            |                   |   graph of the Glucose Values of a    |   user to plot {type:     |   Glucose values          |
+            |                   |   single patient                      |   String}                 |                           |
+            |                   |                                       |   data: dataset {tye:     |                           |
+            |                   |                                       |   DataFrame}              |                           |
+            |                   |                                       |                           |                           |
+            +-------------------------------------------------------------------------------------------------------------------+
+            |   dataDescribe    |   The dataDescribe method provides &  |   data: CGM Analyzer data |   A tabular and graphical |
+            |                   |   statistical description of the CGM  |   {tye: DataFrame}        |   representation of the   |
+            |                   |   Analyzer data in the form of tables |   meta: CGM Analyzer data |   statistical analysis of |
+            |                   |   and graphs. This processed data has |   metadata {type:         |   the CGM Anayzer dataset |
+            |                   |   large gaps removed in the time      |   DataFrame}              |                           |
+            |                   |   series' of individuals by trim the  |                           |                           |
+            |                   |   time series' with smaller gaps and  |                           |                           |
+            |                   |   split the time series' with larger  |                           |                           |
+            |                   |   gaps                                |                           |                           |
+            |                   |                                       |                           |                           |
+            +-------------------------------------------------------------------------------------------------------------------+
+            |       rawData     |   The rawData method provides a       |           None            |   A tabular and graphical |
+            |                   |   statistical description of the raw  |                           |   representation of the   |
+            |                   |   HALL data in the form of tables     |                           |   statistical analysis of |
+            |                   |   and graphs. This raw data large     |                           |   the HALL dataset        |
+            |                   |   gaps in the time series' of         |                           |                           |
+            |                   |   patients It is therefore            |                           |                           |
+            |                   |   preprocessed to trim the time       |                           |                           |
+            |                   |   series' with smaller gaps & split   |                           |                           |
+            |                   |   the time series' with larger gaps   |                           |                           |
+            |                   |                                       |                           |                           |
+            +-------------------------------------------------------------------------------------------------------------------+
+            |   processedData   |   The processedData method provides & |           None            |   A tabular and graphical |
+            |                   |   statistical description of the CGM  |                           |   representation of the   |
+            |                   |   Analyzer data in the form of tables |                           |   statistical analysis of |
+            |                   |   and graphs. This processed data has |                           |   the HALL dataset        |
+            |                   |   large gaps removed in the time      |                           |                           |
+            |                   |   series' of individuals by trim the  |                           |                           |
+            |                   |   time series' with smaller gaps and  |                           |                           |
+            |                   |   split the time series' with larger  |                           |                           |
+            |                   |   gaps                                |                           |                           |
+            |                   |                                       |                           |                           |
+            +-------------------------------------------------------------------------------------------------------------------+   
+
+            Packahe dependencies:
+                - pandas
+                - numpy
+                - matplotlib
+                - dateutil
+                - re     
         """
         data = pd.read_csv(self.cwd+'/TSForecasting/Data/CGM/CGManalyzer.csv') #use your path
         #data.head()
@@ -109,17 +189,16 @@ class TimeSeriesForecast:
         early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
         history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
    
-
     
     def datePreprocess(self,data):
         """
-        The datePreprocess method is used to preprocess the testing data
-        It indentifies the date and converts it to the standard datetime format
-        It also converts the Timestamp to the index
-        Input:
-            data: dataset we wish to convert the timestamp of {type: pandas DataFrame}
-        Output:
-            data: dataset with the converted timestamp {type: pandas DataFrame}
+            The datePreprocess method is used to preprocess the testing data
+            It indentifies the date and converts it to the standard datetime format
+            It also converts the Timestamp to the index
+            Input:
+                data: dataset we wish to convert the timestamp of {type: pandas DataFrame}
+            Output:
+                data: dataset with the converted timestamp {type: pandas DataFrame}
         """
         # data = data.reset_index()
         length = data.shape[0]
@@ -137,16 +216,16 @@ class TimeSeriesForecast:
 
     def train(self, data = cgm_original):
         """
-        The train method is used to train the model on user supplied data
-        Input:
-            data: dataset we want to train the model on {type: pandas DataFrame}
-        Output:
-            A model trained on the supplied data that can be used for imputations
+            The train method is used to train the model on user supplied data
+            Input:
+                data: dataset we want to train the model on {type: pandas DataFrame}
+            Output:
+                A model trained on the supplied data that can be used for imputations
         """        
         data.drop(['subjectId'], axis=1, inplace=True)
         
 
-        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        # data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
         data = data.set_index(['Display Time'], drop=True)
 
         # data = self.datePreprocess(data)
@@ -186,14 +265,13 @@ class TimeSeriesForecast:
 
     def rawData(self):
         """
-        The rawData method provides a statistical description of the raw Hall data in the form of tables and graphs
-        This raw data contains large gaps in the time series' of individuals
-        It is therefore preprocessed to trim the time series' with smaller gaps and split the time series' with larger gaps
-        input:
-            None
-        output:
-            A tabular and graphical representation of the statistical analysis of the raw Hall dataset
-            
+            The rawData method provides a statistical description of the raw Hall data in the form of tables and graphs
+            This raw data contains large gaps in the time series' of individuals
+            It is therefore preprocessed to trim the time series' with smaller gaps and split the time series' with larger gaps
+            Input:
+                None
+            Output:
+                A tabular and graphical representation of the statistical analysis of the raw Hall dataset
         """
         # data = self.hall_raw #use your path
         data = self.hall_raw #use your path
@@ -202,12 +280,12 @@ class TimeSeriesForecast:
 
     def processedData(self):
         """
-        The processedData method provides a statistical description of the cleaned Hall data in the form of tables and graphs
-        This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
-        input:
-            None
-        output:
-            A tabular and graphical representation of the statistical analysis of the processed Hall dataset
+            The processedData method provides a statistical description of the cleaned Hall data in the form of tables and graphs
+            This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
+            Input:
+                None
+            Output:
+                A tabular and graphical representation of the statistical analysis of the processed Hall dataset
             
         """
         data = self.hall_refined #use your path
@@ -216,12 +294,12 @@ class TimeSeriesForecast:
     
     def plotSpecific(self,uid,data=cgm_original):
         """
-        The plotSpecific method plots the graph of the Glucose Values of a single Subject ID
-        Input:
-            uid: Subject ID of the user to plot {type: String}
-            data: dataset {type: DataFrame}
-        Output:
-            A plot of the Subject ID's Glucose Values
+            The plotSpecific method plots the graph of the Glucose Values of a single Subject ID
+            Input:
+                uid: Subject ID of the user to plot {type: String}
+                data: dataset {type: DataFrame}
+            Output:
+                A plot of the Subject ID's Glucose Values
         """
         # data = self.cgm_original
         new = data[data['subjectId']==str(uid)]
@@ -239,12 +317,12 @@ class TimeSeriesForecast:
             
     def impute(self,test_data=def_testing):
         """
-        The impute method performs the imputations using the trained LSTM model
-        input:
-            test: testing data
-            lstm_model: trainied lstm model
-        output:
-            A file with imputed values
+            The impute method performs the imputations using the trained LSTM model
+            Input:
+                test_data: testing data
+                lstm_model: trainied lstm model
+            Output:
+                A file with imputed values
         """
         test_data = self.datePreprocess(test_data)
         b,e,s,f = self.detectGap(test_data)
@@ -293,13 +371,13 @@ class TimeSeriesForecast:
 
     def dataDescribe(self, data = cgm_original, meta = cgm_meta):
         """
-        The dataDescribe method provides a statistical description of the CGM Analyzer data in the form of tables and graphs
-        This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
-        input:
-            data: CGM Analyzer data {DataFrame}
-            meta: CGM Analyzer data metadata{DataFrame}
-        output:
-            A tabular and graphical representation of the statistical analysis of the processed Hall dataset
+            The dataDescribe method provides a statistical description of the CGM Analyzer data in the form of tables and graphs
+            This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
+            Input:
+                data: CGM Analyzer data {DataFrame}
+                meta: CGM Analyzer data metadata{DataFrame}
+            Output:
+                A tabular and graphical representation of the statistical analysis of the processed Hall dataset
             
         """
         data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
@@ -317,12 +395,16 @@ class TimeSeriesForecast:
             l_of_r = df['GlucoseValue'].count()
             maxGV = round(df['GlucoseValue'].max(),2)
             minGV = round(df['GlucoseValue'].min(),2)
+            indices = [1*i for i in range(l_of_r)]
+            glucs = df['GlucoseValue'].to_list()
+            m = MageDataSet(indices, glucs)
+            k = m.getMAGE()
             # gap_size = df[df['time_gap']>str("00:03:10")]
             # gap_size = max(gap_size.time_gap)
             days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
             start_time = str(df['Display Time'].iloc[0])
             end_time = str(df['Display Time'].iloc[-1])
-            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV],  'Days':[days],'Start':[start_time],'End':[end_time]})
+            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[k], 'Days':[days], 'Start':[start_time],'End':[end_time]})
             data_description = pd.concat([temp_df,data_description],ignore_index=True)
 
         temp = None
@@ -363,6 +445,8 @@ class TimeSeriesForecast:
 
 
 #==================================================================================================================
+#   These methods are not called by the user and only used for internal processing
+#==================================================================================================================
     def clusteringDataDescribe(self,data):
         
         data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
@@ -384,11 +468,16 @@ class TimeSeriesForecast:
             gap_size = max(gap_size.time_gap)
             miss_val = len(df[df["time_gap"]>str("00:05:10")])
             P_miss_val = round(100*(len(df[df["time_gap"]>str("00:05:10")])/df['GlucoseValue'].count()),2)
+            # indices = [1*i for i in range(l_of_r)]
+            # glucs = df['GlucoseValue'].to_list()
+            # m = MageDataSet(indices, glucs)
+            # k = m.getMAGE()
             days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
             start_time = str(df['Display Time'].iloc[0])
             end_time = str(df['Display Time'].iloc[-1])
             temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'Gapsize':[gap_size], 'Missing Values':[miss_val], 'Percent of missing values':[P_miss_val], 'Days':[days],'Start':[start_time],'End':[end_time]})
             data_description = pd.concat([temp_df,data_description],ignore_index=True)
+
 
         temp = None
 
@@ -451,6 +540,7 @@ class TimeSeriesForecast:
 
 
         plt.show()
+
 
     def plot(self, data):
         """

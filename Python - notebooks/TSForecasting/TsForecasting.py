@@ -38,8 +38,6 @@ class TimeSeriesForecast:
     
     cwd = os.getcwd()
 
-    def_testing = pd.read_csv(cwd+'/TSForecasting/Data/test/generated_test.txt', sep=",")
-
     hall_refined = pd.read_csv(cwd+'/TSForecasting/Data/Hall/Hall_data.csv')
 
     hall_raw = pd.read_csv(cwd+'/TSForecasting/Data/Hall/data_hall_raw.csv')
@@ -51,6 +49,20 @@ class TimeSeriesForecast:
     cgm_original = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGManalyzer.csv')
 
     cgm_meta = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGM-meta.csv')
+
+    gluvarpro = pd.read_csv(cwd+'/TSForecasting/Data/Gluvarpro/Gluvarpro.csv')
+
+    gluvarpro_meta = pd.read_csv(cwd+'/TSForecasting/Data/Gluvarpro/GVP_metadata.csv')
+
+    ohio_full = pd.read_csv(cwd+'/TSForecasting/Data/Ohio-Data/OhioFullConsolidated.csv')
+
+    ohio_meta = pd.read_csv(cwd+'/TSForecasting/Data/Ohio-Data/Ohio_metadata.csv')
+
+    consolidated_paper = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
+
+    consolidated_pkg = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPackage.csv')
+
+    consolidated_meta = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedMetadata.csv')
 
     def __init__(self):
         """
@@ -132,16 +144,68 @@ class TimeSeriesForecast:
             |                   |   split the time series' with larger  |                           |                           |
             |                   |   gaps                                |                           |                           |
             |                   |                                       |                           |                           |
-            +-------------------------------------------------------------------------------------------------------------------+   
+            +-------------------------------------------------------------------------------------------------------------------+  
 
-            Packahe dependencies:
+            Variables:
+
+            +---------------------------------------------------------------+
+            |   Variable Name       |           Data it contains            |
+            +---------------------------------------------------------------+
+            |   hall_refined        |       The refined Hall Dataset        |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   hall_raw            |       The raw Hall Dataset            |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   hall_meta           |       The metadata of Hall Dataset    |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   cgm_appended        |       The appended data from          |
+            |                       |       CGMAnalyzer and CGMAnalysis     |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   cgm_original        |       The data from CGMAnalyzer       |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   cgm_meta            |       The metadata for cgm_appended   |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   gluvarpro           |       The data from GluVarPro         |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   gluvarpro_meta      |       The metadata for GluVarPro      |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   ohio_full           |       The data from OHIO_dataset      |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   ohio_meta           |       The metadata for OHIO_dataset   |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   consolidated_paper  |       The consolidated data from      |
+            |                       |       CGMAnalyzer,CGMAnalysis,        |
+            |                       |       GluVarPro, and Ohio dataset     |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   consolidated_pkg    |       The consolidated data from      |
+            |                       |       CGMAnalyzer,CGMAnalysis,        |
+            |                       |       GluVarPro, Ohio, and Hall       |
+            |                       |       dataset                         |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+            |   consolidated_meta   |       The metadata for consolidated   |
+            |                       |       data                            |
+            |                       |                                       |
+            +---------------------------------------------------------------+
+
+            Package dependencies:
                 - pandas
                 - numpy
                 - matplotlib
                 - dateutil
                 - re     
         """
-        data = pd.read_csv(self.cwd+'/TSForecasting/Data/CGM/CGManalyzer.csv') #use your path
+        data =  pd.read_csv(self.cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')#use your path
         #data.head()
         #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
      
@@ -214,7 +278,7 @@ class TimeSeriesForecast:
         return(data)
 
 
-    def train(self, data = cgm_original):
+    def train(self, data):
         """
             The train method is used to train the model on user supplied data
             Input:
@@ -226,7 +290,8 @@ class TimeSeriesForecast:
         
 
         # data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        data = data.set_index(['Display Time'], drop=True)
+        # data = data.set_index(['Display Time'], drop=True)
+        data = self.datePreprocess(data)
 
         # data = self.datePreprocess(data)
 
@@ -292,7 +357,7 @@ class TimeSeriesForecast:
         self.clusteringDataDescribe(data)
 
     
-    def plotSpecific(self,uid,data=cgm_original):
+    def plotSpecific(self,uid,data= consolidated_paper):
         """
             The plotSpecific method plots the graph of the Glucose Values of a single Subject ID
             Input:
@@ -315,7 +380,7 @@ class TimeSeriesForecast:
         plt.show();
 
             
-    def impute(self,test_data=def_testing):
+    def impute(self,test_data):
         """
             The impute method performs the imputations using the trained LSTM model
             Input:
@@ -365,11 +430,11 @@ class TimeSeriesForecast:
             test_data['GlucoseValue'][i] = lstm_pred[x]
             x+=1
         test_data.to_csv(self.cwd+"/TSForecasting/Data/Output/ImputedValues.csv") 
-        print("File saved!")
+        print("File saved!\nLocation:"+str(self.cwd+"/TSForecasting/Data/Output/ImputedValues.csv"))
         self.plot(test_data)
 
 
-    def dataDescribe(self, data = cgm_original, meta = cgm_meta):
+    def dataDescribe(self, data = consolidated_paper, meta = consolidated_meta):
         """
             The dataDescribe method provides a statistical description of the CGM Analyzer data in the form of tables and graphs
             This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
@@ -417,31 +482,35 @@ class TimeSeriesForecast:
         display(data_description)
         print("\n\n")
 
-        days = []
-        for i in data_description['Days']:
-            days.append(i.days)
+        # days = []
+        # for i in data_description['Days']:
+        #     days.append(i.days)
 
 
-        fig = plt.figure()
-        fig.set_size_inches(36, 36)
-        fig.suptitle("Graphical Analysis of data")
+        # fig = plt.figure()
+        # fig.set_size_inches(36, 36)
+        # fig.suptitle("Graphical Analysis of data")
 
-        plt.subplot(2, 1, 1)
-        plt.title('Length of the time series\' for all individuals' , fontsize=16)
-        plt.xlabel('Length', fontsize=12)
-        plt.ylabel('No. of Individuals', fontsize=12)
-        plt.xticks(rotation='vertical')
-        plt.hist(data_description['Length of readings'].tolist())
+        # plt.subplot(2, 1, 1)
+        # plt.title('Length of the time series\' for all individuals' , fontsize=32)
+        # plt.xlabel('Length', fontsize=24)
+        # plt.ylabel('No. of Individuals', fontsize=24)
+        # plt.xticks(rotation='vertical')
+        # plt.rc('xtick',labelsize=18)
+        # plt.rc('ytick',labelsize=18)
+        # plt.hist(data_description['Length of readings'].tolist())
 
-        plt.subplot(2, 1, 2)
-        plt.title('Days in time series\' for all individuals' , fontsize=16)
-        plt.xlabel('Days', fontsize=12)
-        plt.ylabel('No. of Individuals', fontsize=12)
-        plt.xticks(rotation='vertical')
-        plt.hist(days)
+        # plt.subplot(2, 1, 2)
+        # plt.title('Days in time series\' for all individuals' , fontsize=32)
+        # plt.xlabel('Days', fontsize=24)
+        # plt.ylabel('No. of Individuals', fontsize=24)
+        # plt.xticks(rotation='vertical')
+        # plt.rc('xtick',labelsize=18)
+        # plt.rc('ytick',labelsize=18)
+        # plt.hist(days)
 
 
-        plt.show()
+        # plt.show()
 
 
 #==================================================================================================================
@@ -468,18 +537,17 @@ class TimeSeriesForecast:
             gap_size = max(gap_size.time_gap)
             miss_val = len(df[df["time_gap"]>str("00:05:10")])
             P_miss_val = round(100*(len(df[df["time_gap"]>str("00:05:10")])/df['GlucoseValue'].count()),2)
-            # indices = [1*i for i in range(l_of_r)]
-            # glucs = df['GlucoseValue'].to_list()
-            # m = MageDataSet(indices, glucs)
-            # k = m.getMAGE()
+            indices = [1*i for i in range(l_of_r)]
+            glucs = df['GlucoseValue'].to_list()
+            glucs = [int(i) for i in glucs]
+            m = MageDataSet(indices, glucs)
+            k = m.getMAGE()
             days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
             start_time = str(df['Display Time'].iloc[0])
             end_time = str(df['Display Time'].iloc[-1])
-            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'Gapsize':[gap_size], 'Missing Values':[miss_val], 'Percent of missing values':[P_miss_val], 'Days':[days],'Start':[start_time],'End':[end_time]})
+            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV],'MAGE Score':[k], 'Gapsize':[gap_size], 'Missing Values':[miss_val], 'Percent of missing values':[P_miss_val], 'Days':[days],'Start':[start_time],'End':[end_time]})
             data_description = pd.concat([temp_df,data_description],ignore_index=True)
 
-
-        temp = None
 
 
 
@@ -500,40 +568,40 @@ class TimeSeriesForecast:
 
         fig = plt.figure()
         fig.set_size_inches(36, 36)
-        fig.suptitle("Graphical Analysis of data")
+        fig.suptitle("Graphical Analysis of data", fontsize=30)
 
         plt.subplot(3, 2, 1)
-        plt.title('Length of the time series\' for all individuals' , fontsize=16)
-        plt.xlabel('Length', fontsize=12)
-        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.title('Length of the time series\' for all individuals' , fontsize=24)
+        plt.xlabel('Length', fontsize=18)
+        plt.ylabel('No. of Individuals', fontsize=18)
         plt.xticks(rotation='vertical')
         plt.hist(data_description['Length of readings'].tolist())
 
         plt.subplot(3, 2, 2)
-        plt.title('Days in time series\' for all individuals' , fontsize=16)
-        plt.xlabel('Days', fontsize=12)
-        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.title('Days in time series\' for all individuals' , fontsize=24)
+        plt.xlabel('Days', fontsize=18)
+        plt.ylabel('No. of Individuals', fontsize=18)
         plt.xticks(rotation='vertical')
         plt.hist(days)
 
         plt.subplot(3, 2, 3)
-        plt.title('Percent of missing values for all individuals' , fontsize=16)
-        plt.xlabel('Percent of missing values', fontsize=12)
-        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.title('Percent of missing values for all individuals' , fontsize=24)
+        plt.xlabel('Percent of missing values', fontsize=18)
+        plt.ylabel('No. of Individuals', fontsize=18)
         plt.xticks(rotation='vertical')
         plt.hist(data_description['Percent of missing values'].tolist())
 
         plt.subplot(3, 2, 4)
-        plt.title('Missing Values for all individuals' , fontsize=16)
-        plt.xlabel('Missing Values', fontsize=12)
-        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.title('Missing Values for all individuals' , fontsize=24)
+        plt.xlabel('Missing Values', fontsize=18)
+        plt.ylabel('No. of Individuals', fontsize=18)
         plt.xticks(rotation='vertical')
         plt.hist(data_description['Missing Values'].tolist())
 
         plt.subplot(3, 2, 5)
-        plt.title('Gaps in time series\' for all individuals' , fontsize=16)
-        plt.xlabel('Gaps (in days)', fontsize=12)
-        plt.ylabel('No. of Individuals', fontsize=12)
+        plt.title('Gaps in time series\' for all individuals' , fontsize=24)
+        plt.xlabel('Gaps (in days)', fontsize=18)
+        plt.ylabel('No. of Individuals', fontsize=18)
         plt.xticks(rotation='vertical')
         plt.hist(gaps)
         plt.show()

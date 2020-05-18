@@ -65,3 +65,63 @@
 |					|	gaps  								|							|							|
 |					|	 									|							|							|
 +-------------------------------------------------------------------------------------------------------------------+
+
+
+
++---------------------------------------------------------------+
+| 	Variable Name 		|			Data it contains			|
++---------------------------------------------------------------+
+|	hall_refined		|		The refined Hall Dataset 		|
+|						|										|
++---------------------------------------------------------------+
+|	hall_raw			|		The raw Hall Dataset 			|
+|						|										|
++---------------------------------------------------------------+
+|	hall_meta			|		The metadata of Hall Dataset 	|
+|						|										|
++---------------------------------------------------------------+
+|	cgm_appended		|		The appended data from  		|
+|						|		CGMAnalyzer and CGMAnalysis		|
+|						|										|
++---------------------------------------------------------------+
+|	cgm_original		|		The data from CGMAnalyzer 		|
+|						|										|
++---------------------------------------------------------------+
+|	cgm_meta			|		The metadata for cgm_appended 	|
+|						|										|
++---------------------------------------------------------------+
+|	gluvarpro			|		The data from GluVarPro 		|
+|						|										|
++---------------------------------------------------------------+
+|	gluvarpro_meta		|		The metadata for GluVarPro 		|
+|						|										|
++---------------------------------------------------------------+
+|	ohio_full			|		The data from OHIO_dataset 		|
+|						|										|
++---------------------------------------------------------------+
+|	ohio_meta			|		The metadata for OHIO_dataset 	|
+|						|										|
++---------------------------------------------------------------+
+|	consolidated_paper	|		The consolidated data from  	|
+|						|		CGMAnalyzer,CGMAnalysis,		|
+|						|		GluVarPro, and Ohio dataset 	|
+|						|										|
++---------------------------------------------------------------+
+|	consolidated_pkg	|		The consolidated data from  	|
+|						|		CGMAnalyzer,CGMAnalysis,		|
+|						|		GluVarPro, Ohio, and Hall 	 	|
+|						|		dataset							|
+|						|										|
++---------------------------------------------------------------+
+|	consolidated_meta	|		The metadata for consolidated 	|
+|						|		data							|
+|						|										|
++---------------------------------------------------------------+
+
+
+
+
+
+
+
+

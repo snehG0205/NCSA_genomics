@@ -20,6 +20,6 @@ include_package_data=True,
         # If any package contains *.txt files, include them:
         "": ["*.txt","*.csv"]},
 install_requires=[
-          'pandas', 'numpy', 'matplotlib', 'sklearn', 'keras', 'scipy', 'tabulate', 'random', 're', 'dateutil', 'warnings'
+          'pandas', 'numpy', 'matplotlib', 'sklearn', 'keras', 'scipy', 'tabulate', 'random', 're', 'dateutil', 'warnings', 'operator', 'enums', 'collections'
       ],
 zip_safe=False)

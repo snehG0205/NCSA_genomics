@@ -64,6 +64,8 @@ class TimeSeriesForecast:
 
     consolidated_meta = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedMetadata.csv')
 
+    def_training = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
+
     def __init__(self):
         """
             Package name: TSForecasting
@@ -205,53 +207,54 @@ class TimeSeriesForecast:
                 - dateutil
                 - re     
         """
-        data =  pd.read_csv(self.cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')#use your path
-        #data.head()
-        #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        print("Object Created!")
+        # data =  pd.read_csv(self.cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')#use your path
+        # #data.head()
+        # #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
      
-        #dropping columns we don't need
+        # #dropping columns we don't need
         
         
-        data.drop(['subjectId'], axis=1, inplace=True)
+        # data.drop(['subjectId'], axis=1, inplace=True)
         
 
-        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        data = data.set_index(['Display Time'], drop=True)
-        #data.head()
+        # data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        # data = data.set_index(['Display Time'], drop=True)
+        # #data.head()
         
-        #train = data
+        # #train = data
 
-        scaler = MinMaxScaler(feature_range=(0, 1))
-        train_sc = scaler.fit_transform(data)
+        # scaler = MinMaxScaler(feature_range=(0, 1))
+        # train_sc = scaler.fit_transform(data)
     
-        #Reshaping the data to work for an LSTM network
+        # #Reshaping the data to work for an LSTM network
     
-        train_sc_df = pd.DataFrame(train_sc, columns=['Y'], index=data.index)
-    
-    
-        for s in range(1,2):
-            train_sc_df['X_{}'.format(s)] = train_sc_df['Y'].shift(s)
-    
-        X_train = train_sc_df.dropna().drop('Y', axis=1)
-        y_train = train_sc_df.dropna().drop('X_1', axis=1)
+        # train_sc_df = pd.DataFrame(train_sc, columns=['Y'], index=data.index)
     
     
-        X_train = X_train.as_matrix()
-        y_train = y_train.as_matrix()
+        # for s in range(1,2):
+        #     train_sc_df['X_{}'.format(s)] = train_sc_df['Y'].shift(s)
+    
+        # X_train = train_sc_df.dropna().drop('Y', axis=1)
+        # y_train = train_sc_df.dropna().drop('X_1', axis=1)
     
     
-        X_train_lmse = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
+        # X_train = X_train.as_matrix()
+        # y_train = y_train.as_matrix()
+    
+    
+        # X_train_lmse = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
        
     
-        #print('Train shape: ', X_train_lmse.shape)
+        # #print('Train shape: ', X_train_lmse.shape)
         
     
-        self.lstm_model = Sequential()
-        self.lstm_model.add(LSTM(7, input_shape=(1, X_train_lmse.shape[1]), activation='relu', kernel_initializer='lecun_uniform', return_sequences=False))
-        self.lstm_model.add(Dense(1))
-        self.lstm_model.compile(loss='mean_squared_error', optimizer='adam')
-        early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
-        history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
+        # self.lstm_model = Sequential()
+        # self.lstm_model.add(LSTM(7, input_shape=(1, X_train_lmse.shape[1]), activation='relu', kernel_initializer='lecun_uniform', return_sequences=False))
+        # self.lstm_model.add(Dense(1))
+        # self.lstm_model.compile(loss='mean_squared_error', optimizer='adam')
+        # early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
+        # history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
    
     
     def datePreprocess(self,data):
@@ -278,20 +281,21 @@ class TimeSeriesForecast:
         return(data)
 
 
-    def train(self, data):
+    def train(self, data = def_training):
         """
             The train method is used to train the model on user supplied data
             Input:
                 data: dataset we want to train the model on {type: pandas DataFrame}
             Output:
                 A model trained on the supplied data that can be used for imputations
-        """        
+        """ 
+        print("Training Model...\n\n")       
         data.drop(['subjectId'], axis=1, inplace=True)
         
 
-        # data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        # data = data.set_index(['Display Time'], drop=True)
-        data = self.datePreprocess(data)
+        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        data = data.set_index(['Display Time'], drop=True)
+        # data = self.datePreprocess(data)
 
         # data = self.datePreprocess(data)
 
@@ -317,16 +321,16 @@ class TimeSeriesForecast:
         X_train_lmse = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
        
     
-        print('Train shape: ', X_train_lmse.shape)
+        # print('Train shape: ', X_train_lmse.shape)
         
     
-        self.lstm_model = Sequential()
-        self.lstm_model.add(LSTM(7, input_shape=(1, X_train_lmse.shape[1]), activation='relu', kernel_initializer='lecun_uniform', return_sequences=False))
-        self.lstm_model.add(Dense(1))
-        self.lstm_model.compile(loss='mean_squared_error', optimizer='adam')
-        early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
-        history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
-
+        self.lstm_model = Sequential();
+        self.lstm_model.add(LSTM(7, input_shape=(1, X_train_lmse.shape[1]), activation='relu', kernel_initializer='lecun_uniform', return_sequences=False));
+        self.lstm_model.add(Dense(1));
+        self.lstm_model.compile(loss='mean_squared_error', optimizer='adam');
+        early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1);
+        history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop]);
+        print("Model traines successfully!")
 
     def rawData(self):
         """
@@ -380,7 +384,7 @@ class TimeSeriesForecast:
         plt.show();
 
             
-    def impute(self,test_data):
+    def impute(self,test_data,flag=0):
         """
             The impute method performs the imputations using the trained LSTM model
             Input:
@@ -390,7 +394,7 @@ class TimeSeriesForecast:
                 A file with imputed values
         """
         test_data = self.datePreprocess(test_data)
-        b,e,s,f = self.detectGap(test_data)
+        b,e,s,f,gaps = self.detectGap(test_data)
         test = test_data.iloc[0:f]
 
         scaler = MinMaxScaler(feature_range=(0, 1))
@@ -411,27 +415,30 @@ class TimeSeriesForecast:
         X_test_lmse = X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
         
         #print(X_test_lmse)
-        y_pred_test_lstm = self.lstm_model.predict(X_test_lmse)
+        y_pred_test_lstm = self.lstm_model.predict(X_test_lmse);
         
         #print("The R2 score on the Test set is:\t{:0.3f}".format(r2_score(y_test, y_pred_test_lstm)))
         
-        lstm_test_mse = self.lstm_model.evaluate(X_test_lmse, y_test, batch_size=1)
-       
-        #print('LSTM: %f'%lstm_test_mse)
         
         #inversing the scaling
         lstm_pred = scaler.inverse_transform(y_pred_test_lstm)
         test_val = scaler.inverse_transform(y_test)
 
-        print("Imputations performed!")
+        
         
         x=0
         for i in range(b-1,e):
             test_data['GlucoseValue'][i] = lstm_pred[x]
             x+=1
-        test_data.to_csv(self.cwd+"/TSForecasting/Data/Output/ImputedValues.csv") 
-        print("File saved!\nLocation:"+str(self.cwd+"/TSForecasting/Data/Output/ImputedValues.csv"))
-        self.plot(test_data)
+        
+
+        if flag==1:
+            return test_data
+        else:
+            print("Imputations performed!")
+            test_data.to_csv(self.cwd+"/TSForecasting/Data/Output/ImputedValues.csv") 
+            print("File saved!\nLocation:"+str(self.cwd+"/TSForecasting/Data/Output/ImputedValues.csv"))
+            self.plot(test_data)
 
 
     def dataDescribe(self, data = consolidated_paper, meta = consolidated_meta):
@@ -469,7 +476,7 @@ class TimeSeriesForecast:
             days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
             start_time = str(df['Display Time'].iloc[0])
             end_time = str(df['Display Time'].iloc[-1])
-            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[k], 'Days':[days], 'Start':[start_time],'End':[end_time]})
+            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[k], 'Days':[days], 'Start':[start_time],'End':[end_time]})
             data_description = pd.concat([temp_df,data_description],ignore_index=True)
 
         temp = None
@@ -659,8 +666,8 @@ class TimeSeriesForecast:
         f = b-1
         #print(s,f)
         #print(f-s)
-        print("Gap detected!")
-        return b,e,s,f
+        # print("Gap detected!")
+        return b,e,s,f,gap
 
 
     def index_agreement(self, s,o):

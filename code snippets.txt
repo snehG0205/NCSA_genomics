@@ -1,0 +1,143 @@
+==================================================================================
+===== Here's a snippet of how I used different functions to wrap the metrics =====
+==================================================================================
+def index_agreement(self, s,o):
+        """
+        index of agreement
+        input:
+            s: prediceted
+            o: original
+        output:
+            ia: index of agreement
+        """
+        
+        ia = 1 -(np.sum((o-s)**2))/(np.sum((np.abs(s-np.mean(o))+np.abs(o-np.mean(o)))**2))
+        
+        return ia
+
+    
+def rmse(self, s,o):
+    """
+    Root Mean Squared Error
+    input:
+        s: prediceted
+        o: original
+    output:
+        rmses: root mean squared error
+    """
+    return np.sqrt(np.mean((s-o)**2))
+
+
+def mae(self, s,o):
+    """
+    Mean Absolute Error
+    input:
+        s: prediceted
+        o: original
+    output:
+        maes: mean absolute error
+    """
+    return np.mean(abs(s-o))
+
+
+def mad(self, s):
+    """
+    Mean Absolute Difference
+    input:
+        s: prediceted
+    output:
+        mad: mean absolute error
+    """
+  
+    return stats.median_absolute_deviation(s)
+
+
+def mape(self, y_pred,y_true):
+    """
+    Mean Absolute Percentage error
+    input:
+        y_pred: prediceted
+        y_true: original
+    output:
+        mape: Mean Absolute Percentage error
+    """
+
+    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+
+
+def fracBias(self, s,o):
+    """
+    Fractional Bias
+    input:
+        s: prediceted
+        o: original
+    output:
+        fracBias: Fractional Bias
+    """
+    
+    return np.mean(np.abs((o - s) / ((o + s)/2)))
+
+
+def getMetrics(self,lstm_pred, test_val):
+    """
+    The getMetrics method simply prints out all the comparison metrics
+    """
+    #IOA
+    ioa_val = self.index_agreement(lstm_pred,test_val)
+    print("Index of Agreement is: " + str(round(ioa_val,3)))
+
+    #MAE
+    mae_val = self.mae(lstm_pred,test_val)
+    print("Mean Absolute Error is: " + str(mae_val))
+
+    #RMSE
+    rmse_val = self.rmse(lstm_pred,test_val)
+    print("Root Mean Squared Error is: " + str(round(rmse_val,3)))
+    
+    #MAD
+    mad_val = self.mad(lstm_pred)
+    print("Mean Absolute Difference is: " + str(mad_val))
+    
+    #FB
+    fb_val = self.fracBias(lstm_pred,test_val)
+    print("Fractional Bias is: " + str(round(fb_val,3)))
+    
+    #MAPE
+    mape_val = self.mape(lstm_pred,test_val)
+    print("Mean Absolute Percentage Error is: " + str(round(mape_val)))
+    
+
+    
+===============================================================================================================
+===== Here's the function I used to detect GAPS in the time serie, you cna then decide to cut them or not =====
+===============================================================================================================
+
+def detectGap(self, testing_data):
+        """
+        The detectGap mehtod detects the GAP in a time series
+        input:
+            testing_data: dataset that needs to be imputed
+        output:
+            b,s: starting index of the gaps
+            e,f: end index of the gaps
+
+        """
+        l = []
+        k = 0
+        for i in testing_data['GlucoseValue']:
+            k+=1
+            if i==0:
+                l.append(k)
+        b = min(l)
+        e = max(l)
+        #print(b,e)
+        gap=e-b
+        #print(gap)
+        #print(b-gap)
+        #print(l)
+        s = (b-gap-2) if (b-gap) > 0 else 0
+        f = b-1
+        #print(s,f)
+        #print(f-s)
+        print("Gap detected!")
+        return b,e,s,f

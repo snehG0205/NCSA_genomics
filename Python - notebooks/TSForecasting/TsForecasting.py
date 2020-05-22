@@ -455,8 +455,12 @@ class TimeSeriesForecast:
         data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
         print("Here is a glimpse of the data:\n")
         print(data.head())
+       
+    
+        total_readings = data['Display Time'].count()
+        print("\nTotal Readings in the data:"+str(total_readings))
         print("\n\n\n")
-        
+
         data_description = pd.DataFrame()
         
         for subjectId, df in data.groupby('subjectId'):

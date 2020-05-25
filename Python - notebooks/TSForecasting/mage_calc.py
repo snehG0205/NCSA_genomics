@@ -24,7 +24,7 @@ class MageDataPoint(object):
             raise RuntimeError
         self.t = newTime
         self.g = newGlucose
-        self.stdev = 0
+        self.stdev = 1
 
     def gluc(self):
         # Access glucose value of the current object

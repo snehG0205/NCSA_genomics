@@ -375,7 +375,7 @@ class TimeSeriesForecast:
         new = new.astype({'GlucoseValue':int})
         plt.figure(figsize=(20, 8))
 
-        plt.plot(new['Display Time'],new['GlucoseValue'], label='True', color='#2280f2', linewidth=2.5)
+        plt.plot(new['Display Time'],new['GlucoseValue'], color='#2280f2', linewidth=2.5)
 
         plt.title("Glucose Values of "+str(uid))
 
@@ -424,11 +424,13 @@ class TimeSeriesForecast:
         lstm_pred = scaler.inverse_transform(y_pred_test_lstm)
         test_val = scaler.inverse_transform(y_test)
 
+        lstm_pred = lstm_pred.tolist()
         
+        lstm_pred = lstm_pred*200
         
         x=0
         for i in range(b-1,e):
-            test_data['GlucoseValue'][i] = lstm_pred[x]
+            test_data['GlucoseValue'][i] = lstm_pred[x][0]
             x+=1
         
 

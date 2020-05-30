@@ -34,6 +34,11 @@ import os
 
 
 class TimeSeriesForecast:
+
+#==================================================================================================================
+#   Local variables
+#==================================================================================================================
+
     lstm_model = None
     
     cwd = os.getcwd()
@@ -65,6 +70,10 @@ class TimeSeriesForecast:
     consolidated_meta = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedMetadata.csv')
 
     def_training = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
+
+#==================================================================================================================
+#   Core Methods
+#==================================================================================================================
 
     def __init__(self):
         """
@@ -332,35 +341,7 @@ class TimeSeriesForecast:
         history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop]);
         print("Model traines successfully!")
 
-    def rawData(self):
-        """
-            The rawData method provides a statistical description of the raw Hall data in the form of tables and graphs
-            This raw data contains large gaps in the time series' of individuals
-            It is therefore preprocessed to trim the time series' with smaller gaps and split the time series' with larger gaps
-            Input:
-                None
-            Output:
-                A tabular and graphical representation of the statistical analysis of the raw Hall dataset
-        """
-        # data = self.hall_raw #use your path
-        data = self.hall_raw #use your path
-        self.clusteringDataDescribe(data)
 
-
-    def processedData(self):
-        """
-            The processedData method provides a statistical description of the cleaned Hall data in the form of tables and graphs
-            This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
-            Input:
-                None
-            Output:
-                A tabular and graphical representation of the statistical analysis of the processed Hall dataset
-            
-        """
-        data = self.hall_refined #use your path
-        self.clusteringDataDescribe(data)
-
-    
     def plotSpecific(self,uid,data= consolidated_paper):
         """
             The plotSpecific method plots the graph of the Glucose Values of a single Subject ID
@@ -487,6 +468,7 @@ class TimeSeriesForecast:
 
         temp = None
 
+        data_description = dadata_descriptionta.set_index(['Subject ID'], drop=True)
 
 
         display(data_description.describe())
@@ -494,6 +476,9 @@ class TimeSeriesForecast:
         print("Here is the statistical analysis of the data:\n")
         display(data_description)
         print("\n\n")
+
+        data_description.to_csv(self.cwd+"/TSForecasting/Data/Data Description.csv")
+
 
         # days = []
         # for i in data_description['Days']:
@@ -525,104 +510,115 @@ class TimeSeriesForecast:
 
         # plt.show()
 
+#==================================================================================================================
+#   Helper Methods
+#==================================================================================================================
 
+    def smoothing(self, data):
+        """
+            Performing rolling-mean smoothening for a time-series to improve MAGE calculation 
+            Input:
+                data: time-series with tiny fluctuations and local minima and maxima
+            Output:
+                data: smoothened time-series
+        """ 
+        
+        series = data
+        # Tail-rolling average transform
+        rolling = series.rolling(window=6)
+        rolling_mean = rolling.mean()
+        return rolling_mean
+
+
+    def subSample(self, data):
+        """
+            Sampling a time-series at 15 minute intervals
+            Input:
+                data: time-series with irregular intervals
+            Output:
+                data: time-series with 15 minute intervals
+        """ 
+        data['Display Time'] = pd.to_datetime(data['Display Time'])
+        data['time_gap'] = data['Display Time'].shift(1)-data['Display Time'][0]
+        data['time_gap'][0] = '00:00:00'
+        mods = [0,870,871,872,873,874,875,876,877,878,879,880,881,882,883,884,885,886,887,888,889,890,891,892,893,894,895,896,897,898,899]
+        subset = pd.DataFrame()
+        for i in range(1,len(data.index)):
+            seconds = data['time_gap'][i].total_seconds()
+            if (seconds%900) in mods:
+                subj_id = data['subjectId'][i]
+                gv = data['GlucoseValue'][i]
+                dt = data['Display Time'][i]
+                temp_df = pd.DataFrame({'Display Time':[dt], 'GlucoseValue':[gv], 'subjectId':[subj_id]})
+                subset = pd.concat([temp_df,subset],ignore_index=True)
+        subset = subset.iloc[::-1]
+        subset = subset.reset_index(drop=True)
+        data.drop(['time_gap'], axis=1, inplace=True)
+        return subset
+
+
+    def convertUnits(self, data, unit):
+        """
+            converting glucose values into desired unit of measurement 
+            Input:
+                data: individual time series with default unit of glucose value
+                unit: desired unit of conversion
+            Output:
+                data: individual time series desired unit of glucose value
+        """ 
+        if unit == 'mmol':
+            if(data['GlucoseValue'][0]>18):
+                in_mmols = pd.DataFrame({'Display Time':data['Display Time'], 'GlucoseValue':data['GlucoseValue']/18, 'subjectId':data['subjectId']})
+                return in_mmols
+            else:
+                print("Data already in mmols")
+                return data
+        elif unit == 'mg':
+            if(data['GlucoseValue'][0]<18):
+                in_mgs = pd.DataFrame({'Display Time':data['Display Time'], 'GlucoseValue':data['GlucoseValue']*18, 'subjectId':data['subjectId']})
+                return in_mgs
+            else:
+                print("Data already in mgs")
+                return data
+        else:
+            print("Invalid unit. Please enter 'mmol' or 'mg'. ")
+            
+            
+    def full_days(self, data):
+        """
+           trimming an individual's glucose values to only consist of full days     
+            Input:
+                data: irregular time series
+            Output:
+                data: time series with data only for full days
+        """ 
+        
+        dates = list()
+        for i in range(0,len(data.index)):
+            dates.append(data['Display Time'][i].date())
+        data['Dates'] = dates
+        end = data['Dates'].iloc[-1]
+        start = data['Dates'].iloc[0]
+
+        indexVals = data[ data['Dates'] == start ].index
+        # indexVals
+        data.drop(indexVals , inplace=True)
+
+        indexVals = data[ data['Dates'] == end ].index
+        # indexVals
+        data.drop(indexVals , inplace=True)
+
+        data = data.reset_index(drop=True)
+        
+        data.drop(['Dates'], axis=1, inplace=True)
+        
+        return data
+
+        
 #==================================================================================================================
 #   These methods are not called by the user and only used for internal processing
 #==================================================================================================================
-    def clusteringDataDescribe(self,data):
-        
-        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        print("Here is a glimpse of the data:\n")
-        print(data.head())
-        print("\n\n\n")
-        meta = self.hall_meta
-        data_description = pd.DataFrame()
-        
-        for subjectId, df in data.groupby('subjectId'):
-            df['time_gap'] = df['Display Time']- df['Display Time'].shift(1)
-            subj_id = str(subjectId)
-            temp = meta[meta["ID"]==subj_id]
-            status = str(temp["status"].values[0])
-            l_of_r = df['GlucoseValue'].count()
-            maxGV = str(df['GlucoseValue'].max())
-            minGV = str(df['GlucoseValue'].min())
-            gap_size = df[df['time_gap']>str("00:05:10")]
-            gap_size = max(gap_size.time_gap)
-            miss_val = len(df[df["time_gap"]>str("00:05:10")])
-            P_miss_val = round(100*(len(df[df["time_gap"]>str("00:05:10")])/df['GlucoseValue'].count()),2)
-            indices = [1*i for i in range(l_of_r)]
-            glucs = df['GlucoseValue'].to_list()
-            glucs = [int(i) for i in glucs]
-            m = MageDataSet(indices, glucs)
-            k = m.getMAGE()
-            days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
-            start_time = str(df['Display Time'].iloc[0])
-            end_time = str(df['Display Time'].iloc[-1])
-            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Status':[status], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV],'MAGE Score':[k], 'Gapsize':[gap_size], 'Missing Values':[miss_val], 'Percent of missing values':[P_miss_val], 'Days':[days],'Start':[start_time],'End':[end_time]})
-            data_description = pd.concat([temp_df,data_description],ignore_index=True)
-
-
-
-
-        display(data_description.describe())
-
-        print("Here is the statistical analysis of the data:\n")
-        display(data_description)
-        print("\n\n")
-
-        days = []
-        for i in data_description['Days']:
-            days.append(i.days)
-
-        gaps = []
-        for i in data_description['Gapsize']:
-            gaps.append(i.days)
-
-
-        fig = plt.figure()
-        fig.set_size_inches(36, 36)
-        fig.suptitle("Graphical Analysis of data", fontsize=30)
-
-        plt.subplot(3, 2, 1)
-        plt.title('Length of the time series\' for all individuals' , fontsize=24)
-        plt.xlabel('Length', fontsize=18)
-        plt.ylabel('No. of Individuals', fontsize=18)
-        plt.xticks(rotation='vertical')
-        plt.hist(data_description['Length of readings'].tolist())
-
-        plt.subplot(3, 2, 2)
-        plt.title('Days in time series\' for all individuals' , fontsize=24)
-        plt.xlabel('Days', fontsize=18)
-        plt.ylabel('No. of Individuals', fontsize=18)
-        plt.xticks(rotation='vertical')
-        plt.hist(days)
-
-        plt.subplot(3, 2, 3)
-        plt.title('Percent of missing values for all individuals' , fontsize=24)
-        plt.xlabel('Percent of missing values', fontsize=18)
-        plt.ylabel('No. of Individuals', fontsize=18)
-        plt.xticks(rotation='vertical')
-        plt.hist(data_description['Percent of missing values'].tolist())
-
-        plt.subplot(3, 2, 4)
-        plt.title('Missing Values for all individuals' , fontsize=24)
-        plt.xlabel('Missing Values', fontsize=18)
-        plt.ylabel('No. of Individuals', fontsize=18)
-        plt.xticks(rotation='vertical')
-        plt.hist(data_description['Missing Values'].tolist())
-
-        plt.subplot(3, 2, 5)
-        plt.title('Gaps in time series\' for all individuals' , fontsize=24)
-        plt.xlabel('Gaps (in days)', fontsize=18)
-        plt.ylabel('No. of Individuals', fontsize=18)
-        plt.xticks(rotation='vertical')
-        plt.hist(gaps)
-        plt.show()
-
-
-        plt.show()
-
-
+    
     def plot(self, data):
         """
         The plot method plots the graph for the imputed values
@@ -675,6 +671,9 @@ class TimeSeriesForecast:
         # print("Gap detected!")
         return b,e,s,f,gap
 
+#==================================================================================================================
+#   Calculating error metrics
+#==================================================================================================================
 
     def index_agreement(self, s,o):
         """
@@ -703,28 +702,16 @@ class TimeSeriesForecast:
         return np.sqrt(np.mean((s-o)**2))
 
     
-    def mae(self, s,o):
+    def mad(self, s,o):
         """
         Mean Absolute Error
         input:
             s: prediceted
             o: original
         output:
-            maes: mean absolute error
+            maes: mean absolute difference
         """
         return np.mean(abs(s-o))
-
-    
-    def mad(self, s):
-        """
-        Mean Absolute Difference
-        input:
-            s: prediceted
-        output:
-            mad: mean absolute error
-        """
-      
-        return stats.median_absolute_deviation(s)
 
     
     def mape(self, y_pred,y_true):
@@ -781,5 +768,237 @@ class TimeSeriesForecast:
         mape_val = self.mape(lstm_pred,test_val)
         print("Mean Absolute Percentage Error is: " + str(round(mape_val)))
         
+#==================================================================================================================
+#   GVI's
+#==================================================================================================================
 
+    def gvIndices(self, data = consolidated_paper):
+        data_description = pd.DataFrame()
+        for subjectId, df in data.groupby('subjectId'):
+        #     print(subjectId)
+            df['Display Time'] = pd.to_datetime(df['Display Time'])
+            df=df.reset_index(drop=True)
+            gfi, gcf = self.gfi(df)
+            LBGI, HBGI, BGRI = self.bgri(df, units = 'mg')
+            GRADE , HypoG_P, EuG_P, HyperG_P = self.grade(df, units='mg')
+            j_index = self.j_index(df, units="mg")
+            Mvalue = self.m_value(df, 'mg', 120)
+            MAG = self.mag(df)
+            GVP = self.gvp(df, units='mg')
+            GMI = self.gmi(df, units='mg')
+            LAGE, MAX, MIN = self.lage(df)
+            HBA1C = self.ehba1c(df)
+            m, sd, cv, iqr = self.sumstats(df)
+            sdrc = self.rc(df)
+            temp_df = pd.DataFrame({'Subject Id':[subjectId], 'GFI':[gfi], 'GCF':[gcf], 'LBGI':[LBGI], 'HBGI':[HBGI], 'BGRI':[BGRI], 'GRADE':[GRADE], 'HypoG_P':[HypoG_P],'EuG_P':[EuG_P], 'HyperG_P':[HyperG_P], 'J Index':[j_index], 'Mvalue':[Mvalue], 'MAG':[MAG], 'GVP':[GVP], 'GMI':[GMI], 'LAGE':[LAGE],'MAX':[MAX], 'MIN':[MIN], 'HBA1C':[HBA1C], 'MEAN':[m], 'STD-DEV':[sd],'CV':[cv], 'IQR':[iqr], 'SDRC':[sdrc]})
+            data_description = pd.concat([temp_df,data_description],ignore_index=True)
+
+        data_description = dadata_descriptionta.set_index(['Subject ID'], drop=True)
+
+        display(data_description)
+
+        data_description.to_csv(self.cwd+"/TSForecasting/Data/Glucose Indices.csv")
+
+
+    def gfi(self, x):
+        N = len(x)
+        S = 0
+        for i in range(0,N-1):
+            S = S + (x.iloc[i, 1]  - x.iloc[(i+1), 1]) ** 2
+            
+        gfi = np.sqrt(S/N)
+        gcf = gfi/np.mean(x.iloc[:,1])
+        # return pd.DataFrame({'GFI':[gfi], 'GCF':[gcf]})
+        return gfi, gcf
+
+
+    def bgri(self, x, units):
+        if (units == 'mg'):
+            fBG = 1.509*((np.log(   x.iloc[:, 1]) )**1.084  - 5.381)
+        elif (units=='mmol'):
+            fBG = 1.509*((np.log(18*x.iloc[:, 1]) )**1.084  - 5.381)
+        else:
+            print('units should be either mmol or mg')
+            return 0
+            
+        rBG = 10 * fBG ** 2 # called BG risk function
+        s = np.sign(fBG)
+        s_left = np.abs(s.where(s == -1, 0))
+        rlBG = rBG * s_left # called BG risk function left branch
+
+        s_right = s.where(s == 1, 0)
+        rhBG = rBG * s_right # called BG risk function right branch
+
+        LBGI = np.mean(rlBG)#1/len(rlBG)*np.sum(rlBG) # low BD index
+        HBGI = np.mean(rhBG)#1/len(rhBG)*np.sum(rhBG) # high BD index
+        BGRI = (LBGI + HBGI) # BG risk index
+              
+        # return pd.DataFrame({'LBGI':[LBGI], 'HBGI':[HBGI], 'BGRI':[BGRI]})
+        return LBGI, HBGI, BGRI
+
+
+    def grade(self, x, units):
+        if (units == 'mg'):
+            a = 18
+            g = np.append(np.where(x.iloc[:, 1] <= 37)[0], np.where(x.iloc[:, 1] >= 630)[0])
+            hypo = np.where(x.iloc[:, 1] < 70)[0]
+            eu = np.where((x.iloc[:, 1] >= 70) & (x.iloc[:, 1]<=140))[0]
+            hyper = np.where(x.iloc[:, 1] > 140)[0]
+        elif (units=='mmol'):
+            a = 1
+            g = np.append(np.where(x.iloc[:, 1] <= 2.06)[0], np.where(x.iloc[:, 1] >= 33.42)[0])
+            hypo = np.where(x.iloc[:, 1]<3.9)[0]
+            eu = np.where(x.iloc[:, 1]>=3.9 & x.iloc[:, 1] <=7.8)[0]
+            hyper = np.where(x.iloc[:, 1]>7.8)[0]
+        else:
+            print('units should be either mmol or mg')
+            return 0
+        
+        grd = 425*( np.log10( np.log10(a*x.iloc[:, 1]) ) + 0.16) ** 2
+
+      
+        if (len(g)>0):  # GRADE is designed to operate for BG ranges between 2.06 (37 mg/dl) and 33.42 mmol/l (630 mg/dl).
+            grd[g] = 50 # Values outside this range are ascribed a GRADE value of 50.
+
+        tmp = (np.mean(grd), len(hypo)/len(x)*100, len(eu)/len(x)*100, len(hyper)/len(x)*100)
+
+        GRADE = np.mean(grd)
+        HypoG_P = len(hypo)/len(x)*100
+        EuG_P = len(eu)/len(x)*100
+        HyperG_P = len(hyper)/len(x)*100
+        
+        # return pd.DataFrame({'GRADE':[np.mean(grd)], 'HypoG%':[len(hypo)/len(x)*100], 'EuG%':[len(eu)/len(x)*100], 'HyperG%':[len(hyper)/len(x)*100]})
+        return GRADE , HypoG_P, EuG_P, HyperG_P
+
+    
+    def j_index(self, x, units):
+        if (units == 'mg'):
+            a = 0.001
+        elif (units=='mmol'):
+            a = 0.324
+        else:
+            print('units should be either mmol or mg')
+            return 0
+        
+        j = a*(np.mean(x.iloc[:, 1]) + np.std(x.iloc[:, 1])) ** 2
+        
+        # return pd.DataFrame({'J-index':[j]})
+        return j
+
+
+    def m_value(self, x, units, ref_value):
+        if (units == 'mg'):
+            PG = x.iloc[:, 1]
+        elif (units=='mmol'):
+            PG = 18*x.iloc[:, 1]
+        else:
+            print('units should be either mmol or mg')
+            return 0
+        
+        if ((ref_value != 120) & (ref_value != 90) & (ref_value != 80) ):
+            print('ref_value should be set to one of these: 80, 90, 120')
+            return 0
+        
+        M_BSBS = np.abs((10*np.log(PG/ref_value))**3)
+
+        if (len(PG)<25):
+            W = np.max(PG) - np.min(PG)
+            Mvalue = np.mean(M_BSBS) + W/20 
+        else:
+            Mvalue = np.mean(M_BSBS)
+
+        # return pd.DataFrame({'M-value':[Mvalue]})
+        return Mvalue
+
+
+    def mag(self, x):
+        S = np.abs(np.sum(x.iloc[:, 1].diff()))
+        n = len(x)-1
+        total_T = (x.iloc[n,0] - x.iloc[0, 0])/np.timedelta64(1,'h')
+        MAG = S/total_T
+        # return pd.DataFrame({'MAG':[MAG]})
+        return MAG
+
+    
+    def gvp(self, x, units):
+        if (units != 'mg'):
+            print('units can only be mg')
+            return 0
+        
+        dt = x.iloc[:, 0].diff()/np.timedelta64(1,'m') # assuming that sampling can not necessarily be equally spaced
+        dy = x.iloc[:, 1].diff()
+        
+        L = np.sum(np.sqrt(dt**2 + dy**2))
+        L_0 = np.sum(dt)
+        
+        GVP = (L/L_0 -1) *100
+        # return pd.DataFrame({'GVP(%)':[GVP]})
+        return GVP
+
+
+    def gmi(self, x, units):
+        if (units == 'mg'):
+            GMI = 3.31 + 0.02392 * np.mean(x.iloc[:, 1])
+            # return pd.DataFrame({'GMI(%)': [GMI]})
+            return GMI
+        elif (units=='mmol'):
+            GMI = 12.71 + 4.70587 * np.mean(x.iloc[:, 1])
+            # return pd.DataFrame({'GMI(%)': [GMI]})
+            return GMI
+        else:
+            print('units should be either mmol or mg')
+            return 0
+    
+
+    def lage(self, x):
+        MIN = np.min(x.iloc[:, 1])
+        MAX = np.max(x.iloc[:, 1])
+        LAGE = MAX - MIN
+        # return pd.DataFrame({'LAGE': [LAGE], 'MAX': [MAX], 'MIN':[MIN]})
+        return LAGE, MAX, MIN
+
+
+    def ehba1c(self, x):
+        HBA1C = (np.mean(x.iloc[:, 1]) + 46.7)/28.7
+        # return pd.DataFrame({'eHbA1c': [HBA1C]})
+        return HBA1C
+
+
+    def sumstats(self, x):
+        m = np.mean(x.iloc[:, 1])
+        sd = np.std(x.iloc[:, 1])
+        cv = sd/m
+        q75, q25 = np.percentile(x.iloc[:, 1], [75 ,25])
+        iqr = q75 - q25
+        
+        # return pd.DataFrame({'Mean': [m], 'SD':[sd], 'CV': [cv], 'IQR': [iqr]})
+        return m, sd, cv, iqr
+
+
+    def rc(self, x):
+        dt = x.iloc[:, 0].diff()/np.timedelta64(1,'m') 
+        dy = x.iloc[:, 1].diff()
+        
+        sdrc = np.std(dy/dt)
+        # return pd.DataFrame({'SD of RC': [sdrc]})
+        return sdrc
+
+    
+    def pgs(self, x, units):
+        # if (units != 'mg'):
+        #     return print('units can only be mg')
+        
+        # GVP = gvp(x, units=units)
+        # F_GVP = 1 + 9/(1 + np.exp(-0.049*(GVP-65.47)))
+        
+        # MG = np.mean(x.iloc[:, 3])
+        # F_MG = 1 + 9 * ( 1/(1 + np.exp(0.1139*(MG-72.08))) + 1/(1 + np.exp(-0.09195*(MG-157.57))) )
+        
+        # N54 = 
+        # F_54H = 0.5 + 4.5 * (1 - np.exp(-0.81093*N54))
+        return 0
+
+
+
+    
     

@@ -35,6 +35,7 @@ import os
 
 class TimeSeriesForecast:
 
+
 #==================================================================================================================
 #   Local variables
 #==================================================================================================================
@@ -43,25 +44,25 @@ class TimeSeriesForecast:
     
     cwd = os.getcwd()
 
-    hall_refined = pd.read_csv(cwd+'/TSForecasting/Data/Hall/Hall_data.csv')
+    # hall_refined = pd.read_csv(cwd+'/TSForecasting/Data/Hall/Hall_data.csv')
 
-    hall_raw = pd.read_csv(cwd+'/TSForecasting/Data/Hall/data_hall_raw.csv')
+    # hall_raw = pd.read_csv(cwd+'/TSForecasting/Data/Hall/data_hall_raw.csv')
 
-    hall_meta = pd.read_csv(cwd+'/TSForecasting/Data/Hall/Hall_meta.csv')
+    # hall_meta = pd.read_csv(cwd+'/TSForecasting/Data/Hall/Hall_meta.csv')
 
-    cgm_appended = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGM_Analyzer_Appended.csv')
+    # cgm_appended = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGM_Analyzer_Appended.csv')
 
-    cgm_original = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGManalyzer.csv')
+    # cgm_original = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGManalyzer.csv')
 
-    cgm_meta = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGM-meta.csv')
+    # cgm_meta = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGM-meta.csv')
 
-    gluvarpro = pd.read_csv(cwd+'/TSForecasting/Data/Gluvarpro/Gluvarpro.csv')
+    # gluvarpro = pd.read_csv(cwd+'/TSForecasting/Data/Gluvarpro/Gluvarpro.csv')
 
-    gluvarpro_meta = pd.read_csv(cwd+'/TSForecasting/Data/Gluvarpro/GVP_metadata.csv')
+    # gluvarpro_meta = pd.read_csv(cwd+'/TSForecasting/Data/Gluvarpro/GVP_metadata.csv')
 
-    ohio_full = pd.read_csv(cwd+'/TSForecasting/Data/Ohio-Data/OhioFullConsolidated.csv')
+    # ohio_full = pd.read_csv(cwd+'/TSForecasting/Data/Ohio-Data/OhioFullConsolidated.csv')
 
-    ohio_meta = pd.read_csv(cwd+'/TSForecasting/Data/Ohio-Data/Ohio_metadata.csv')
+    # ohio_meta = pd.read_csv(cwd+'/TSForecasting/Data/Ohio-Data/Ohio_metadata.csv')
 
     consolidated_paper = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
 
@@ -70,6 +71,7 @@ class TimeSeriesForecast:
     consolidated_meta = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedMetadata.csv')
 
     def_training = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
+
 
 #==================================================================================================================
 #   Core Methods
@@ -89,125 +91,99 @@ class TimeSeriesForecast:
 
             Methods:
 
-            +-------------------------------------------------------------------------------------------------------------------+
-            |   Method Name     |               Description             |           Input           |           Output          |
-            +-------------------------------------------------------------------------------------------------------------------+   
-            |       init        |   The __init__ method initializes and |           None            |   A trained model that    |
-            |                   |   trains the LSTM model on the        |                           |   can be used for         |
-            |                   |   embedded Hall Dataset               |                           |   imputations             |
-            |                   |                                       |                           |                           |
-            +-------------------------------------------------------------------------------------------------------------------+
-            |   datePreprocess  |   The datePreprocess method is used   |   data: dataset we wish   |   data: dataset with the  |
-            |                   |   to preprocess the testing data.     |   to convert the time -   |   converted timestamp     |
-            |                   |   It identifies the date and converts |   stamp of {type:         |                           |
-            |                   |   it to the standard datetime format. |   dataframe}              |                           |
-            |                   |   It also converts the Timestamp      |                           |                           |
-            |                   |   to the index                        |                           |                           |
-            |                   |                                       |                           |                           |
-            +-------------------------------------------------------------------------------------------------------------------+
-            |       train       |   The train method is used to train   |   data: dataset we want   |   A trained model that    |
-            |                   |   the model on user supplied data     |   to train the model on   |   can be used for         |
-            |                   |                                       |                           |   imputations             |
-            |                   |                                       |                           |                           |
-            +-------------------------------------------------------------------------------------------------------------------+
-            |       impute      |   The impute method performs the      |   test: dataset {type:    |   A file with imputed     |
-            |                   |   imputations using the trained LSTM  |   dataframe}              |   values                  |
-            |                   |   model                               |   lstm_model: trainied    |                           |
-            |                   |                                       |   lstm model              |                           |
-            |                   |                                       |                           |                           |
-            +-------------------------------------------------------------------------------------------------------------------+
-            |   plotSpecific    |   The plotSpecific method plots the   |   uid: Subject ID of the  |   A plot of the patient's |
-            |                   |   graph of the Glucose Values of a    |   user to plot {type:     |   Glucose values          |
-            |                   |   single patient                      |   String}                 |                           |
-            |                   |                                       |   data: dataset {tye:     |                           |
-            |                   |                                       |   DataFrame}              |                           |
-            |                   |                                       |                           |                           |
-            +-------------------------------------------------------------------------------------------------------------------+
-            |   dataDescribe    |   The dataDescribe method provides &  |   data: CGM Analyzer data |   A tabular and graphical |
-            |                   |   statistical description of the CGM  |   {tye: DataFrame}        |   representation of the   |
-            |                   |   Analyzer data in the form of tables |   meta: CGM Analyzer data |   statistical analysis of |
-            |                   |   and graphs. This processed data has |   metadata {type:         |   the CGM Anayzer dataset |
-            |                   |   large gaps removed in the time      |   DataFrame}              |                           |
-            |                   |   series' of individuals by trim the  |                           |                           |
-            |                   |   time series' with smaller gaps and  |                           |                           |
-            |                   |   split the time series' with larger  |                           |                           |
-            |                   |   gaps                                |                           |                           |
-            |                   |                                       |                           |                           |
-            +-------------------------------------------------------------------------------------------------------------------+
-            |       rawData     |   The rawData method provides a       |           None            |   A tabular and graphical |
-            |                   |   statistical description of the raw  |                           |   representation of the   |
-            |                   |   HALL data in the form of tables     |                           |   statistical analysis of |
-            |                   |   and graphs. This raw data large     |                           |   the HALL dataset        |
-            |                   |   gaps in the time series' of         |                           |                           |
-            |                   |   patients It is therefore            |                           |                           |
-            |                   |   preprocessed to trim the time       |                           |                           |
-            |                   |   series' with smaller gaps & split   |                           |                           |
-            |                   |   the time series' with larger gaps   |                           |                           |
-            |                   |                                       |                           |                           |
-            +-------------------------------------------------------------------------------------------------------------------+
-            |   processedData   |   The processedData method provides & |           None            |   A tabular and graphical |
-            |                   |   statistical description of the CGM  |                           |   representation of the   |
-            |                   |   Analyzer data in the form of tables |                           |   statistical analysis of |
-            |                   |   and graphs. This processed data has |                           |   the HALL dataset        |
-            |                   |   large gaps removed in the time      |                           |                           |
-            |                   |   series' of individuals by trim the  |                           |                           |
-            |                   |   time series' with smaller gaps and  |                           |                           |
-            |                   |   split the time series' with larger  |                           |                           |
-            |                   |   gaps                                |                           |                           |
-            |                   |                                       |                           |                           |
-            +-------------------------------------------------------------------------------------------------------------------+  
+			+-------------------------------------------------------------------------------------------------------------------+
+			| 	Method Name 	|				Description				|			Input			|			Output			|
+			+-------------------------------------------------------------------------------------------------------------------+	
+			|		init		|	The __init__ method initializes	the |			None			|			None			|
+			|					|	data frames and testing functions 	|							|							|
+			|					|										|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			|	datePreprocess	|	The datePreprocess method is used	|	data: dataset we wish	|	data: dataset with the 	|
+			|					|	to preprocess the testing data.		|	to convert the time - 	|	converted timestamp		|
+			|					|	It identifies the date and converts |	stamp of {type: 		|	{type: dataframe}		|
+			|					|	it to the standard datetime format.	|	dataframe}				|							|
+			|					|	It also converts the Timestamp 		|							|							|
+			|					|	to the index 						|							|							|
+			|					|										|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			|		train		|	The train method is used to train	|	data: dataset we want	|	A trained model that	|
+			|					|	the model on user supplied data 	|	to train the model on	|	can be used for 		|
+			|					|	 									|	{type: dataframe}		|	imputations				|
+			|					|										|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			|		impute		|	The impute method performs the		|	test: dataset {type:	|	A file with imputed 	|
+			|					|	imputations using the trained LSTM 	|	dataframe}			 	|	values				 	|
+			|					|	model 								|	lstm_model: trainied 	|							|
+			|					|										|	lstm model				|							|
+			|					|	 									|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			|	plotSpecific	|	The plotSpecific method plots the	|	uid: Subject ID of the 	|	A plot of the patient's	|
+			|					|	graph of the Glucose Values of a 	|	user to plot {type:		|	Glucose values 			|
+			|					|	single patient 						|	String}					|							|
+			|					|										|	data: dataset {tye: 	|							|
+			|					|										|	DataFrame}				|							|
+			|					|										|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			|	dataDescribe	|	The dataDescribe method provides &	|	data: CGM Analyzer data	|	A tabular and graphical |
+			|					|	statistical description of the CGM 	|	{tye: DataFrame}	 	|	representation of the	|
+			|					|	Analyzer data in the form of tables	|	meta: CGM Analyzer data |	statistical analysis of	|
+			|					|	and graphs. This processed data has |	metadata {type: 		|	the CGM Anayzer dataset	|
+			|					|	large gaps removed in the time 		|	DataFrame}				|							|
+			|					|	series' of individuals by trim the 	|							|							|
+			|					|	time series' with smaller gaps and	|							|							|
+			|					|	split the time series' with larger 	|							|							|
+			|					|	gaps  								|							|							|
+			|					|	 									|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			|	smoothing		|	Performing rolling-mean smoothening |	data: time-series with 	|	data: smoothened    	|
+			|					|	for a time-series to improve  		|	irregular intervals 	|	 time-series			|
+			|					|	MAGE calculation					|	{type: dataframe}		|	{type: dataframe}		|
+			|					|	 									|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			|	subSample		|	Sampling a time-series at 15 		|	data: dataset we want	|	data: time-series with 	|
+			|					|	minute intervals 					|	to train the model on	|	15 minute intervals 	|
+			|					|	 									|	{type: dataframe}		|	{type: dataframe}		|
+			|					|										|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			|  convertUnits		|	converting glucose values into 		|	data: individual time 	|	data: individual time 	|
+			|					|	desired unit of measurement		 	|	series with default 	|	series desired unit		|
+			|					|	 									|	unit of glucose values 	|	of glucose value		|
+			|					|										|	{type: dataframe}		|	{type: dataframe}		|
+			|					|										|							|							|
+			|					|										|	unit: desired unit of 	|							|
+			|					|										|	conversion				|							|
+			|					|										|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			|	full_days		|	trimming an individual's glucose 	|	data: irregular 	 	|	data: time series with 	|
+			|					|	values to only consist of 		 	|	time-series				|	data only for full days	|
+			|					|	full days 							|	{type: dataframe}		|	imputations				|
+			|					|										|							|	{type: dataframe}		|
+			|					|										|							|							|
+			+-------------------------------------------------------------------------------------------------------------------+
+			  
 
             Variables:
 
-            +---------------------------------------------------------------+
-            |   Variable Name       |           Data it contains            |
-            +---------------------------------------------------------------+
-            |   hall_refined        |       The refined Hall Dataset        |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   hall_raw            |       The raw Hall Dataset            |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   hall_meta           |       The metadata of Hall Dataset    |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   cgm_appended        |       The appended data from          |
-            |                       |       CGMAnalyzer and CGMAnalysis     |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   cgm_original        |       The data from CGMAnalyzer       |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   cgm_meta            |       The metadata for cgm_appended   |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   gluvarpro           |       The data from GluVarPro         |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   gluvarpro_meta      |       The metadata for GluVarPro      |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   ohio_full           |       The data from OHIO_dataset      |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   ohio_meta           |       The metadata for OHIO_dataset   |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   consolidated_paper  |       The consolidated data from      |
-            |                       |       CGMAnalyzer,CGMAnalysis,        |
-            |                       |       GluVarPro, and Ohio dataset     |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   consolidated_pkg    |       The consolidated data from      |
-            |                       |       CGMAnalyzer,CGMAnalysis,        |
-            |                       |       GluVarPro, Ohio, and Hall       |
-            |                       |       dataset                         |
-            |                       |                                       |
-            +---------------------------------------------------------------+
-            |   consolidated_meta   |       The metadata for consolidated   |
-            |                       |       data                            |
-            |                       |                                       |
-            +---------------------------------------------------------------+
+			+---------------------------------------------------------------+
+			| 	Variable Name 		|			Data it contains			|
+			+---------------------------------------------------------------+
+			|	consolidated_paper	|		The consolidated data from  	|
+			|						|		CGMAnalyzer,CGMAnalysis,		|
+			|						|		GluVarPro, and Ohio dataset 	|
+			|						|										|
+			+---------------------------------------------------------------+
+			|	consolidated_pkg	|		The consolidated data from  	|
+			|						|		CGMAnalyzer,CGMAnalysis,		|
+			|						|		GluVarPro, Ohio, and Hall 	 	|
+			|						|		dataset							|
+			|						|										|
+			+---------------------------------------------------------------+
+			|	consolidated_meta	|		The metadata for consolidated 	|
+			|						|		data							|
+			|						|										|
+			+---------------------------------------------------------------+
+            
+
 
             Package dependencies:
                 - pandas
@@ -217,54 +193,7 @@ class TimeSeriesForecast:
                 - re     
         """
         print("Object Created!")
-        # data =  pd.read_csv(self.cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')#use your path
-        # #data.head()
-        # #data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-     
-        # #dropping columns we don't need
         
-        
-        # data.drop(['subjectId'], axis=1, inplace=True)
-        
-
-        # data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
-        # data = data.set_index(['Display Time'], drop=True)
-        # #data.head()
-        
-        # #train = data
-
-        # scaler = MinMaxScaler(feature_range=(0, 1))
-        # train_sc = scaler.fit_transform(data)
-    
-        # #Reshaping the data to work for an LSTM network
-    
-        # train_sc_df = pd.DataFrame(train_sc, columns=['Y'], index=data.index)
-    
-    
-        # for s in range(1,2):
-        #     train_sc_df['X_{}'.format(s)] = train_sc_df['Y'].shift(s)
-    
-        # X_train = train_sc_df.dropna().drop('Y', axis=1)
-        # y_train = train_sc_df.dropna().drop('X_1', axis=1)
-    
-    
-        # X_train = X_train.as_matrix()
-        # y_train = y_train.as_matrix()
-    
-    
-        # X_train_lmse = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
-       
-    
-        # #print('Train shape: ', X_train_lmse.shape)
-        
-    
-        # self.lstm_model = Sequential()
-        # self.lstm_model.add(LSTM(7, input_shape=(1, X_train_lmse.shape[1]), activation='relu', kernel_initializer='lecun_uniform', return_sequences=False))
-        # self.lstm_model.add(Dense(1))
-        # self.lstm_model.compile(loss='mean_squared_error', optimizer='adam')
-        # early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1)
-        # history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop])
-   
     
     def datePreprocess(self,data):
         """
@@ -447,28 +376,42 @@ class TimeSeriesForecast:
         data_description = pd.DataFrame()
         
         for subjectId, df in data.groupby('subjectId'):
-            df['time_gap'] = df['Display Time']- df['Display Time'].shift(1)
+            
             subj_id = str(subjectId)
+
+            # df = self.full_days(df)
+            
+            df['time_gap'] = df['Display Time']- df['Display Time'].shift(1)
+            days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
+            
+            
             temp = meta[meta["ID"]==subj_id]
             status = str(temp["status"].values[0])
+            
             l_of_r = df['GlucoseValue'].count()
+            
             maxGV = round(df['GlucoseValue'].max(),2)
             minGV = round(df['GlucoseValue'].min(),2)
-            indices = [1*i for i in range(l_of_r)]
+            
+            # smoothened = self.smoothing(df['GlucoseValue'])
             glucs = df['GlucoseValue'].to_list()
+            indices = [1*i for i in range(len(glucs))]
             m = MageDataSet(indices, glucs)
             k = m.getMAGE()
             # gap_size = df[df['time_gap']>str("00:03:10")]
             # gap_size = max(gap_size.time_gap)
-            days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
+
             start_time = str(df['Display Time'].iloc[0])
             end_time = str(df['Display Time'].iloc[-1])
+            
             temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[k], 'Days':[days], 'Start':[start_time],'End':[end_time]})
             data_description = pd.concat([temp_df,data_description],ignore_index=True)
 
         temp = None
 
-        data_description = dadata_descriptionta.set_index(['Subject ID'], drop=True)
+        data_description = data_description.iloc[::-1]
+
+        data_description = data_description.set_index(['Subject ID'], drop=True)
 
 
         display(data_description.describe())
@@ -509,6 +452,7 @@ class TimeSeriesForecast:
 
 
         # plt.show()
+
 
 #==================================================================================================================
 #   Helper Methods
@@ -671,6 +615,7 @@ class TimeSeriesForecast:
         # print("Gap detected!")
         return b,e,s,f,gap
 
+
 #==================================================================================================================
 #   Calculating error metrics
 #==================================================================================================================
@@ -767,7 +712,8 @@ class TimeSeriesForecast:
         #MAPE
         mape_val = self.mape(lstm_pred,test_val)
         print("Mean Absolute Percentage Error is: " + str(round(mape_val)))
-        
+ 
+
 #==================================================================================================================
 #   GVI's
 #==================================================================================================================
@@ -790,10 +736,12 @@ class TimeSeriesForecast:
             HBA1C = self.ehba1c(df)
             m, sd, cv, iqr = self.sumstats(df)
             sdrc = self.rc(df)
-            temp_df = pd.DataFrame({'Subject Id':[subjectId], 'GFI':[gfi], 'GCF':[gcf], 'LBGI':[LBGI], 'HBGI':[HBGI], 'BGRI':[BGRI], 'GRADE':[GRADE], 'HypoG_P':[HypoG_P],'EuG_P':[EuG_P], 'HyperG_P':[HyperG_P], 'J Index':[j_index], 'Mvalue':[Mvalue], 'MAG':[MAG], 'GVP':[GVP], 'GMI':[GMI], 'LAGE':[LAGE],'MAX':[MAX], 'MIN':[MIN], 'HBA1C':[HBA1C], 'MEAN':[m], 'STD-DEV':[sd],'CV':[cv], 'IQR':[iqr], 'SDRC':[sdrc]})
+            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'GFI':[gfi], 'GCF':[gcf], 'LBGI':[LBGI], 'HBGI':[HBGI], 'BGRI':[BGRI], 'GRADE':[GRADE], 'HypoG_P':[HypoG_P],'EuG_P':[EuG_P], 'HyperG_P':[HyperG_P], 'J Index':[j_index], 'Mvalue':[Mvalue], 'MAG':[MAG], 'GVP':[GVP], 'GMI':[GMI], 'LAGE':[LAGE],'MAX':[MAX], 'MIN':[MIN], 'HBA1C':[HBA1C], 'MEAN':[m], 'STD-DEV':[sd],'CV':[cv], 'IQR':[iqr], 'SDRC':[sdrc]})
             data_description = pd.concat([temp_df,data_description],ignore_index=True)
 
-        data_description = dadata_descriptionta.set_index(['Subject ID'], drop=True)
+        data_description = data_description.iloc[::-1]
+
+        data_description = data_description.set_index(['Subject ID'], drop=True)
 
         display(data_description)
 

@@ -8,15 +8,15 @@
 +-------------------------------------------------------------------------------------------------------------------+
 |	datePreprocess	|	The datePreprocess method is used	|	data: dataset we wish	|	data: dataset with the 	|
 |					|	to preprocess the testing data.		|	to convert the time - 	|	converted timestamp		|
-|					|	It identifies the date and converts |	stamp of {type: 		|							|
+|					|	It identifies the date and converts |	stamp of {type: 		|	{type: dataframe}		|
 |					|	it to the standard datetime format.	|	dataframe}				|							|
 |					|	It also converts the Timestamp 		|							|							|
 |					|	to the index 						|							|							|
 |					|										|							|							|
 +-------------------------------------------------------------------------------------------------------------------+
-|		train		|	The train method is used to train	|	data: dataset we want 	|	A trained model that	|
+|		train		|	The train method is used to train	|	data: dataset we want	|	A trained model that	|
 |					|	the model on user supplied data 	|	to train the model on	|	can be used for 		|
-|					|	 									|							|	imputations				|
+|					|	 									|	{type: dataframe}		|	imputations				|
 |					|										|							|							|
 +-------------------------------------------------------------------------------------------------------------------+
 |		impute		|	The impute method performs the		|	test: dataset {type:	|	A file with imputed 	|
@@ -43,64 +43,36 @@
 |					|	gaps  								|							|							|
 |					|	 									|							|							|
 +-------------------------------------------------------------------------------------------------------------------+
-|		rawData		|	The rawData method provides a 		|			None			|	A tabular and graphical |
-|					|	statistical description of the raw 	|		 					|	representation of the	|
-|					|	HALL data in the form of tables		|	 						|	statistical analysis of	|
-|					|	and graphs. This raw data large 	|	 						|	the HALL dataset		|
-|					|	gaps in the time series' of 		|							|							|
-|					|	patients It is therefore 	 		|							|							|
-|					|	preprocessed to trim the time		|							|							|
-|					|	series' with smaller gaps & split 	|							|							|
-|					|	the time series' with larger gaps  	|							|							|
+|	smoothing		|	Performing rolling-mean smoothening |	data: time-series with 	|	data: smoothened    	|
+|					|	for a time-series to improve  		|	irregular intervals 	|	 time-series			|
+|					|	MAGE calculation					|	{type: dataframe}		|	{type: dataframe}		|
 |					|	 									|							|							|
 +-------------------------------------------------------------------------------------------------------------------+
-|	processedData	|	The processedData method provides &	|			None			|	A tabular and graphical |
-|					|	statistical description of the CGM 	|		 					|	representation of the	|
-|					|	Analyzer data in the form of tables	|	 						|	statistical analysis of	|
-|					|	and graphs. This processed data has |	 						|	the HALL dataset		|
-|					|	large gaps removed in the time 		|							|							|
-|					|	series' of individuals by trim the 	|							|							|
-|					|	time series' with smaller gaps and	|							|							|
-|					|	split the time series' with larger 	|							|							|
-|					|	gaps  								|							|							|
-|					|	 									|							|							|
+|	subSample		|	Sampling a time-series at 15 		|	data: dataset we want	|	data: time-series with 	|
+|					|	minute intervals 					|	to train the model on	|	15 minute intervals 	|
+|					|	 									|	{type: dataframe}		|	{type: dataframe}		|
+|					|										|							|							|
++-------------------------------------------------------------------------------------------------------------------+
+|  convertUnits		|	converting glucose values into 		|	data: individual time 	|	data: individual time 	|
+|					|	desired unit of measurement		 	|	series with default 	|	series desired unit		|
+|					|	 									|	unit of glucose values 	|	of glucose value		|
+|					|										|	{type: dataframe}		|	{type: dataframe}		|
+|					|										|							|							|
+|					|										|	unit: desired unit of 	|							|
+|					|										|	conversion				|							|
+|					|										|							|							|
++-------------------------------------------------------------------------------------------------------------------+
+|	full_days		|	trimming an individual's glucose 	|	data: irregular 	 	|	data: time series with 	|
+|					|	values to only consist of 		 	|	time-series				|	data only for full days	|
+|					|	full days 							|	{type: dataframe}		|	imputations				|
+|					|										|							|	{type: dataframe}		|
+|					|										|							|							|
 +-------------------------------------------------------------------------------------------------------------------+
 
 
 
 +---------------------------------------------------------------+
 | 	Variable Name 		|			Data it contains			|
-+---------------------------------------------------------------+
-|	hall_refined		|		The refined Hall Dataset 		|
-|						|										|
-+---------------------------------------------------------------+
-|	hall_raw			|		The raw Hall Dataset 			|
-|						|										|
-+---------------------------------------------------------------+
-|	hall_meta			|		The metadata of Hall Dataset 	|
-|						|										|
-+---------------------------------------------------------------+
-|	cgm_appended		|		The appended data from  		|
-|						|		CGMAnalyzer and CGMAnalysis		|
-|						|										|
-+---------------------------------------------------------------+
-|	cgm_original		|		The data from CGMAnalyzer 		|
-|						|										|
-+---------------------------------------------------------------+
-|	cgm_meta			|		The metadata for cgm_appended 	|
-|						|										|
-+---------------------------------------------------------------+
-|	gluvarpro			|		The data from GluVarPro 		|
-|						|										|
-+---------------------------------------------------------------+
-|	gluvarpro_meta		|		The metadata for GluVarPro 		|
-|						|										|
-+---------------------------------------------------------------+
-|	ohio_full			|		The data from OHIO_dataset 		|
-|						|										|
-+---------------------------------------------------------------+
-|	ohio_meta			|		The metadata for OHIO_dataset 	|
-|						|										|
 +---------------------------------------------------------------+
 |	consolidated_paper	|		The consolidated data from  	|
 |						|		CGMAnalyzer,CGMAnalysis,		|

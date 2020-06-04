@@ -19,12 +19,12 @@ class MageDataPoint(object):
     on the class, like -, >, >=, <, <=, and print()
     '''
 
-    def __init__(self, newTime=-1, newGlucose=-1):
+    def __init__(self, newTime=-1, newGlucose=-1, s_dev=1):
         if(newTime == -1 or newGlucose == -1):
             raise RuntimeError
         self.t = newTime
         self.g = newGlucose
-        self.stdev = 1
+        self.stdev = s_dev
 
     def gluc(self):
         # Access glucose value of the current object
@@ -90,11 +90,12 @@ class MageDataSet(object):
     calculated MAGE without redoing the entire calculation.
     '''
 
-    def __init__(self, newTimes=None, newGlucoses=None):
+    def __init__(self, newTimes=None, newGlucoses=None, s_dev=5):
         self.OneDay = 1440  # length of a day in minutes
         self.MAGE = -1
         self.NUM_MAGE_PTS = 1
         self.printPoints = False
+        self.stdev = s_dev
         if(newTimes is None or newGlucoses is None):
             self.points = list()
         else:

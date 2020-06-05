@@ -19,7 +19,7 @@ class MageDataPoint(object):
     on the class, like -, >, >=, <, <=, and print()
     '''
 
-    def __init__(self, newTime=-1, newGlucose=-1, s_dev=1):
+    def __init__(self, newTime=-1, newGlucose=-1, s_dev=5):
         if(newTime == -1 or newGlucose == -1):
             raise RuntimeError
         self.t = newTime

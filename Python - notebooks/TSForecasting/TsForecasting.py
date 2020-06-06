@@ -1440,13 +1440,13 @@ class TimeSeriesForecast:
         F_MG = 1 + 9 * ( 1/(1 + np.exp(0.1139*(MG-72.08))) + 1/(1 + np.exp(-0.09195*(MG-157.57))) )
         
         PGS = F_GVP + F_MG + F_PTIR + F_H
-        # PGS.columns=['PGS']
+        PGS.columns=['PGS']
 
         if math.isinf(PGS):
             print("Error calculating PGS for: "+str(x["subjectId"]))
             PGS = 0.0
 
-        return PGS
+        return PGS['PGS'][0]
 
 
     def dt(self,x):

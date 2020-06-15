@@ -34,6 +34,11 @@ import os
 
 import math
 
+from statistics import mean
+
+from datetime import timedelta
+from datetime import datetime
+
 
 class TimeSeriesForecast:
 
@@ -46,25 +51,6 @@ class TimeSeriesForecast:
     
     cwd = os.getcwd()
 
-    # hall_refined = pd.read_csv(cwd+'/TSForecasting/Data/Hall/Hall_data.csv')
-
-    # hall_raw = pd.read_csv(cwd+'/TSForecasting/Data/Hall/data_hall_raw.csv')
-
-    # hall_meta = pd.read_csv(cwd+'/TSForecasting/Data/Hall/Hall_meta.csv')
-
-    # cgm_appended = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGM_Analyzer_Appended.csv')
-
-    # cgm_original = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGManalyzer.csv')
-
-    # cgm_meta = pd.read_csv(cwd+'/TSForecasting/Data/CGM/CGM-meta.csv')
-
-    # gluvarpro = pd.read_csv(cwd+'/TSForecasting/Data/Gluvarpro/Gluvarpro.csv')
-
-    # gluvarpro_meta = pd.read_csv(cwd+'/TSForecasting/Data/Gluvarpro/GVP_metadata.csv')
-
-    # ohio_full = pd.read_csv(cwd+'/TSForecasting/Data/Ohio-Data/OhioFullConsolidated.csv')
-
-    # ohio_meta = pd.read_csv(cwd+'/TSForecasting/Data/Ohio-Data/Ohio_metadata.csv')
     consolidated_paper = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
 
     consolidated_pkg = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPackage.csv')
@@ -195,13 +181,12 @@ class TimeSeriesForecast:
         """
         
        
-        # self.consolidated_paper = self.fullDaysOnly(self.consolidated_paper)
+        
         # self.consolidated_pkg = self.fullDaysOnly(self.consolidated_pkg)
         # self.def_training = self.fullDaysOnly(self.def_training)
 
 
         print("Object Created!")
-        
     
     def datePreprocess(self,data):
         """
@@ -235,11 +220,12 @@ class TimeSeriesForecast:
             Output:
                 A model trained on the supplied data that can be used for imputations
         """ 
-        print("Training Model...\n\n")       
+        print("Training Model...\n\n")  
+        data = self.fullDaysOnly(data)     
         data.drop(['subjectId'], axis=1, inplace=True)
         
 
-        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(str(x), '%Y-%m-%d %H:%M:%S'))
         data = data.set_index(['Display Time'], drop=True)
         # data = self.datePreprocess(data)
 
@@ -276,10 +262,10 @@ class TimeSeriesForecast:
         self.lstm_model.compile(loss='mean_squared_error', optimizer='adam');
         early_stop = EarlyStopping(monitor='loss', patience=2, verbose=1);
         history_lstm_model = self.lstm_model.fit(X_train_lmse, y_train, epochs=1, batch_size=1, verbose=1, shuffle=False, callbacks=[early_stop]);
-        print("Model traines successfully!")
+        print("Model trained successfully!")
 
 
-    def plotSpecific(self,uid,data= consolidated_paper):
+    def plotSpecific(self, uid, data= consolidated_paper):
         """
             The plotSpecific method plots the graph of the Glucose Values of a single Subject ID
             Input:
@@ -376,7 +362,8 @@ class TimeSeriesForecast:
                 A tabular and graphical representation of the statistical analysis of the processed Hall dataset
             
         """
-        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(x, '%Y-%m-%d %H:%M:%S'))
+        data = self.fullDaysOnly(data)
+        data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(str(x), '%Y-%m-%d %H:%M:%S'))
         print("Here is a glimpse of the data:\n")
         print(data.head())
        
@@ -393,9 +380,9 @@ class TimeSeriesForecast:
 
             # df = self.full_days(df)
             
-            df['time_gap'] = df['Display Time']- df['Display Time'].shift(1)
-            days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
-            
+            day = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
+            day = day.round("d")
+            day = day.days
             
             temp = meta[meta["ID"]==subj_id]
             status = str(temp["status"].values[0])
@@ -406,17 +393,30 @@ class TimeSeriesForecast:
             minGV = round(df['GlucoseValue'].min(),2)
             
             # smoothened = self.smoothing(df['GlucoseValue'])
-            glucs = df['GlucoseValue'].to_list()
-            indices = [1*i for i in range(len(glucs))]
-            m = MageDataSet(indices, glucs)
-            k = m.getMAGE()
-            # gap_size = df[df['time_gap']>str("00:03:10")]
-            # gap_size = max(gap_size.time_gap)
+            df['GlucoseValue'] = self.smoothing(df['GlucoseValue'])
+            df = df[df['GlucoseValue'].notna()]
+            df = df.reset_index(drop=True)
 
-            start_time = str(df['Display Time'].iloc[0])
-            end_time = str(df['Display Time'].iloc[-1])
+            dates = []
+            for i in range(len(df.index)):
+                dates.append(df['Display Time'][i].date())
+            df['Date'] = dates
+
+            mage_daily = []
+            excursions = 0
+            for Date, xx in df.groupby('Date'):
+                xx = xx.reset_index(drop=True)
+                m, e = self.mageCalculation(xx,1)
+                mage_daily.append(m)
+                excursions = excursions + e
+
+            mage = round(mean(mage_daily),3)
+            excusrions = math.floor(excursions)
+
+            mean_day, mean_night = self.meanCalculations(df)
+
             
-            temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[k], 'Days':[days], 'Start':[start_time],'End':[end_time]})
+            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[mage], "Excursions":[excursions],'Days':[day], 'Daytime Mean:':[mean_day], 'Nighttime Mean':[mean_night]})
             data_description = pd.concat([data_description, temp_df],ignore_index=True)
 
         temp = None
@@ -437,11 +437,16 @@ class TimeSeriesForecast:
 
     def individualDescribe(self, uid, data = consolidated_paper, meta = consolidated_meta):
         df = data[data['subjectId']==str(uid)]
-        df['Display Time'] = pd.to_datetime(df['Display Time'])
-        df=df.reset_index(drop=True)
-        df['time_gap'] = df['Display Time']- df['Display Time'].shift(1)
-        days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
         
+        df = self.fullDaysOnly(df)
+        df = df.reset_index(drop=True)
+        df['Display Time'] = df['Display Time'].apply(lambda x: pd.datetime.strptime(str(x), '%Y-%m-%d %H:%M:%S'))
+
+
+        day = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
+        day = day.round("d")
+        day = day.days
+
         
         if uid in meta["ID"]:
             temp = meta[meta["ID"]==uid]
@@ -455,295 +460,36 @@ class TimeSeriesForecast:
         minGV = round(df['GlucoseValue'].min(),2)
         
         # smoothened = self.smoothing(df['GlucoseValue'])
-        glucs = df['GlucoseValue'].to_list()
-        indices = [1*i for i in range(len(glucs))]
-        m = MageDataSet(indices, glucs)
-        k = m.getMAGE()
+        df['GlucoseValue'] = self.smoothing(df['GlucoseValue'])
+        df = df[df['GlucoseValue'].notna()]
+        df = df.reset_index(drop=True)
+
+        dates = []
+        for i in range(len(df.index)):
+            dates.append(df['Display Time'][i].date())
+        df['Date'] = dates
+
+        mage_daily = []
+        excursions = 0
+        for Date, xx in df.groupby('Date'):
+            xx = xx.reset_index(drop=True)
+            m, e = self.mageCalculation(xx,1)
+            mage_daily.append(m)
+            excursions = excursions + e
+
+        mage = round(mean(mage_daily),3)
+        excusrions = math.floor(excursions)
         # gap_size = df[df['time_gap']>str("00:03:10")]
         # gap_size = max(gap_size.time_gap)
 
-        start_time = str(df['Display Time'].iloc[0])
-        end_time = str(df['Display Time'].iloc[-1])
+        mean_day, mean_night = self.meanCalculations(df)
         
-        data_description = pd.DataFrame({'Subject ID':[uid], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[k], 'Days':[days], 'Start':[start_time],'End':[end_time]})
+        data_description = pd.DataFrame({'Subject ID':[uid], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[mage], "Excursions":[excursions],'Days':[day], 'Daytime Mean:':[mean_day], 'Nighttime Mean':[mean_night]})
 
         data_description = data_description.set_index(['Subject ID'], drop=True)
 
         display(data_description)
 
-
-#==================================================================================================================
-#   Helper Methods
-#==================================================================================================================
-
-    def smoothing(self, data):
-        """
-            Performing rolling-mean smoothening for a time-series to improve MAGE calculation 
-            Input:
-                data: time-series with tiny fluctuations and local minima and maxima
-            Output:
-                data: smoothened time-series
-        """ 
-        
-        series = data
-        # Tail-rolling average transform
-        rolling = series.rolling(window=6)
-        rolling_mean = rolling.mean()
-        return rolling_mean
-
-
-    def subSample(self, data):
-        """
-            Sampling a time-series at 15 minute intervals
-            Input:
-                data: time-series with irregular intervals
-            Output:
-                data: time-series with 15 minute intervals
-        """ 
-        data['Display Time'] = pd.to_datetime(data['Display Time'])
-        data['time_gap'] = data['Display Time'].shift(1)-data['Display Time'][0]
-        data['time_gap'][0] = '00:00:00'
-        mods = [0,870,871,872,873,874,875,876,877,878,879,880,881,882,883,884,885,886,887,888,889,890,891,892,893,894,895,896,897,898,899]
-        subset = pd.DataFrame()
-        for i in range(1,len(data.index)):
-            seconds = data['time_gap'][i].total_seconds()
-            if (seconds%900) in mods:
-                subj_id = data['subjectId'][i]
-                gv = data['GlucoseValue'][i]
-                dt = data['Display Time'][i]
-                temp_df = pd.DataFrame({'Display Time':[dt], 'GlucoseValue':[gv], 'subjectId':[subj_id]})
-                subset = pd.concat([temp_df,subset],ignore_index=True)
-        subset = subset.iloc[::-1]
-        subset = subset.reset_index(drop=True)
-        data.drop(['time_gap'], axis=1, inplace=True)
-        return subset
-
-
-    def convertUnits(self, data, unit):
-        """
-            converting glucose values into desired unit of measurement 
-            Input:
-                data: individual time series with default unit of glucose value
-                unit: desired unit of conversion
-            Output:
-                data: individual time series desired unit of glucose value
-        """ 
-        if unit == 'mmol':
-            if(data['GlucoseValue'][0]>18):
-                in_mmols = pd.DataFrame({'Display Time':data['Display Time'], 'GlucoseValue':data['GlucoseValue']/18, 'subjectId':data['subjectId']})
-                return in_mmols
-            else:
-                print("Data already in mmols")
-                return data
-        elif unit == 'mg':
-            if(data['GlucoseValue'][0]<18):
-                in_mgs = pd.DataFrame({'Display Time':data['Display Time'], 'GlucoseValue':data['GlucoseValue']*18, 'subjectId':data['subjectId']})
-                return in_mgs
-            else:
-                print("Data already in mgs")
-                return data
-        else:
-            print("Invalid unit. Please enter 'mmol' or 'mg'. ")
-            
-            
-    def fullDay(self, data):
-        """
-           trimming an individual's glucose values to only consist of full days     
-            Input:
-                data: irregular time series
-            Output:
-                data: time series with data only for full days
-        """ 
-        
-        dates = list()
-        data = data.reset_index(drop=True)
-        for i in range(0,len(data.index)):
-            dates.append(data['Display Time'][i].date())
-        data['Dates'] = dates
-        end = data['Dates'].iloc[-1]
-        start = data['Dates'].iloc[0]
-
-        indexVals = data[ data['Dates'] == start ].index
-        # indexVals
-        data.drop(indexVals , inplace=True)
-
-        indexVals = data[ data['Dates'] == end ].index
-        # indexVals
-        data.drop(indexVals , inplace=True)
-
-        data = data.reset_index(drop=True)
-        
-        data.drop(['Dates'], axis=1, inplace=True)
-        
-        return data
-
-
-    def fullDaysOnly(self, data):
-        data_fullDays = pd.DataFrame()
-
-        for subjectId, df in data.groupby('subjectId'):
-            df['Display Time'] = pd.to_datetime(df['Display Time'])
-            df = df.reset_index(drop=True)
-            temp = self.fullDay(df)
-            data_fullDays = pd.concat([data_fullDays, temp],ignore_index=True)
-
-        return(data_fullDays)
-
-        
-#==================================================================================================================
-#   These methods are not called by the user and only used for internal processing
-#==================================================================================================================
-    
-    def plot(self, data):
-        """
-        The plot method plots the graph for the imputed values
-        input:
-            data: imputed values
-        output:
-            A plot of the imputed time series
-        """
-        #plotting true values and lstm predicted values
-        #these are original values
-        
-        plt.figure(figsize=(20, 8))
-
-        plt.plot(data['GlucoseValue'].tolist(), label='True', color='#2280f2', linewidth=2.5)
-        
-        plt.title("LSTM's Prediction")
-        
-        plt.xlabel('Observation')
-        plt.ylabel('Glucose Values')
-        plt.show();
-
-
-    def detectGap(self, testing_data):
-        """
-        The detectGap mehtod detects the GAP in a time series
-        input:
-            testing_data: dataset that needs to be imputed
-        output:
-            b,s: starting index of the gaps
-            e,f: end index of the gaps
-
-        """
-        l = []
-        k = 0
-        for i in testing_data['GlucoseValue']:
-            k+=1
-            if i==0:
-                l.append(k)
-        b = min(l)
-        e = max(l)
-        #print(b,e)
-        gap=e-b
-        #print(gap)
-        #print(b-gap)
-        #print(l)
-        s = (b-gap-2) if (b-gap) > 0 else 0
-        f = b-1
-        #print(s,f)
-        #print(f-s)
-        # print("Gap detected!")
-        return b,e,s,f,gap
-
-
-#==================================================================================================================
-#   Calculating error metrics
-#==================================================================================================================
-
-    def index_agreement(self, s,o):
-        """
-        index of agreement
-        input:
-            s: prediceted
-            o: original
-        output:
-            ia: index of agreement
-        """
-        
-        ia = 1 -(np.sum((o-s)**2))/(np.sum((np.abs(s-np.mean(o))+np.abs(o-np.mean(o)))**2))
-        
-        return ia
-
-    
-    def rmse(self, s,o):
-        """
-        Root Mean Squared Error
-        input:
-            s: prediceted
-            o: original
-        output:
-            rmses: root mean squared error
-        """
-        return np.sqrt(np.mean((s-o)**2))
-
-    
-    def mad(self, s,o):
-        """
-        Mean Absolute Error
-        input:
-            s: prediceted
-            o: original
-        output:
-            maes: mean absolute difference
-        """
-        return np.mean(abs(s-o))
-
-    
-    def mape(self, y_pred,y_true):
-        """
-        Mean Absolute Percentage error
-        input:
-            y_pred: prediceted
-            y_true: original
-        output:
-            mape: Mean Absolute Percentage error
-        """
-    
-        return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
-
-    
-    def fracBias(self, s,o):
-        """
-        Fractional Bias
-        input:
-            s: prediceted
-            o: original
-        output:
-            fracBias: Fractional Bias
-        """
-        
-        return np.mean(np.abs((o - s) / ((o + s)/2)))
-
-    
-    def getMetrics(self,lstm_pred, test_val):
-        """
-        The getMetrics method simply prints out all the comparison metrics
-        """
-        #IOA
-        ioa_val = self.index_agreement(lstm_pred,test_val)
-        print("Index of Agreement is: " + str(round(ioa_val,3)))
-    
-        #MAE
-        mae_val = self.mae(lstm_pred,test_val)
-        print("Mean Absolute Error is: " + str(mae_val))
-    
-        #RMSE
-        rmse_val = self.rmse(lstm_pred,test_val)
-        print("Root Mean Squared Error is: " + str(round(rmse_val,3)))
-        
-        #MAD
-        mad_val = self.mad(lstm_pred)
-        print("Mean Absolute Difference is: " + str(mad_val))
-        
-        #FB
-        fb_val = self.fracBias(lstm_pred,test_val)
-        print("Fractional Bias is: " + str(round(fb_val,3)))
-        
-        #MAPE
-        mape_val = self.mape(lstm_pred,test_val)
-        print("Mean Absolute Percentage Error is: " + str(round(mape_val)))
- 
 
 #==================================================================================================================
 #   GVI's
@@ -753,25 +499,71 @@ class TimeSeriesForecast:
         data_description = pd.DataFrame()
         for subjectId, df in data.groupby('subjectId'):
         #     print(subjectId)
+            df = self.fullDaysOnly(df)
             df['Display Time'] = pd.to_datetime(df['Display Time'])
             df=df.reset_index(drop=True)
+
+            dates = []
+            for i in range(len(df.index)):
+                dates.append(df['Display Time'][i].date())
+            df['Date'] = dates
             
             gfi, gcf = self.gfi(df)
-            LBGI, HBGI, BGRI = self.bgri(df, units = 'mg')
-            GRADE , HypoG_P, EuG_P, HyperG_P = self.grade(df, units='mg')
-            j_index = self.j_index(df, units="mg")
-            Mvalue = self.m_value(df, 'mg', 120)
-            MAG = self.mag(df)
-            GVP = self.gvp(df, units='mg')
-            GMI = self.gmi(df, units='mg')
-            LAGE, MAX, MIN = self.lage(df)
-            HBA1C = self.ehba1c(df)
-            m, sd, cv, iqr = self.sumstats(df)
-            sdrc = self.rc(df)
-            pgs = self.pgs(df, units='mg')
-            dt = self.dt(df)
 
-            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs,3)], 'DT':[round(dt,3)]})
+            LBGI, HBGI, BGRI = self.bgri(df, units = 'mg')
+            
+            GRADE , HypoG_P, EuG_P, HyperG_P = self.grade(df, units='mg')
+            
+            j_index = self.j_index(df, units="mg")
+            
+            Mvalue = self.m_value(df, 'mg', 120)
+            
+            MAG = self.mag(df)
+            
+            GVP = self.gvp(df, units='mg')
+            
+            GMI = self.gmi(df, units='mg')
+            
+            LAGE, MAX, MIN = self.lage(df)
+            
+            HBA1C = self.ehba1c(df)
+            
+            m, sd, cv, iqr = self.sumstats(df)
+            
+            sdrc = self.rc(df)
+            
+            start = df.Date[0]
+            
+            end = start+timedelta(days=7)
+            
+            last_date = df.Date.iloc[-1]
+            
+            pgs_weekly = []
+            while end <= last_date:
+                xy = pd.DataFrame()
+                mask = (df['Date'] >= start) & (df['Date'] <= end)
+                xy = pd.concat([xy, df.loc[mask]],ignore_index=True)
+                pgs_weekly.append(self.pgs(xy, units='mg'))
+                start = end+timedelta(days=1)
+                end = start+timedelta(days=7)  
+
+            xy = pd.DataFrame()    
+            end = last_date
+            mask = (df['Date'] >= start) & (df['Date'] <= end)
+            xy = pd.concat([xy, df.loc[mask]],ignore_index=True)
+            pgs_weekly.append(self.pgs(xy, units='mg'))
+            
+            pgs_value = mean(pgs_weekly)
+            
+            dt = self.dt(df)
+            
+            TAR_VH, TAR_H, TIR, TBR_L, TBR_VL = self.tir(df, units='mg')
+
+            xx = self.subSample(df)
+            hypo, hyper = self.variabilityEpisodes(xx, "mg")
+
+            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper]})
+            
             data_description = pd.concat([data_description,temp_df],ignore_index=True)
 
         # data_description = data_description.iloc[::-1]
@@ -784,25 +576,67 @@ class TimeSeriesForecast:
 
     def individualGvIndices(self, uid, data = consolidated_paper):
         df = data[data['subjectId']==str(uid)]
+        df = self.fullDaysOnly(df)
         df['Display Time'] = pd.to_datetime(df['Display Time'])
         df=df.reset_index(drop=True)
+
+        dates = []
+        for i in range(len(df.index)):
+            dates.append(df['Display Time'][i].date())
+        df['Date'] = dates   
         
         gfi, gcf = self.gfi(df)
-        LBGI, HBGI, BGRI = self.bgri(df, units = 'mg')
-        GRADE , HypoG_P, EuG_P, HyperG_P = self.grade(df, units='mg')
-        j_index = self.j_index(df, units="mg")
-        Mvalue = self.m_value(df, 'mg', 120)
-        MAG = self.mag(df)
-        GVP = self.gvp(df, units='mg')
-        GMI = self.gmi(df, units='mg')
-        LAGE, MAX, MIN = self.lage(df)
-        HBA1C = self.ehba1c(df)
-        m, sd, cv, iqr = self.sumstats(df)
-        sdrc = self.rc(df)
-        pgs = self.pgs(df, units='mg')
-        dt = self.dt(df)
 
-        data_description = pd.DataFrame({'Subject ID':[uid], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs,3)], 'DT':[round(dt,3)]})
+        LBGI, HBGI, BGRI = self.bgri(df, units = 'mg')
+
+        GRADE , HypoG_P, EuG_P, HyperG_P = self.grade(df, units='mg')
+
+        j_index = self.j_index(df, units="mg")
+        
+        Mvalue = self.m_value(df, 'mg', 120)
+        
+        MAG = self.mag(df)
+        
+        GVP = self.gvp(df, units='mg')
+        
+        GMI = self.gmi(df, units='mg')
+        
+        LAGE, MAX, MIN = self.lage(df)
+        
+        HBA1C = self.ehba1c(df)
+        
+        m, sd, cv, iqr = self.sumstats(df)
+        
+        sdrc = self.rc(df)
+        
+        start = df.Date[0]
+        end = start+timedelta(days=7)
+        last_date = df.Date.iloc[-1]
+        pgs_weekly = []
+        while end <= last_date:
+            xy = pd.DataFrame()
+            mask = (df['Date'] >= start) & (df['Date'] <= end)
+            xy = pd.concat([xy, df.loc[mask]],ignore_index=True)
+            pgs_weekly.append(self.pgs(xy, units='mg'))
+            start = end+timedelta(days=1)
+            end = start+timedelta(days=7)  
+
+        xy = pd.DataFrame()    
+        end = last_date
+        mask = (df['Date'] >= start) & (df['Date'] <= end)
+        xy = pd.concat([xy, df.loc[mask]],ignore_index=True)
+        pgs_weekly.append(self.pgs(xy, units='mg'))
+        
+        pgs_value = mean(pgs_weekly)
+
+        dt = self.dt(df)
+        
+        TAR_VH, TAR_H, TIR, TBR_L, TBR_VL = self.tir(df, units='mg')
+
+        xx = self.subSample(df)
+        hypo, hyper = self.variabilityEpisodes(xx, "mg")
+
+        data_description = pd.DataFrame({'Subject ID':[uid], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper]})
 
 
         # data_description = data_description.iloc[::-1]
@@ -1430,9 +1264,12 @@ class TimeSeriesForecast:
 
         F_GVP = 1 + 9/(1 + np.exp(-0.049*(GVP-65.47)))
         
-        
+        if len(x)==0:
+            lx=1
+        else:
+            lx = len(x)
         TIR  =  len(x) - len(x[x.iloc[:,1]<70].iloc[:,1]) - len(x[x.iloc[:,1]>180].iloc[:,1])
-        PTIR = TIR*100/len(x)
+        PTIR = TIR*100/lx
         
         F_PTIR = 1 + 9/(1 + np.exp(0.0833*(PTIR - 55.04)))
         
@@ -1440,13 +1277,13 @@ class TimeSeriesForecast:
         F_MG = 1 + 9 * ( 1/(1 + np.exp(0.1139*(MG-72.08))) + 1/(1 + np.exp(-0.09195*(MG-157.57))) )
         
         PGS = F_GVP + F_MG + F_PTIR + F_H
-        PGS.columns=['PGS']
+        # PGS.columns=['PGS']
 
         if math.isinf(PGS):
             print("Error calculating PGS for: "+str(x["subjectId"]))
             PGS = 0.0
 
-        return PGS['PGS'][0]
+        return PGS
 
 
     def dt(self,x):
@@ -1478,7 +1315,491 @@ class TimeSeriesForecast:
         # return pd.DataFrame({'DT': [dy]})
 
 
+    def tir(self, x, units):
+        """
+            Time in Ranges
+            The persentage of time spent witihn the glucoses target range:
+            Very high: Time above range (TAR): % of readings and time > 250 mg/dL (>13.9 mmol/L)
+            High: Time above range (TAR): % of readings and time 181–250 mg/dL (10.1–13.9 mmol/L)
+            In range: Time in range (TIR): % of readings and time 70–180 mg/dL (3.9–10.0 mmol/L)
+            Low: Time below range (TBR): % of readings and time 54–69 mg/dL (3.0–3.8 mmol/L)
+            Very low: Time below range (TBR): % of readings and time <54 mg/dL (<3.0 mmol/L)
+
+            DESCRIPTION: Takes in a sequesnce of continuous glucose values and computes
+            TIR(VH), TIR(H), TAR, TBR(L), TBR(VL).
+            This function works with data given either in mmol/L or mg/dL.
+
+            FUNCTION PARAMETERS: x - is Pandas dataframe, in the fist column is given subject ID,
+            in the second - Pandas time stamp, and in the fird - numeric values of
+            continuous glucose readings.
+
+            RETRUN: Output is Pandas dataframe that contains numeric value for  average DT.
+
+            REFERENCES:
+            -   T. Battelino, T. Danne, R. M. Bergenstal, S. A. Amiel, R. Beck, T. Biester,E. Bosi,
+            B. A. Buckingham, W. T. Cefalu, K. L. Close, et al. Clinical targets forcontinuous glucose monitoring
+            data interpretation: recommendations from theinternational consensus on time in range.Diabetes Care,
+            42(8):1593–1603, 2019.
+        """
+        if (units == 'mg'):
+            N = len(x)
+            TAR_VH = len(x[x.iloc[:,1]> 250])/N*100
+            TAR_H  = len(x[(x.iloc[:,1]>= 181) & (x.iloc[:,1]<= 250)])/N*100
+            TIR    = len(x[(x.iloc[:,1]>= 70) & (x.iloc[:,1]<= 180)])/N*100
+            TBR_L  = len(x[(x.iloc[:,1]>= 54) & (x.iloc[:,1]<= 69)])/N*100
+            TBR_VL = len(x[x.iloc[:,1]< 54])/N*100
+            # return pd.DataFrame({'TAR_VH(%)': [TAR_VH], 'TAR_H(%)': [TAR_H], 'TIR(%)': [TIR], 'TBR_L(%)': [TBR_L], 'TBR_VL(%)': [TBR_VL]})
+            return TAR_VH, TAR_H, TIR, TBR_L, TBR_VL
+        elif (units=='mmol'):
+            N = len(x)
+            TAR_VH = len(x[x.iloc[:,1]> 13.9])/N*100
+            TAR_H  = len(x[(x.iloc[:,1]>= 10.1) & (x.iloc[:,1]<= 13.9)])/N*100
+            TIR    = len(x[(x.iloc[:,1]>= 3.9) & (x.iloc[:,1]<= 10.0)])/N*100
+            TBR_L  = len(x[(x.iloc[:,1]>= 3.0) & (x.iloc[:,1]<= 3.8)])/N*100
+            TBR_VL = len(x[x.iloc[:,1]< 3.0])/N*100
+            # return pd.DataFrame({'TAR_VH(%)': [TAR_VH], 'TAR_H(%)': [TAR_H], 'TIR(%)': [TIR], 'TBR_L(%)': [TBR_L], 'TBR_VL(%)': [TBR_VL]}
+            return TAR_VH, TAR_H, TIR, TBR_L, TBR_VL
+        else:
+            return print('units should be either mmol or mg')
 
 
+    def variabilityEpisodes(self, df, unit):
+        time_diff = timedelta(hours=0, minutes=15, seconds=30)
+        
+        
+        if unit == 'mg':
+            hypoglycemia = df[df.GlucoseValue<=54]
+            hyperglycemia = df[df.GlucoseValue>=250]
+        elif unit == 'mmol':
+            hypoglycemia = df[df.GlucoseValue<=3]
+            hyperglycemia = df[df.GlucoseValue>=13.9]
+        else:
+            print("Unit should be 'mg' or 'mmol'")
+            return 0,0
+         
+        hypoglycemia = hypoglycemia.reset_index(drop=True)
+        hypoglycemia['Display Time'] = pd.to_datetime(hypoglycemia['Display Time'])
+        hypoglycemia['time_gap'] = hypoglycemia['Display Time'].diff()
+        hypoglycemic_episodes = 0
+        
+        for gap in hypoglycemia['time_gap']:
+            if gap <= time_diff:
+                hypoglycemic_episodes+=1
+
+        
+        
+        hyperglycemia = hyperglycemia.reset_index(drop=True)
+        hyperglycemia['Display Time'] = pd.to_datetime(hyperglycemia['Display Time'])
+        hyperglycemia['time_gap'] = hyperglycemia['Display Time'].diff()
+        
+        hyperglycemia_episodes = 0
+        for gap in hyperglycemia['time_gap']:
+            if gap <= time_diff:
+                hyperglycemia_episodes+=1
+                
+        return hypoglycemic_episodes, hyperglycemia_episodes
+
+            # “Number of hypoglycemic (glucose concentrations of less than 3.0 mmol/L (54 mg/dL))and number of hyperglycemic (glucose concentration of more than 13.9 mmol/L (250 mg/dL)) episodes that last at least 15min.
+            #  HypoE and HyperE are computed for each day and then averaged across all days within individual time series.
+
+            #  DESCRIPTION: Takes in a sequence of continuous glucose values and computes
+            #  HypoE and HyperE.
+            #  This function works with data given either in mmol/L or mg/dL.
+             
+            #  FUNCTION PARAMETERS: x - is Pandas dataframe, in the first column is given subject ID, 
+            #  in the second - Pandas timestamp, and in the third- numeric values of 
+            #  continuous glucose readings.
+
+            #  RETURN: Output is Pandas dataframe that contains numeric value for average HyperE and HypoE.
+
+            #  REFERENCES:
+            # -   T. Battelino, T. Danne, R. M. Bergenstal, S. A. Amiel, R. Beck, T. Biester,E. Bosi,
+            #  B. A. Buckingham, W. T. Cefalu, K. L. Close, et al. Clinical targets for continuous glucose monitoring data interpretation: recommendations from the international consensus on time in range.Diabetes Care,  42(8):1593–1603, 2019.
+            # Code up function to extract Mean24h, day, night - use the function that you already coded up for time stamp.
+            # For PGS - lookup for individuals that have at least one week worth of data to test it out, pick those that have least missing values.
     
+
+#==================================================================================================================
+#   Helper Methods
+#==================================================================================================================
+    def meanCalculations(self, xx):
+        dates = []
+        times = []
+        for i in range(len(xx.index)):
+            dates.append(xx['Display Time'][i].date())
+            times.append(xx['Display Time'][i].time())
+        xx['Date'] = dates   
+        xx['Time'] = times
+        
+        n_s = datetime.strptime("00:00:00","%H:%M:%S").time()
+        n_e = datetime.strptime("06:00:00","%H:%M:%S").time()
+        d_s = datetime.strptime("06:00:01","%H:%M:%S").time()
+        d_e = datetime.strptime("23:59:59","%H:%M:%S").time()
+        
+        day_means = []
+        night_means = []
+        for Date, df in xx.groupby('Date'):
+        #     print(Date)
+            days = pd.DataFrame()
+            night = pd.DataFrame()
+            day_readings = (df['Time'] >= d_s) & (df['Time'] <= d_e)
+            night_readings = (df['Time'] >= n_s) & (df['Time'] <= n_e)
+            days = df.loc[day_readings]
+            night = df.loc[night_readings]
+            if (days.empty) == False:
+                day_means.append(mean(days.GlucoseValue))
+            if (night.empty) == False:
+                night_means.append(mean(night.GlucoseValue))
+                
+        return round(mean(day_means),3), round(mean(night_means),3)
     
+
+    def mageCalculation(self, df, std=1):
+        
+        #extracting glucose values and incdices
+        glucs = df['GlucoseValue'].to_list()
+        indices = [1*i for i in range(len(glucs))]
+        stdev = std
+        
+        # detection of local minima and maxima
+        x = indices
+        gvs = glucs
+        # local min & max
+        a = np.diff(np.sign(np.diff(gvs))).nonzero()[0] + 1      
+        # local min
+        valleys = (np.diff(np.sign(np.diff(gvs))) > 0).nonzero()[0] + 1 
+        # local max
+        peaks = (np.diff(np.sign(np.diff(gvs))) < 0).nonzero()[0] + 1         
+        # +1 due to the fact that diff reduces the original index number
+
+        #storing the local minima and maxima to identify and remove turning points
+        excursion_points = pd.DataFrame(columns=['Index', 'Timestamp', 'GlucoseValue', 'Type'])
+        k=0
+        for i in range(len(peaks)):
+            excursion_points.loc[k] = [peaks[i]] + [df['Display Time'][k]] + [df['GlucoseValue'][k]] + ["P"]
+            k+=1
+
+        for i in range(len(valleys)):
+            excursion_points.loc[k] = [valleys[i]] + [df['Display Time'][k]] + [df['GlucoseValue'][k]] + ["V"]
+            k+=1
+
+        excursion_points = excursion_points.sort_values(by=['Index'])
+        excursion_points = excursion_points.reset_index(drop=True)
+        # display(excursion_points)
+
+
+        # selecting turning points
+        turning_points = pd.DataFrame(columns=['Index', 'Timestamp', 'GlucoseValue', 'Type'])
+        k=0
+        for i in range(stdev,len(excursion_points.Index)-stdev):
+            positions = [i-stdev,i,i+stdev]
+            for j in range(0,len(positions)-1):
+                if(excursion_points.Type[positions[j]] == excursion_points.Type[positions[j+1]]):
+                    if(excursion_points.Type[positions[j]]=='P'):
+                        if excursion_points.GlucoseValue[positions[j]]>=excursion_points.GlucoseValue[positions[j+1]]:
+                            turning_points.loc[k] = excursion_points.loc[positions[j+1]]
+                            k+=1
+                        else:
+                            turning_points.loc[k] = excursion_points.loc[positions[j+1]]
+                            k+=1
+                    else:
+                        if excursion_points.GlucoseValue[positions[j]]<=excursion_points.GlucoseValue[positions[j+1]]:
+                            turning_points.loc[k] = excursion_points.loc[positions[j]]
+                            k+=1
+                        else:
+                            turning_points.loc[k] = excursion_points.loc[positions[j+1]]
+                            k+=1
+
+        if len(turning_points.index)<10:
+            turning_points = excursion_points.copy()
+            excursion_count = len(excursion_points.index)
+        else:
+            excursion_count = len(excursion_points.index)/2
+
+
+
+        turning_points = turning_points.drop_duplicates(subset= "Index", keep= "first")
+        turning_points=turning_points.reset_index(drop=True)
+        excursion_points = excursion_points[excursion_points.Index.isin(turning_points.Index) == False]
+        excursion_points = excursion_points.reset_index(drop=True)
+            # display(turning_points)
+
+        # calculating the MAGE score
+        mage = turning_points.GlucoseValue.sum()/excursion_count
+        
+
+        return round(mage,3), excursion_count
+
+
+
+
+
+
+    def smoothing(self, data):
+        """
+            Performing rolling-mean smoothening for a time-series to improve MAGE calculation 
+            Input:
+                data: time-series with tiny fluctuations and local minima and maxima
+            Output:
+                data: smoothened time-series
+        """ 
+        
+        series = data
+        # Tail-rolling average transform
+        rolling = series.rolling(window=6)
+        rolling_mean = rolling.mean()
+        return rolling_mean
+
+
+    def subSample(self, data):
+        """
+            Sampling a time-series at 15 minute intervals
+            Input:
+                data: time-series with irregular intervals
+            Output:
+                data: time-series with 15 minute intervals
+        """ 
+        data['Display Time'] = pd.to_datetime(data['Display Time'])
+        data['time_gap'] = data['Display Time'].shift(1)-data['Display Time'][0]
+        data['time_gap'][0] = '00:00:00'
+        mods = [0,870,871,872,873,874,875,876,877,878,879,880,881,882,883,884,885,886,887,888,889,890,891,892,893,894,895,896,897,898,899]
+        subset = pd.DataFrame()
+        for i in range(1,len(data.index)):
+            seconds = data['time_gap'][i].total_seconds()
+            if (seconds%900) in mods:
+                subj_id = data['subjectId'][i]
+                gv = data['GlucoseValue'][i]
+                dt = data['Display Time'][i]
+                temp_df = pd.DataFrame({'Display Time':[dt], 'GlucoseValue':[gv], 'subjectId':[subj_id]})
+                subset = pd.concat([temp_df,subset],ignore_index=True)
+        subset = subset.iloc[::-1]
+        subset = subset.reset_index(drop=True)
+        data.drop(['time_gap'], axis=1, inplace=True)
+        return subset
+
+
+    def convertUnits(self, data, unit):
+        """
+            converting glucose values into desired unit of measurement 
+            Input:
+                data: individual time series with default unit of glucose value
+                unit: desired unit of conversion
+            Output:
+                data: individual time series desired unit of glucose value
+        """ 
+        if unit == 'mmol':
+            if(data['GlucoseValue'][0]>18):
+                in_mmols = pd.DataFrame({'Display Time':data['Display Time'], 'GlucoseValue':data['GlucoseValue']/18, 'subjectId':data['subjectId']})
+                return in_mmols
+            else:
+                print("Data already in mmols")
+                return data
+        elif unit == 'mg':
+            if(data['GlucoseValue'][0]<18):
+                in_mgs = pd.DataFrame({'Display Time':data['Display Time'], 'GlucoseValue':data['GlucoseValue']*18, 'subjectId':data['subjectId']})
+                return in_mgs
+            else:
+                print("Data already in mgs")
+                return data
+        else:
+            print("Invalid unit. Please enter 'mmol' or 'mg'. ")
+            
+            
+    def fullDay(self, data):
+        """
+           trimming an individual's glucose values to only consist of full days     
+            Input:
+                data: irregular time series
+            Output:
+                data: time series with data only for full days
+        """ 
+        
+        dates = list()
+        data = data.reset_index(drop=True)
+        for i in range(0,len(data.index)):
+            dates.append(data['Display Time'][i].date())
+        data['Dates'] = dates
+        end = data['Dates'].iloc[-1]
+        start = data['Dates'].iloc[0]
+
+        indexVals = data[ data['Dates'] == start ].index
+        # indexVals
+        data.drop(indexVals , inplace=True)
+
+        indexVals = data[ data['Dates'] == end ].index
+        # indexVals
+        data.drop(indexVals , inplace=True)
+
+        data = data.reset_index(drop=True)
+        
+        data.drop(['Dates'], axis=1, inplace=True)
+        
+        return data
+
+
+    def fullDaysOnly(self, data):
+        data_fullDays = pd.DataFrame()
+
+        for subjectId, df in data.groupby('subjectId'):
+            df['Display Time'] = pd.to_datetime(df['Display Time'])
+            df = df.reset_index(drop=True)
+            temp = self.fullDay(df)
+            data_fullDays = pd.concat([data_fullDays, temp],ignore_index=True)
+
+        return(data_fullDays)
+
+        
+#==================================================================================================================
+#   These methods are not called by the user and only used for internal processing
+#==================================================================================================================
+    
+    def plot(self, data):
+        """
+        The plot method plots the graph for the imputed values
+        input:
+            data: imputed values
+        output:
+            A plot of the imputed time series
+        """
+        #plotting true values and lstm predicted values
+        #these are original values
+        
+        plt.figure(figsize=(20, 8))
+
+        plt.plot(data['GlucoseValue'].tolist(), label='True', color='#2280f2', linewidth=2.5)
+        
+        plt.title("LSTM's Prediction")
+        
+        plt.xlabel('Observation')
+        plt.ylabel('Glucose Values')
+        plt.show();
+
+
+    def detectGap(self, testing_data):
+        """
+        The detectGap mehtod detects the GAP in a time series
+        input:
+            testing_data: dataset that needs to be imputed
+        output:
+            b,s: starting index of the gaps
+            e,f: end index of the gaps
+
+        """
+        l = []
+        k = 0
+        for i in testing_data['GlucoseValue']:
+            k+=1
+            if i==0:
+                l.append(k)
+        b = min(l)
+        e = max(l)
+        #print(b,e)
+        gap=e-b
+        #print(gap)
+        #print(b-gap)
+        #print(l)
+        s = (b-gap-2) if (b-gap) > 0 else 0
+        f = b-1
+        #print(s,f)
+        #print(f-s)
+        # print("Gap detected!")
+        return b,e,s,f,gap
+
+
+#==================================================================================================================
+#   Calculating error metrics
+#==================================================================================================================
+
+    def index_agreement(self, s,o):
+        """
+        index of agreement
+        input:
+            s: prediceted
+            o: original
+        output:
+            ia: index of agreement
+        """
+        
+        ia = 1 -(np.sum((o-s)**2))/(np.sum((np.abs(s-np.mean(o))+np.abs(o-np.mean(o)))**2))
+        
+        return ia
+
+    
+    def rmse(self, s,o):
+        """
+        Root Mean Squared Error
+        input:
+            s: prediceted
+            o: original
+        output:
+            rmses: root mean squared error
+        """
+        return np.sqrt(np.mean((s-o)**2))
+
+    
+    def mad(self, s,o):
+        """
+        Mean Absolute Error
+        input:
+            s: prediceted
+            o: original
+        output:
+            maes: mean absolute difference
+        """
+        return np.mean(abs(s-o))
+
+    
+    def mape(self, y_pred,y_true):
+        """
+        Mean Absolute Percentage error
+        input:
+            y_pred: prediceted
+            y_true: original
+        output:
+            mape: Mean Absolute Percentage error
+        """
+    
+        return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+
+    
+    def fracBias(self, s,o):
+        """
+        Fractional Bias
+        input:
+            s: prediceted
+            o: original
+        output:
+            fracBias: Fractional Bias
+        """
+        
+        return np.mean(np.abs((o - s) / ((o + s)/2)))
+
+    
+    def getMetrics(self,lstm_pred, test_val):
+        """
+        The getMetrics method simply prints out all the comparison metrics
+        """
+        #IOA
+        ioa_val = self.index_agreement(lstm_pred,test_val)
+        print("Index of Agreement is: " + str(round(ioa_val,3)))
+    
+        #MAE
+        mae_val = self.mae(lstm_pred,test_val)
+        print("Mean Absolute Error is: " + str(mae_val))
+    
+        #RMSE
+        rmse_val = self.rmse(lstm_pred,test_val)
+        print("Root Mean Squared Error is: " + str(round(rmse_val,3)))
+        
+        #MAD
+        mad_val = self.mad(lstm_pred)
+        print("Mean Absolute Difference is: " + str(mad_val))
+        
+        #FB
+        fb_val = self.fracBias(lstm_pred,test_val)
+        print("Fractional Bias is: " + str(round(fb_val,3)))
+        
+        #MAPE
+        mape_val = self.mape(lstm_pred,test_val)
+        print("Mean Absolute Percentage Error is: " + str(round(mape_val)))
+ 

@@ -51,9 +51,7 @@ class TimeSeriesForecast:
     
     cwd = os.getcwd()
 
-    consolidated_paper = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
-
-    consolidated_pkg = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPackage.csv')
+    consolidatedData = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
 
     consolidated_meta = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedMetadata.csv')
 
@@ -76,117 +74,23 @@ class TimeSeriesForecast:
 
             Creating an object: object = TimeSeriesForecast()
 
-            Methods:
-
-            +-------------------------------------------------------------------------------------------------------------------+
-            | 	Method Name 	|				Description				|			Input			|			Output			|
-            +-------------------------------------------------------------------------------------------------------------------+	
-            |		init		|	The __init__ method initializes	the |			None			|			None			|
-            |					|	data frames and testing functions 	|							|							|
-            |					|										|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-            |	datePreprocess	|	The datePreprocess method is used	|	data: dataset we wish	|	data: dataset with the 	|
-            |					|	to preprocess the testing data.		|	to convert the time - 	|	converted timestamp		|
-            |					|	It identifies the date and converts |	stamp of {type: 		|	{type: dataframe}		|
-            |					|	it to the standard datetime format.	|	dataframe}				|							|
-            |					|	It also converts the Timestamp 		|							|							|
-            |					|	to the index 						|							|							|
-            |					|										|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-            |		train		|	The train method is used to train	|	data: dataset we want	|	A trained model that	|
-            |					|	the model on user supplied data 	|	to train the model on	|	can be used for 		|
-            |					|	 									|	{type: dataframe}		|	imputations				|
-            |					|										|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-            |		impute		|	The impute method performs the		|	test: dataset {type:	|	A file with imputed 	|
-            |					|	imputations using the trained LSTM 	|	dataframe}			 	|	values				 	|
-            |					|	model 								|	lstm_model: trainied 	|							|
-            |					|										|	lstm model				|							|
-            |					|	 									|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-            |	plotSpecific	|	The plotSpecific method plots the	|	uid: Subject ID of the 	|	A plot of the patient's	|
-            |					|	graph of the Glucose Values of a 	|	user to plot {type:		|	Glucose values 			|
-            |					|	single patient 						|	String}					|							|
-            |					|										|	data: dataset {tye: 	|							|
-            |					|										|	DataFrame}				|							|
-            |					|										|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-            |	dataDescribe	|	The dataDescribe method provides &	|	data: CGM Analyzer data	|	A tabular and graphical |
-            |					|	statistical description of the CGM 	|	{tye: DataFrame}	 	|	representation of the	|
-            |					|	Analyzer data in the form of tables	|	meta: CGM Analyzer data |	statistical analysis of	|
-            |					|	and graphs. This processed data has |	metadata {type: 		|	the CGM Anayzer dataset	|
-            |					|	large gaps removed in the time 		|	DataFrame}				|							|
-            |					|	series' of individuals by trim the 	|							|							|
-            |					|	time series' with smaller gaps and	|							|							|
-            |					|	split the time series' with larger 	|							|							|
-            |					|	gaps  								|							|							|
-            |					|	 									|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-            |	smoothing		|	Performing rolling-mean smoothening |	data: time-series with 	|	data: smoothened    	|
-            |					|	for a time-series to improve  		|	irregular intervals 	|	 time-series			|
-            |					|	MAGE calculation					|	{type: dataframe}		|	{type: dataframe}		|
-            |					|	 									|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-            |	subSample		|	Sampling a time-series at 15 		|	data: dataset we want	|	data: time-series with 	|
-            |					|	minute intervals 					|	to train the model on	|	15 minute intervals 	|
-            |					|	 									|	{type: dataframe}		|	{type: dataframe}		|
-            |					|										|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-            |  convertUnits		|	converting glucose values into 		|	data: individual time 	|	data: individual time 	|
-            |					|	desired unit of measurement		 	|	series with default 	|	series desired unit		|
-            |					|	 									|	unit of glucose values 	|	of glucose value		|
-            |					|										|	{type: dataframe}		|	{type: dataframe}		|
-            |					|										|							|							|
-            |					|										|	unit: desired unit of 	|							|
-            |					|										|	conversion				|							|
-            |					|										|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-            |	full_days		|	trimming an individual's glucose 	|	data: irregular 	 	|	data: time series with 	|
-            |					|	values to only consist of 		 	|	time-series				|	data only for full days	|
-            |					|	full days 							|	{type: dataframe}		|	imputations				|
-            |					|										|							|	{type: dataframe}		|
-            |					|										|							|							|
-            +-------------------------------------------------------------------------------------------------------------------+
-              
-
-            Variables:
-
-            +---------------------------------------------------------------+
-            | 	Variable Name 		|			Data it contains			|
-            +---------------------------------------------------------------+
-            |	consolidated_paper	|		The consolidated data from  	|
-            |						|		CGMAnalyzer,CGMAnalysis,		|
-            |						|		GluVarPro, and Ohio dataset 	|
-            |						|										|
-            +---------------------------------------------------------------+
-            |	consolidated_pkg	|		The consolidated data from  	|
-            |						|		CGMAnalyzer,CGMAnalysis,		|
-            |						|		GluVarPro, Ohio, and Hall 	 	|
-            |						|		dataset							|
-            |						|										|
-            +---------------------------------------------------------------+
-            |	consolidated_meta	|		The metadata for consolidated 	|
-            |						|		data							|
-            |						|										|
-            +---------------------------------------------------------------+
-
-
-
             Package dependencies:
                 - pandas
                 - numpy
                 - matplotlib
                 - dateutil
                 - re     
+
+            Read complete documentation here:
+            https://wiki.ncsa.illinois.edu/display/CPRHD/Package+Documentation
         """
         
-       
-        
-        # self.consolidated_pkg = self.fullDaysOnly(self.consolidated_pkg)
-        # self.def_training = self.fullDaysOnly(self.def_training)
+
+        # display(self.consolidatedData)
 
 
         print("Object Created!")
+
     
     def datePreprocess(self,data):
         """
@@ -265,7 +169,7 @@ class TimeSeriesForecast:
         print("Model trained successfully!")
 
 
-    def plotSpecific(self, uid, data= consolidated_paper):
+    def plotSpecific(self, uid, data= consolidatedData):
         """
             The plotSpecific method plots the graph of the Glucose Values of a single Subject ID
             Input:
@@ -278,7 +182,7 @@ class TimeSeriesForecast:
         new = new.astype({'GlucoseValue':int})
         plt.figure(figsize=(20, 8))
 
-        plt.plot(new['Display Time'],new['GlucoseValue'], color='#2280f2', linewidth=2.5)
+        plt.plot(new['GlucoseValue'], color='#2280f2', linewidth=2.5)
 
         plt.title("Glucose Values of "+str(uid))
 
@@ -351,7 +255,7 @@ class TimeSeriesForecast:
             self.plot(test_data)
 
 
-    def dataDescribe(self, data = consolidated_paper, meta = consolidated_meta):
+    def dataDescribe(self, data = consolidatedData, meta = consolidated_meta):
         """
             The dataDescribe method provides a statistical description of the CGM Analyzer data in the form of tables and graphs
             This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
@@ -364,11 +268,11 @@ class TimeSeriesForecast:
         """
         data = self.fullDaysOnly(data)
         data['Display Time'] = data['Display Time'].apply(lambda x: pd.datetime.strptime(str(x), '%Y-%m-%d %H:%M:%S'))
-        print("Here is a glimpse of the data:\n")
-        print(data.head())
+        # print("Here is a glimpse of the data:\n")
+        # print(data.head())
        
     
-        total_readings = data['Display Time'].count()
+        total_readings = len(data.index)
         print("\nTotal Readings in the data:"+str(total_readings))
         print("\n\n\n")
 
@@ -376,21 +280,20 @@ class TimeSeriesForecast:
         
         for subjectId, df in data.groupby('subjectId'):
             
-            subj_id = str(subjectId)
-
-            # df = self.full_days(df)
-            
             day = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
             day = day.round("d")
             day = day.days
             
-            temp = meta[meta["ID"]==subj_id]
+            temp = meta[meta["ID"]==str(subjectId)]
             status = str(temp["status"].values[0])
             
             l_of_r = df['GlucoseValue'].count()
             
             maxGV = round(df['GlucoseValue'].max(),2)
             minGV = round(df['GlucoseValue'].min(),2)
+
+            df = df.reset_index(drop=True)
+            mean_day, mean_night = self.meanCalculations(df)
             
             # smoothened = self.smoothing(df['GlucoseValue'])
             df['GlucoseValue'] = self.smoothing(df['GlucoseValue'])
@@ -413,21 +316,13 @@ class TimeSeriesForecast:
             mage = round(mean(mage_daily),3)
             excusrions = math.floor(excursions)
 
-            mean_day, mean_night = self.meanCalculations(df)
-
             
             temp_df = pd.DataFrame({'Subject ID':[subjectId], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[mage], "Excursions":[excursions],'Days':[day], 'Daytime Mean:':[mean_day], 'Nighttime Mean':[mean_night]})
             data_description = pd.concat([data_description, temp_df],ignore_index=True)
 
-        temp = None
-
         # data_description = data_description.iloc[::-1]
 
         data_description = data_description.set_index(['Subject ID'], drop=True)
-
-
-        display(data_description.describe())
-        print("\n\n")
 
         print("Here is the statistical analysis of the data:\n")
         display(data_description)
@@ -435,7 +330,8 @@ class TimeSeriesForecast:
 
         data_description.to_csv(self.cwd+"/TSForecasting/Data/Data Description.csv")
 
-    def individualDescribe(self, uid, data = consolidated_paper, meta = consolidated_meta):
+
+    def individualDescribe(self, uid, data = consolidatedData, meta = consolidated_meta):
         df = data[data['subjectId']==str(uid)]
         
         df = self.fullDaysOnly(df)
@@ -458,6 +354,10 @@ class TimeSeriesForecast:
         
         maxGV = round(df['GlucoseValue'].max(),2)
         minGV = round(df['GlucoseValue'].min(),2)
+
+
+        df = df.reset_index(drop=True)
+        mean_day, mean_night = self.meanCalculations(df)
         
         # smoothened = self.smoothing(df['GlucoseValue'])
         df['GlucoseValue'] = self.smoothing(df['GlucoseValue'])
@@ -479,10 +379,6 @@ class TimeSeriesForecast:
 
         mage = round(mean(mage_daily),3)
         excusrions = math.floor(excursions)
-        # gap_size = df[df['time_gap']>str("00:03:10")]
-        # gap_size = max(gap_size.time_gap)
-
-        mean_day, mean_night = self.meanCalculations(df)
         
         data_description = pd.DataFrame({'Subject ID':[uid], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[mage], "Excursions":[excursions],'Days':[day], 'Daytime Mean:':[mean_day], 'Nighttime Mean':[mean_night]})
 
@@ -495,7 +391,7 @@ class TimeSeriesForecast:
 #   GVI's
 #==================================================================================================================
 
-    def gvIndices(self, data = consolidated_paper):
+    def gvIndices(self, data = consolidatedData):
         data_description = pd.DataFrame()
         for subjectId, df in data.groupby('subjectId'):
         #     print(subjectId)
@@ -562,8 +458,16 @@ class TimeSeriesForecast:
             xx = self.subSample(df)
             hypo, hyper = self.variabilityEpisodes(xx, "mg")
 
-            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper]})
-            
+            igc, hypoglycemicIndex, hyperglycemicIndex = self.IGC(df, 'mg')
+
+            li = self.glucoseLiabilityIndex(df, 'mg')
+
+            adrr_val = self.adrr(df, 'mg')
+
+            modd_val = self.modd(df)
+
+            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], "Liability Index": [li], "ADDR": [adrr_val], "MODD": [modd_val]})
+
             data_description = pd.concat([data_description,temp_df],ignore_index=True)
 
         # data_description = data_description.iloc[::-1]
@@ -574,7 +478,7 @@ class TimeSeriesForecast:
         
         data_description.to_csv(self.cwd+"/TSForecasting/Data/Glucose Indices.csv")
 
-    def individualGvIndices(self, uid, data = consolidated_paper):
+    def individualGvIndices(self, uid, data = consolidatedData):
         df = data[data['subjectId']==str(uid)]
         df = self.fullDaysOnly(df)
         df['Display Time'] = pd.to_datetime(df['Display Time'])
@@ -636,7 +540,15 @@ class TimeSeriesForecast:
         xx = self.subSample(df)
         hypo, hyper = self.variabilityEpisodes(xx, "mg")
 
-        data_description = pd.DataFrame({'Subject ID':[uid], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper]})
+        igc, hypoglycemicIndex, hyperglycemicIndex = self.IGC(df, 'mg')
+
+        li = self.glucoseLiabilityIndex(df, 'mg')
+
+        adrr_val = self.adrr(df, 'mg')
+
+        modd_val = self.modd(df)
+
+        data_description = pd.DataFrame({'Subject ID':[uid], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], "Liability Index": [li], "ADDR": [adrr_val], "MODD": [modd_val]})
 
 
         # data_description = data_description.iloc[::-1]
@@ -1418,6 +1330,101 @@ class TimeSeriesForecast:
             # Code up function to extract Mean24h, day, night - use the function that you already coded up for time stamp.
             # For PGS - lookup for individuals that have at least one week worth of data to test it out, pick those that have least missing values.
     
+    
+    def IGC(self, df, unit, lltr = 80, ultr = 140, a = 1.1, b = 2.0, c = 30, d = 30):
+        if unit == 'mg':
+            gv = df['GlucoseValue']
+        elif unit == 'mmol':
+            gv = 18*df['GlucoseValue']
+        else:
+            print('Unit should either be mg or mmol')
+            return 0
+        
+        lower_gv = gv[gv < 90]
+        upper_gv = gv[gv > 140]
+        
+        
+        count_lower = len(lower_gv.index)
+        count_upper = len(upper_gv.index)
+        
+        hypoglycemicIndex = np.sum(np.power((lltr - lower_gv), b)) / (count_lower*d)   
+        hyperglycemicIndex = np.sum(np.power((upper_gv - ultr), a)) / (count_upper*c)
+        
+        if np.isnan(hypoglycemicIndex):
+            hypoglycemicIndex = 0
+        if np.isnan(hyperglycemicIndex):
+            hyperglycemicIndex=0
+        
+        igc = hypoglycemicIndex + hyperglycemicIndex
+        return round(igc,3), round(hypoglycemicIndex,3), round(hyperglycemicIndex,3)
+
+
+    def glucoseLiabilityIndex(self,data, unit):
+        data = self.hourlySamples(data)
+        if unit == 'mg':
+            data['GlucoseValue'] = data['GlucoseValue']/18
+        gli = np.sum(np.power(data['GlucoseValue'][i] - data['GlucoseValue'][i+1],2) for i in range(0, len(data.index)-1))
+        return round(gli,3)
+
+
+    def adrr(self, xx, unit):
+        
+        if unit == 'mg':
+            f_bg = 1.509*(np.log(xx['GlucoseValue'])**1.084)-5.381
+            xx['F(BG)'] = f_bg
+        elif unit == 'mmol':
+            f_bg = 1.509*(np.log(xx['GlucoseValue']*18)**1.084)-5.381
+            xx['F(BG)'] = f_bg
+        else:
+            print('Unit should either be mg or mmol')
+            return 0
+        
+        dates = []
+        for i in range(len(xx.index)):
+            dates.append(xx['Display Time'][i].date())
+        xx['Date'] = dates 
+        
+
+        for Date, df in xx.groupby('Date'):
+            r_BG = 0
+            rl_BG = [0]
+            rh_BG = [0]
+            LR = 0
+            HR = 0
+            ADDR_daily = []
+            for f_BG in df['F(BG)']:
+                if f_BG < 0:
+                    rl_BG.append(f_BG)
+                else:
+                    rh_BG.append(f_BG)
+
+            LR = max(rl_BG)
+            HR = max(rh_BG)
+            ADDR_daily.append(LR+HR)
+        
+        
+        return round(mean(ADDR_daily),3)
+        
+               
+    def modd(self, data):
+        data = self.subSample(data)
+        data['Display Time'] = data['Display Time'].dt.round('5min') 
+        
+        times = []
+        for i in range(len(data.index)):
+            times.append(data['Display Time'][i].time())
+        data['Time'] = times  
+
+
+        Modd = [] 
+        s = 0
+        gvDiff = 0
+
+        for Time, df in data.groupby('Time'):
+            gvDiff = df['GlucoseValue'] - df['GlucoseValue'].shift(-1)
+            s = round(gvDiff.sum(),3)
+            Modd.append(s)
+        return round(mean(Modd),3) 
 
 #==================================================================================================================
 #   Helper Methods
@@ -1647,6 +1654,14 @@ class TimeSeriesForecast:
             data_fullDays = pd.concat([data_fullDays, temp],ignore_index=True)
 
         return(data_fullDays)
+
+
+    def hourlySamples(self, df):
+        groupkey = df['Display Time'].values.astype('datetime64[h]')
+        result = df.groupby(groupkey).mean()
+        result = result.reset_index(drop=True)
+        return (result)
+
 
         
 #==================================================================================================================

@@ -1563,6 +1563,24 @@ class glucoCheckOps:
     
     def congaN(self, df, n):
         """
+        ---
+
+        DESCRIPTION:
+
+        Takes in a sequence of continuous glucose values and computes the CONGA. This function works with a value 'n', that is the hour parameter that is usually 1, 2, or 4.
+
+        FUNCTION PARAMETERS:
+
+        df  Pandas data frame, in the first column, is given Pandas time stamp, 
+        in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
+        n   hour parameter; usually 1, 2, or 4. type: int
+        RETURN:
+
+        The output a numeric value for CONGA
+
+        REFERENCES:
+
+        “C. McDonnell, S. Donath, S. Vidmar, G. Werther, and F. Cameron. A novel approach to continuous glucose analysis utilizing glycemic variation. Diabetes technology & therapeutics, 7(2):253–263, 2005”
         """
         day = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
         day = day.round("d")

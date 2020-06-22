@@ -18,8 +18,6 @@ from keras.callbacks import EarlyStopping
 #from keras.optimizers import Adam
 from keras.layers import LSTM
 
-from TSForecasting.mage_calc import MageDataSet
-
 
 from scipy import stats
 
@@ -40,7 +38,7 @@ from datetime import timedelta
 from datetime import datetime
 
 
-class TimeSeriesForecast:
+class glucoCheckOps:
 
 
 #==================================================================================================================
@@ -51,11 +49,11 @@ class TimeSeriesForecast:
     
     cwd = os.getcwd()
 
-    consolidatedData = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
+    consolidatedData = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedDataForPaper.csv')
 
-    consolidated_meta = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedMetadata.csv')
+    consolidated_meta = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedMetadata.csv')
 
-    def_training = pd.read_csv(cwd+'/TSForecasting/Data/consolidatedDataForPaper.csv')
+    def_training = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedDataForPaper.csv')
 
 
 #==================================================================================================================
@@ -64,43 +62,52 @@ class TimeSeriesForecast:
 
     def __init__(self):
         """
-            Package name: TSForecasting
+            Package name: GlucoCheck
 
             Class name: TimeSeriesForecast
 
-            filename: TsForecasting
+            filename: GlucoCheck
 
-            Import code: from TSForecasting.TsForecasting import TimeSeriesForecast
+            Import code: from GlucoCheck.glucoCheck import glucoCheckOps
 
-            Creating an object: object = TimeSeriesForecast()
+            Creating an object: object = glucoCheckOps()
 
             Package dependencies:
                 - pandas
                 - numpy
                 - matplotlib
                 - dateutil
-                - re     
+                - datetime
+                - re 
+                - sklearn
+                - keras
+                - scipy
+                - random
+                - os
+                - math
+                - statistic
+
 
             Read complete documentation here:
             https://wiki.ncsa.illinois.edu/display/CPRHD/Package+Documentation
         """
-        
-
-        # display(self.consolidatedData)
-
 
         print("Object Created!")
 
     
     def datePreprocess(self,data):
         """
-            The datePreprocess method is used to preprocess the testing data
-            It indentifies the date and converts it to the standard datetime format
-            It also converts the Timestamp to the index
-            Input:
-                data: dataset we wish to convert the timestamp of {type: pandas DataFrame}
-            Output:
-                data: dataset with the converted timestamp {type: pandas DataFrame}
+            This method is used to preprocess the data entered by the user. It identifies the date and converts it to the standard datetime format (%Y-%m-%d %H:%M:%S). It also converts the Timestamp to the index of the data frame
+
+            Function Parameters:
+            data :   the dataset (CSV file) entered by the user to convert the timestamp. It should have the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            type: pandas DataFrame
+
+            Return:
+            The output is a pandas data frame of the csv file supplied with the 'Display Time' converted to the (%Y-%m-%d %H:%M:%S) format.        
         """
         # data = data.reset_index()
         length = data.shape[0]
@@ -118,11 +125,17 @@ class TimeSeriesForecast:
 
     def train(self, data = def_training):
         """
-            The train method is used to train the model on user supplied data
-            Input:
-                data: dataset we want to train the model on {type: pandas DataFrame}
-            Output:
-                A model trained on the supplied data that can be used for imputations
+            This method is used to train the LSTM imputation model on data. The default data set for the training includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package, and the Ohio University dataset. The user may specify their own data if they wish to. 
+
+            Function Parameters:
+            data: the dataset (CSV file) entered by the user to train the model. It should have the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            type: pandas DataFrame
+
+            Return:
+            The output is a model trained on the supplied data that can be used to perform imputations imputations
         """ 
         print("Training Model...\n\n")  
         data = self.fullDaysOnly(data)     
@@ -169,14 +182,22 @@ class TimeSeriesForecast:
         print("Model trained successfully!")
 
 
-    def plotSpecific(self, uid, data= consolidatedData):
+    def plotIndividual(self, uid, data= consolidatedData):
         """
-            The plotSpecific method plots the graph of the Glucose Values of a single Subject ID
-            Input:
-                uid: Subject ID of the user to plot {type: String}
-                data: dataset {type: DataFrame}
-            Output:
-                A plot of the Subject ID's Glucose Values
+            This method plots the graph of the Glucose Values of a single Subject ID. The subject ID can be found as a part of the description of the data. The default data includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package, and the Ohio University dataset. The user may specify their own data if they wish to. The subject ID is a part of the data supplied by the user. 
+
+            Function Parameters:
+
+            uid: The subject ID of the user to plot  type: String
+            data: the dataset (CSV file) entered by the user to train the model. It should have the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            type: pandas DataFrame
+
+            Return:
+            A line graph of the Subject ID's Glucose Value fluctuations with respect to the timestamp
+
         """
         new = data[data['subjectId']==str(uid)]
         new = new.astype({'GlucoseValue':int})
@@ -193,15 +214,21 @@ class TimeSeriesForecast:
             
     def impute(self,test_data,flag=0):
         """
-            The impute method performs the imputations using the trained LSTM model
-            Input:
-                test_data: testing data
-                lstm_model: trainied lstm model
-            Output:
-                A file with imputed values
+            This method performs the imputations on gaps present in the individual's glucose values using the trained LSTM model
+            
+            Function Parameters:
+            test_data: the dataset (CSV file) entered by the user with a gap that needs to be imputed. It should have the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            type: pandas DataFrame
+            
+            flag:A flag variable to decide whether to return the imputed values as a pandas data frame (flag=1)  or to save the imputed values as a CSV file and plot the graph for it (flag=0). The default value is 0.  type: integer
+
+            Return:
+            The imputed values as a pandas data frame (flag=1)  or  the imputed values saved as a csv file and a line graph for it
+
         """
-        # subj_id = test_data['subjectId'][0]
-        # test_data.drop(['subjectId'], axis=1, inplace=True)
         test_data = self.datePreprocess(test_data)
         b,e,s,f,gaps = self.detectGap(test_data)
         test = test_data.iloc[0:f]
@@ -250,20 +277,29 @@ class TimeSeriesForecast:
         else:
             print("Imputations performed!")
             # test_data['subjectId'] = subj_id
-            test_data.to_csv(self.cwd+"/TSForecasting/Data/Output/ImputedValues.csv") 
-            print("File saved!\nLocation:"+str(self.cwd+"/TSForecasting/Data/Output/ImputedValues.csv"))
+            test_data.to_csv(self.cwd+"/GlucoCheck/Data/Output/ImputedValues.csv") 
+            print("File saved!\nLocation:"+str(self.cwd+"/GlucoCheck/Data/Output/ImputedValues.csv"))
             self.plot(test_data)
 
 
     def dataDescribe(self, data = consolidatedData, meta = consolidated_meta):
         """
-            The dataDescribe method provides a statistical description of the CGM Analyzer data in the form of tables and graphs
-            This processed data has large gaps removed in the time series' of individuals by trim the time series' with smaller gaps and split the time series' with larger gaps
-            Input:
-                data: CGM Analyzer data {DataFrame}
-                meta: CGM Analyzer data metadata{DataFrame}
-            Output:
-                A tabular and graphical representation of the statistical analysis of the processed Hall dataset
+            This method provides a statistical description of the default data used for training the model in the form of a consolidated table. This data has been trimmed to have only complete days with no missing values. This description table is saved as a CSV file for future reference. 
+
+            Function Parameters:
+            data: The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package and the Ohio University with the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            type: pandas DataFrame
+            
+            meta: The dataset (CSV file) with the metadata about the status of the individuals in the following format:
+            ID        object
+            status    object
+            type: pandas DataFrame
+
+            Return:
+            A tabular and graphical representation of the statistical analysis of the consolidated data. This table is also saved as a csv file.
             
         """
         data = self.fullDaysOnly(data)
@@ -317,7 +353,7 @@ class TimeSeriesForecast:
             excusrions = math.floor(excursions)
 
             
-            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[mage], "Excursions":[excursions],'Days':[day], 'Daytime Mean:':[mean_day], 'Nighttime Mean':[mean_night]})
+            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[mage], "Excursions":[excursions],'Days':[day], 'Daytime Mean':[mean_day], 'Nighttime Mean':[mean_night]})
             data_description = pd.concat([data_description, temp_df],ignore_index=True)
 
         # data_description = data_description.iloc[::-1]
@@ -328,10 +364,31 @@ class TimeSeriesForecast:
         display(data_description)
         print("\n\n")
 
-        data_description.to_csv(self.cwd+"/TSForecasting/Data/Data Description.csv")
+        data_description.to_csv(self.cwd+"/GlucoCheck/Data/Data Description.csv")
 
 
     def individualDescribe(self, uid, data = consolidatedData, meta = consolidated_meta):
+        """
+            This method provides a statistical description of the default individual data based on the subject ID passed. This data has been trimmed to have only complete days with no missing values. 
+
+            Function Parameters:
+
+            uid: The subject ID of the user to plot  type: String
+            data:The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package and the Ohio University with the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            This data is split based on the subject ID
+            type: pandas DataFrame
+            
+            meta: The dataset (CSV file) with the metadata about the status of the individuals in the following format:
+            ID        object
+            status    object
+            type: pandas DataFrame
+
+            Return:
+            A tabular representation of the statistical analysis of the individual's data. 
+        """
         df = data[data['subjectId']==str(uid)]
         
         df = self.fullDaysOnly(df)
@@ -380,7 +437,7 @@ class TimeSeriesForecast:
         mage = round(mean(mage_daily),3)
         excusrions = math.floor(excursions)
         
-        data_description = pd.DataFrame({'Subject ID':[uid], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[mage], "Excursions":[excursions],'Days':[day], 'Daytime Mean:':[mean_day], 'Nighttime Mean':[mean_night]})
+        data_description = pd.DataFrame({'Subject ID':[uid], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[mage], "Excursions":[excursions],'Days':[day], 'Daytime Mean':[mean_day], 'Nighttime Mean':[mean_night]})
 
         data_description = data_description.set_index(['Subject ID'], drop=True)
 
@@ -392,6 +449,19 @@ class TimeSeriesForecast:
 #==================================================================================================================
 
     def gvIndices(self, data = consolidatedData):
+        """
+            This method provides a consolidated  table of all the glucose variability indices of all the individuals in the default data (The default data set for the training includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package, and the Ohio University dataset)
+
+            Function Parameters:
+            data:The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package, and the Ohio University with the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            type: pandas DataFrame
+
+            Return:
+            A consolidated table of all the glucose variability indices of all the individuals. This table is also saved as a CSV file.
+        """
         data_description = pd.DataFrame()
         for subjectId, df in data.groupby('subjectId'):
         #     print(subjectId)
@@ -466,7 +536,11 @@ class TimeSeriesForecast:
 
             modd_val = self.modd(df)
 
-            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], "Liability Index": [li], "ADDR": [adrr_val], "MODD": [modd_val]})
+            conga_1 = self.congaN(df, 1)
+            conga_2 = self.congaN(df, 2)
+            conga_4 = self.congaN(df, 4)
+
+            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], "Liability Index": [li], "ADDR": [adrr_val], "MODD": [modd_val], "CONGA1": [conga_1], "CONGA2": [conga_2], "CONGA4": [conga_4]})
 
             data_description = pd.concat([data_description,temp_df],ignore_index=True)
 
@@ -476,9 +550,26 @@ class TimeSeriesForecast:
 
         display(data_description)
         
-        data_description.to_csv(self.cwd+"/TSForecasting/Data/Glucose Indices.csv")
+        data_description.to_csv(self.cwd+"/GlucoCheck/Data/Glucose Indices.csv")
 
+    
     def individualGvIndices(self, uid, data = consolidatedData):
+        """
+        This method provides a consolidated  table of all the glucose variability indices of all the individuals in the default data (The default data set for the training includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package, and the Ohio University dataset)
+
+        Function Parameters:
+        uid: The subject ID of the user to plot  type: String
+        
+        data: The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package, and the Ohio University with the following format:
+        Display Time     object
+        GlucoseValue    float64
+        subjectId        object
+        This data is split based on the subject ID
+        type: pandas DataFrame
+        
+        Return:
+        A consolidated table of all the glucose variability indices of the individuals. 
+        """
         df = data[data['subjectId']==str(uid)]
         df = self.fullDaysOnly(df)
         df['Display Time'] = pd.to_datetime(df['Display Time'])
@@ -548,7 +639,11 @@ class TimeSeriesForecast:
 
         modd_val = self.modd(df)
 
-        data_description = pd.DataFrame({'Subject ID':[uid], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], "Liability Index": [li], "ADDR": [adrr_val], "MODD": [modd_val]})
+        conga_1 = self.congaN(df, 1)
+        conga_2 = self.congaN(df, 2)
+        conga_4 = self.congaN(df, 4)
+
+        data_description = pd.DataFrame({'Subject ID':[uid], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], 'BGRI':[round(BGRI,3)], 'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'J Index':[round(j_index,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], 'GVP':[round(GVP,3)], 'GMI':[round(GMI,3)], 'LAGE':[round(LAGE,3)],'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'HBA1C':[round(HBA1C,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':[round(cv,3)], 'IQR':[round(iqr,3)], 'SDRC':[round(sdrc,3)], 'PGS':[round(pgs_value,3)], 'DT':[round(dt,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], "Liability Index": [li], "ADDR": [adrr_val], "MODD": [modd_val], "CONGA1": [conga_1], "CONGA2": [conga_2], "CONGA4": [conga_4]})
 
 
         # data_description = data_description.iloc[::-1]
@@ -561,28 +656,19 @@ class TimeSeriesForecast:
     def gfi(self, x):
         """
             Glucose Fluctuation Index and Glucose Coefficient of Fluctuation
-            The GFI is based on consecutive glucose differences, where consecutive differences
-            in GFI are squared prior to finding their mean and taking the square root.
-            The potential benefit is that differences are weighted individually, giving more 
-            importance to the greatest ones, which are likely to be more detrimental 
+            The GFI is based on consecutive glucose differences, where consecutive differences in GFI are squared prior to finding their mean and taking the square root. The potential benefit is that differences are weighted individually, giving more importance to the greatest ones, which are likely to be more detrimental. GCF is computed as the ratio of GFI to the mean of input glucose values.
 
-            GCF is computed as the ratio of GFI to the mean of input glucose values.
+            DESCRIPTION:
+            The function takes in a sequence of continuous glucose values,  and computes glucose fluctuation index (GFI)  and the glucose coefficient of fluctuation (GCF). This function accepts data given either in mmol/L or mg/dl.
 
-            DESCRIPTION: Function takes in a sequesnce of continuous glucose values, 
-            and computes glucose fluctuation index (GFI) 
-            and the glucose coefficient of fluctuation (GCF).
-            This function accepts data given either in mmol/L or mg/dl.
-
-            FUNCTION PARAMETERS:  x  - is Pandas dataframe, in the fist column is given subject ID, 
-            in the second - Pandas time stamp, and in the fird - numeric values of 
-            continuous glucose readings;
-
-            RETURN: Output is Pandas dataframe that contains numeric values for GFI and GCF accordingly;
+            FUNCTION PARAMETERS:
+            x: Pandas data frame, in the first column, is given Pandas time stamp, in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
+            
+            RETURN:
+            The output is numeric values for GFI and GCF accordingly;
 
             REFERENCES:
-            - Le Floch J, Kessler L (2016). “Glucose variability: comparison of 
-            different indices during continuous glucose monitoring in diabetic patients.” 
-            Journal of diabetes science and technology, 10(4), 885–891.
+            - Le Floch J, Kessler L (2016). “Glucose variability: comparison of different indices during continuous glucose monitoring in diabetic patients.” Journal of diabetes science and technology, 10(4), 885–891.
         """
         N = len(x)
         S = 0
@@ -605,44 +691,27 @@ class TimeSeriesForecast:
     def bgri(self, x, units):
         """
             Blood Glucose Risk Index
-            LBGI is a measure of the frequency and extent of low blood glucose (BG) readings;
-            HBGI is a measure of the frequency and extent of high BG readings;
-            BGRI is a measure for the overall risk of extreme BG equal to LBGI + HBGI.
+            LBGI is a measure of the frequency and extent of low blood glucose (BG) readings; HBGI is a measure of the frequency and extent of high BG readings; BGRI is a measure for the overall risk of extreme BG equal to LBGI + HBGI.
 
-            The LBGI has been validated as a predictor of severe hypoglycemia, while the HBGI has 
-            been related to risk for hyperglycemia and HbA1c;
-            Both indices demonstrate high sensitivity to changes in glycemic profiles and metabolic 
-            control, as well as high sensitivity to the effects of treatment. 
+            The LBGI has been validated as a predictor of severe hypoglycemia, while the HBGI has been related to risk for hyperglycemia and HbA1c; Both indices demonstrate high sensitivity to changes in glycemic profiles and metabolic control, as well as high sensitivity to the effects of treatment. Larger values of LBGI and HBGI indicate a higher risk for hypoglycemia and hyperglycemia, respectively.
+            Although originally derived using self-monitored blood glucose data, these parameters have been adapted to continuous interstitial glucose monitoring data. Correlations between LBGI and subsequent hypoglycemia and between HBGI and HbA1c have been reported.
 
-            Larger values of LBGI and HBGI indicate higher risk for hypoglycemia and hyperglycemia, 
-            respectively.
-            Although originally derived using self-monitored blood glucose data, these parameters 
-            have been adapted to continuous interstitial glucose monitoring data.
-            Correlations between LBGI and subsequent hypoglycemia and between HBGI and HbA1c have 
-            been reported.
+            The LBGI and the HBGI are non-negative numbers; each index and their sum could range theoretically between 0 and 100.
 
-            The LBGI and the HBGI are non-negative numbers; each index and their sum could range 
-            theoretically between 0 and 100.
+            DESCRIPTION:
+            Takes in a sequence of continuous glucose values and computes: low blood glucose index (LBGI), high blood glucose index (HBGI), and overall blood glucose risk index (BGRI). This function accepts data given either in mmol/L or mg/dL.
 
-            DESCRIPTION: Takes in a sequesnce of continuous glucose values and computes:
-            low blood glucose index (LBGI), high blood glucose index (HBGI),
-            and overall blood glucose risk index (BGRI).
-            This function accepts data given either in mmol/L or mg/dL.
+            FUNCTION PARAMETERS:
+            x: Pandas data frame, in the first column, is given Pandas time stamp, in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
+            unit: should be set either to "mmol" or to "mg"   type: string
 
-            FUNCTION PARAMETERS: x  - is Pandas dataframe, in the fist column is given subject ID, 
-            in the second - Pandas time stamp, and in the fird - numeric values of 
-            continuous glucose readings;
-            units -  should be set either to "mmol" or to "mg";
 
-            RETURN: Output is Pandas dataframe that contains numeric values for LBGI, HBGI and BGRI accordingly;
-            details  LBGI is a measure of the frequency and extent of low blood glucose (BG) readings;
+            RETURN:
+            The output is numeric values for LBGI, HBGI and BGRI accordingly; details LBGI is a measure of the frequency and extent of low blood glucose (BG) readings;
 
             REFERENCES:
             - Service FJ (2013). “Glucose variability.” Diabetes, 62(5), 1398.
-            - Kovatchev BP, Clarke WL, Breton M, Brayman K, McCall A (2005).
-            “Quantifying temporal glucose variability in diabetes via continuous
-            glucose monitoring: mathematical methods and clinical application.”
-            Diabetes technology & therapeutics, 7(6), 849–862.
+            - Kovatchev BP, Clarke WL, Breton M, Brayman K, McCall A (2005). “Quantifying temporal glucose variability in diabetes via continuous glucose monitoring: mathematical methods and clinical application.” Diabetes technology & therapeutics, 7(6), 849–862.
         """
         if (units == 'mg'):
             fBG = 1.509*((np.log(   x.iloc[:, 1]) )**1.084  - 5.381)
@@ -681,40 +750,26 @@ class TimeSeriesForecast:
     def grade(self, x, units):
         """
             Glycaemic Risk Assessment Diabetes Equation
-            GRADE is a score derived to summarize the degree of risk associated with a certain glucose profile.
-            Qualitative risk scoring for a wide range of glucose levels inclusive of marked hypoglycemia 
-            and hyperglycemia is obtained based on a committee of diabetes practitioners.
-            The calculated score can range from 0 -- meaning no risk to 50 -- meaning maximal risk.
-            The structure of the formula is designed to give a continuous curvilinear approximation with a nadir at 
-            4.96 mmol/L (90 mg/dL) and high adverse weighting for both hyper- and hypoglycaemia.
-            The contribution of hypoglycaemia, euglycaemia and hyperglycaemia to the GRADE score is expressed as 
-            percentages:  e.g.  GRADE  (hypoglycaemia%, euglycaemia%, hyperglycaemia%),
-            which are defined as:
-
-             <3.9 mmol/L (70 mg/dL) hypoglycaemia;
-
-             3.9 - 7.8mmol/L (70–140 mg/dL) euglycemia;
-
-             and >7.8 mml/L (140 mg/dL) hyperglycemia.
+            GRADE is a score derived to summarize the degree of risk associated with a certain glucose profile. Qualitative risk scoring for a wide range of glucose levels inclusive of marked hypoglycemia and hyperglycemia is obtained based on a committee of diabetes practitioners. The calculated score can range from 0 -- meaning no risk to 50 -- meaning maximal risk. The structure of the formula is designed to give a continuous curvilinear approximation with a nadir at 4.96 mmol/L (90 mg/dL) and high adverse weighting for both hyper- and hypoglycemia. The contribution of hypoglycemia, euglycemia, and hyperglycemia to the GRADE score are expressed as percentages: e.g. GRADE (hypoglycemia %, euglycemia %, hyperglycemia %), which are defined as:
+            <3.9 mmol/L (70 mg/dL) hypoglycaemia;
+            3.9 - 7.8mmol/L (70–140 mg/dL) euglycemia;
+            and >7.8 mml/L (140 mg/dL) hyperglycemia.
 
 
-            DESCRIPTION: Takes in a sequesnce of continuous glucose values 
-            and computes Glycaemic Risk Assessment Diabetes Equation (GRADE) score.
-            This function accepts data given either in mmol/L or mg/dL.
+            DESCRIPTION:
+            Takes in a sequence of continuous glucose values and computes Glycaemic Risk Assessment Diabetes Equation (GRADE) score. This function accepts data given either in mmol/L or mg/dL.
 
-            FUNCTION PARAMETERS: x - is Pandas dataframe, in the fist column is given subject ID, 
-            in the second - Pandas time stamp, and in the fird - numeric values of 
-            continuous glucose readings;
-            units -  should be set either to "mmol" or to "mg";
+            FUNCTION PARAMETERS:
+            x: Pandas data frame, in the first column, is given Pandas time stamp, in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
+            units:should be set either to "mmol" or to "mg"   type: string
 
-            RETURN: Output is Pandas dataframe with numeric values for GRADE and percentages expressing risk calculated 
-            from hypoglycaemia, euglycaemia and hyperglycaemia;
+
+            RETURN:
+            The output is numeric values for GRADE and percentages expressing risk calculated from hypoglycemia, euglycemia, and hyperglycemia;
 
             REFERENCES:
             - Service FJ (2013). “Glucose variability.” Diabetes, 62(5), 1398.
-            - Hill N, Hindmarsh P, Stevens R, Stratton I, Levy J, Matthews D (2007). 
-            “A method for assessing quality of control from glucose profiles.” 
-            Diabetic medicine, 24(7), 753–758.
+            - Hill N, Hindmarsh P, Stevens R, Stratton I, Levy J, Matthews D (2007). “A method for assessing quality of control from glucose profiles.” Diabetic medicine, 24(7), 753–758.
 
         """
         if (units == 'mg'):
@@ -1276,6 +1331,22 @@ class TimeSeriesForecast:
 
 
     def variabilityEpisodes(self, df, unit):
+        """
+        Number of hypoglycemic (glucose concentrations of less than 3.0 mmol/L (54 mg/dL))and number of hyperglycemic (glucose concentration of more than 13.9 mmol/L (250 mg/dL)) episodes that last at least 15min. Hypoglycemic Excursions and Hyperglycemic Excursions are computed for each day and then averaged across all days within individual time series.
+
+        DESCRIPTION:
+        Takes in a sequence of continuous glucose values and computes Hypoglycemic Excursions and Hyperglycemic Excursions. This function works with data given either in mmol/L or mg/dL.
+
+        FUNCTION PARAMETERS: 
+        df: Pandas data frame, in the first column, is given Pandas time stamp, in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
+        units   should be set either to "mmol" or to "mg"   type: string
+        
+        RETURN:
+        The output a numeric value for average Hypoglycemic Excursions and Hyperglycemic Excursions.
+
+        REFERENCES:
+        - T. Battelino, T. Danne, R. M. Bergenstal, S. A. Amiel, R. Beck, T. Biester,E. Bosi, B. A. Buckingham, W. T. Cefalu, K. L. Close, et al. Clinical targets for continuous glucose monitoring data interpretation: recommendations from the international consensus on time in range.Diabetes Care, 42(8):1593–1603, 2019.
+        """
         time_diff = timedelta(hours=0, minutes=15, seconds=30)
         
         
@@ -1332,6 +1403,27 @@ class TimeSeriesForecast:
     
     
     def IGC(self, df, unit, lltr = 80, ultr = 140, a = 1.1, b = 2.0, c = 30, d = 30):
+        """
+        DESCRIPTION:
+        Takes in a sequence of continuous glucose values and computes the IGC, Hypoglycemic Excursions and Hyperglycemic Excursions. This function works with data given either in mmol/L or mg/dL.
+
+        FUNCTION PARAMETERS:
+
+        df: Pandas data frame, in the first column, is given Pandas time stamp,in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
+        units: should be set either to "mmol" or to "mg"   type: string
+        lltr: constant. default is 80.    type: int
+        ultr: constant. default is 140.   type: int
+        a: constant. default is 1.1.   type: int
+        b: constant. default is 2.     type: int
+        c: constant. default is 30.    type: int
+        d: constant. default is 30.    type: int
+        
+        RETURN:
+        The output a numeric value for IGC, Hypoglycemic index, Hyperglycemic index
+
+        REFERENCES:
+        -“Interpretation of Continuous Glucose Monitoring Data: Glycemic Variability and Quality of Glycemic Control” by David Rodbard, M.D. (see appendix 2). This function must output three measures: IGC, Hypoglycemic index, Hyperglycemic index. 
+        """
         if unit == 'mg':
             gv = df['GlucoseValue']
         elif unit == 'mmol':
@@ -1360,6 +1452,23 @@ class TimeSeriesForecast:
 
 
     def glucoseLiabilityIndex(self,data, unit):
+        """
+        DESCRIPTION:
+        Takes in a sequence of continuous glucose values and computes the Liability Index. This function works with data given either in mmol/L or mg/dL.
+
+        FUNCTION PARAMETERS:
+        data:Pandas data frame, in the first column, is given Pandas time stamp,in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
+       
+        units   should be set either to "mmol" or to "mg"   type: string
+        
+        RETURN:
+        The output a numeric value for Liability index
+
+        REFERENCES:
+        -“E. A. Ryan, T. Shandro, K. Green, B. W. Paty, P. A. Senior, D. Bigam, A. J. Shapiro, and M.-C. Vantyghem. Assessment of the severity of hypoglycemia and glycemic lability in type 1 diabetic subjects undergoing islet transplantation. Diabetes, 53(4):955–962, 2004”: https://diabetes.diabetesjournals.org/content/53/4/955.long
+
+
+        """
         data = self.hourlySamples(data)
         if unit == 'mg':
             data['GlucoseValue'] = data['GlucoseValue']/18
@@ -1368,7 +1477,19 @@ class TimeSeriesForecast:
 
 
     def adrr(self, xx, unit):
-        
+        """
+        DESCRIPTION:
+        Takes in a sequence of continuous glucose values and computes the ADRR. This function works with data given either in mmol/L or mg/dL.
+
+        FUNCTION PARAMETERS:
+        xx: Pandas data frame, in the first column, is given Pandas time stamp,in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
+        units: should be set either to "mmol" or to "mg"   type: string
+        RETURN: 
+        The output a numeric value for ADRR
+
+        REFERENCES:
+        -“B. P. Kovatchev, E. Otto, D. Cox, L. Gonder-Frederick, and W. Clarke. Evaluation of a new measure of blood glucose variability in diabetes. Diabetes care, 29(11):2433–2438, 2006”: https://care.diabetesjournals.org/content/29/11/2433.long
+        """
         if unit == 'mg':
             f_bg = 1.509*(np.log(xx['GlucoseValue'])**1.084)-5.381
             xx['F(BG)'] = f_bg
@@ -1407,6 +1528,19 @@ class TimeSeriesForecast:
         
                
     def modd(self, data):
+        """
+        DESCRIPTION:
+        Takes in a sequence of continuous glucose values and computes the MODD. This function works with data given either in mmol/L or mg/dL.
+
+        FUNCTION PARAMETERS:
+        data: Pandas data frame, in the first column, is given Pandas time stamp, in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
+        
+        RETURN:
+        The output a numeric value for MODD
+
+        REFERENCES:
+        -“C. McDonnell, S. Donath, S. Vidmar, G. Werther, and F. Cameron. A novel approach to continuous glucose analysis utilizing glycemic variation. Diabetes technology & therapeutics, 7(2):253–263, 2005”.
+        """
         data = self.subSample(data)
         data['Display Time'] = data['Display Time'].dt.round('5min') 
         
@@ -1426,10 +1560,54 @@ class TimeSeriesForecast:
             Modd.append(s)
         return round(mean(Modd),3) 
 
+    
+    def congaN(self, df, n):
+        """
+        """
+        day = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
+        day = day.round("d")
+        day = day.days
+
+        df = df.set_index(['Display Time'])
+        t = str(n*3600)+'s'
+        gv = df['GlucoseValue'].resample(t).first()
+
+        k = len(gv)
+
+        frame = pd.DataFrame()
+        frame['GV'] = gv
+        frame['Dt'] = frame['GV'] - frame['GV'].shift(+1)
+        frame = frame.fillna(0)
+
+        dBar = sum(frame['Dt']) / k
+
+        s = 0
+        for i in frame['Dt']:
+            s += (i-dBar)**2
+            
+        conga = math.sqrt(s/(k-1))
+
+        return round(conga/day, 3)
+
+
 #==================================================================================================================
 #   Helper Methods
 #==================================================================================================================
     def meanCalculations(self, xx):
+        """
+        This function calculates the daytime and nighttime mean glucose values
+
+        Function Parameters:
+        data: The data of an individual's glucose readings in the following format:
+        Display Time     object
+        GlucoseValue    float64
+        subjectId        object
+        This data is split based on the subject ID
+        type: pandas DataFrame
+        
+        Returns:
+        Two values for daytime and nighttime mean averaged out over the days in the individuals readings
+        """
         dates = []
         times = []
         for i in range(len(xx.index)):
@@ -1462,7 +1640,22 @@ class TimeSeriesForecast:
     
 
     def mageCalculation(self, df, std=1):
-        
+        """
+            This function calculates the mean amplitude glycemic excursions and the excursion frequency of an individual's glucose variability
+
+            Function Parameters:
+            df: The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package and the Ohio University with the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            This data is split based on the subject ID
+            type: pandas DataFrame
+            
+            std: It is the standard deviation for the model. The default value is 1  type: integer
+            
+            Return:
+            The MAGE score and the excursion frequency of the individual
+        """
         #extracting glucose values and incdices
         glucs = df['GlucoseValue'].to_list()
         indices = [1*i for i in range(len(glucs))]
@@ -1538,17 +1731,20 @@ class TimeSeriesForecast:
         return round(mage,3), excursion_count
 
 
-
-
-
-
     def smoothing(self, data):
         """
-            Performing rolling-mean smoothening for a time-series to improve MAGE calculation 
-            Input:
-                data: time-series with tiny fluctuations and local minima and maxima
-            Output:
-                data: smoothened time-series
+            This method performs a rolling-mean smoothening for a time-series to improve MAGE calculation
+            
+            Function Parameters:
+            data: The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package and the Ohio University with the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            This data is split based on the subject ID
+            type: pandas DataFrame
+
+            Returns:
+            A pandas DataFrame with smoothened glucose values
         """ 
         
         series = data
@@ -1560,11 +1756,21 @@ class TimeSeriesForecast:
 
     def subSample(self, data):
         """
-            Sampling a time-series at 15 minute intervals
-            Input:
-                data: time-series with irregular intervals
-            Output:
-                data: time-series with 15 minute intervals
+            This function subsamples a time-series at 15 minute intervals
+
+            Function Parameters:
+
+            data: The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package and the Ohio University with the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            This data is split based on the subject ID
+            type: pandas DataFrame
+
+            Returns:
+            A pandas DataFrame with reading at 15 minute intervals
+
+
         """ 
         data['Display Time'] = pd.to_datetime(data['Display Time'])
         data['time_gap'] = data['Display Time'].shift(1)-data['Display Time'][0]
@@ -1587,12 +1793,20 @@ class TimeSeriesForecast:
 
     def convertUnits(self, data, unit):
         """
-            converting glucose values into desired unit of measurement 
-            Input:
-                data: individual time series with default unit of glucose value
-                unit: desired unit of conversion
-            Output:
-                data: individual time series desired unit of glucose value
+            This function converts glucose values into the desired unit of measurement
+
+            Function Parameters:
+            data: The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package and the Ohio University with the following format:
+            Display Time     object
+            GlucoseValue    float64
+            subjectId        object
+            This data is split based on the subject ID
+            type: pandas DataFrame
+            
+            units   It is the desired unit of conversion    type: string
+
+            Returns:
+            The individual time series desired unit of glucose value
         """ 
         if unit == 'mmol':
             if(data['GlucoseValue'][0]>18):
@@ -1613,14 +1827,6 @@ class TimeSeriesForecast:
             
             
     def fullDay(self, data):
-        """
-           trimming an individual's glucose values to only consist of full days     
-            Input:
-                data: irregular time series
-            Output:
-                data: time series with data only for full days
-        """ 
-        
         dates = list()
         data = data.reset_index(drop=True)
         for i in range(0,len(data.index)):
@@ -1645,6 +1851,20 @@ class TimeSeriesForecast:
 
 
     def fullDaysOnly(self, data):
+        """
+        Function for trimming an individual's glucose values to only consist of full days
+
+        Function Parameters:
+        data: The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package and the Ohio University with the following format:
+        Display Time     object
+        GlucoseValue    float64
+        subjectId        object
+        This data is split based on the subject ID
+        type: pandas DataFrame
+
+        Returns:
+        The individuals time series with data only for full days
+        """
         data_fullDays = pd.DataFrame()
 
         for subjectId, df in data.groupby('subjectId'):
@@ -1657,11 +1877,24 @@ class TimeSeriesForecast:
 
 
     def hourlySamples(self, df):
+        """
+        This function subsamples a time-series at 1-hour intervals
+
+        Function Parameters:
+        data: The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package and the Ohio University with the following format:
+        Display Time     object
+        GlucoseValue    float64
+        subjectId        object
+        This data is split based on the subject ID
+        type: pandas DataFrame
+
+        Returns:
+        A pandas DataFrame with reading at 1-hour intervals
+        """
         groupkey = df['Display Time'].values.astype('datetime64[h]')
-        result = df.groupby(groupkey).mean()
+        result = df.groupby(groupkey).first()
         result = result.reset_index(drop=True)
         return (result)
-
 
         
 #==================================================================================================================
@@ -1670,11 +1903,16 @@ class TimeSeriesForecast:
     
     def plot(self, data):
         """
-        The plot method plots the graph for the imputed values
-        input:
-            data: imputed values
-        output:
-            A plot of the imputed time series
+        This method plots the graph for the imputed values for the model. It is called by the impute method itself
+        Function Parameters:
+        data:A data frame of imputed values of the following format:
+        Display Time     object
+        GlucoseValue    float64
+        subjectId        object
+        type: pandas DataFrame
+
+        Return:
+        A plot of the imputed time series
         """
         #plotting true values and lstm predicted values
         #these are original values
@@ -1692,12 +1930,16 @@ class TimeSeriesForecast:
 
     def detectGap(self, testing_data):
         """
-        The detectGap mehtod detects the GAP in a time series
-        input:
-            testing_data: dataset that needs to be imputed
-        output:
-            b,s: starting index of the gaps
-            e,f: end index of the gaps
+        The detectGap method detects the GAP in a time series. It is called by the impute method itself
+
+        Function Parameters:
+        data: A data frame with missing values of the following format:
+        Display Time     object
+        GlucoseValue    float64
+        subjectId        object
+        type: pandas DataFrame
+
+        Return: The starting and ending indexes of the gaps
 
         """
         l = []
@@ -1727,12 +1969,14 @@ class TimeSeriesForecast:
 
     def index_agreement(self, s,o):
         """
-        index of agreement
-        input:
-            s: prediceted
-            o: original
-        output:
-            ia: index of agreement
+        This function calculates the Index of Agreement of the imputed values with respect to the original values
+
+        Function Parameters:
+        s   a list of the predicted values  type: NumPy array
+        o   a list of the original values   type: NumPy array
+        
+        Return:
+        A numerical value of the index of agreement
         """
         
         ia = 1 -(np.sum((o-s)**2))/(np.sum((np.abs(s-np.mean(o))+np.abs(o-np.mean(o)))**2))
@@ -1742,36 +1986,44 @@ class TimeSeriesForecast:
     
     def rmse(self, s,o):
         """
-        Root Mean Squared Error
-        input:
-            s: prediceted
-            o: original
-        output:
-            rmses: root mean squared error
+        This function calculates the Root Mean Squared Error of the imputed values with respect to the original values
+
+        Function Parameters:
+        s   a list of the predicted values  type: NumPy array
+        o   a list of the original values   type: NumPy array
+
+        Return:
+        A numerical value of the root mean squared error
+
         """
         return np.sqrt(np.mean((s-o)**2))
 
     
     def mad(self, s,o):
         """
-        Mean Absolute Error
-        input:
-            s: prediceted
-            o: original
-        output:
-            maes: mean absolute difference
+        This function calculates the Mean Absolute Deviationrrorof the imputed values with respect to the original values
+
+        Function Parameters:
+        s   a list of the predicted values  type: NumPy array
+        o   a list of the original values   type: NumPy array
+
+        Return:
+        A numerical value of the mean absolute difference
+
         """
         return np.mean(abs(s-o))
 
     
     def mape(self, y_pred,y_true):
         """
-        Mean Absolute Percentage error
-        input:
-            y_pred: prediceted
-            y_true: original
-        output:
-            mape: Mean Absolute Percentage error
+        This function calculates the Mean Absolute Percentage Error of the imputed values with respect to the original values
+
+        Function Parameters:
+        y_pred  a list of the predicted values  type: NumPy array
+        y_true  a list of the original values   type: NumPy array
+
+        Return:
+        A numerical value of the Mean Absolute Percentage error
         """
     
         return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
@@ -1779,12 +2031,15 @@ class TimeSeriesForecast:
     
     def fracBias(self, s,o):
         """
-        Fractional Bias
-        input:
-            s: prediceted
-            o: original
-        output:
-            fracBias: Fractional Bias
+        This function calculates the Fractional Bias of the imputed values with respect to the original values
+        
+        Function Parameters:
+        s   a list of the predicted values  type: NumPy array
+        o   a list of the original values   type: NumPy array
+
+        Return:
+        A numerical value of the Fractional Bias
+
         """
         
         return np.mean(np.abs((o - s) / ((o + s)/2)))
@@ -1792,7 +2047,13 @@ class TimeSeriesForecast:
     
     def getMetrics(self,lstm_pred, test_val):
         """
-        The getMetrics method simply prints out all the comparison metrics
+        This function is a wrapper for all the error metrics
+
+        lstm_pred   a list of the predicted values  type: NumPy array
+        test_val    a list of the original values   type: NumPy array
+       
+        Return:
+        Outputs the error metrics
         """
         #IOA
         ioa_val = self.index_agreement(lstm_pred,test_val)

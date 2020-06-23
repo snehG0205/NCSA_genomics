@@ -1382,28 +1382,13 @@ class glucoCheckOps:
                 
         return hypoglycemic_episodes, hyperglycemia_episodes
 
-            # “Number of hypoglycemic (glucose concentrations of less than 3.0 mmol/L (54 mg/dL))and number of hyperglycemic (glucose concentration of more than 13.9 mmol/L (250 mg/dL)) episodes that last at least 15min.
-            #  HypoE and HyperE are computed for each day and then averaged across all days within individual time series.
-
-            #  DESCRIPTION: Takes in a sequence of continuous glucose values and computes
-            #  HypoE and HyperE.
-            #  This function works with data given either in mmol/L or mg/dL.
-             
-            #  FUNCTION PARAMETERS: x - is Pandas dataframe, in the first column is given subject ID, 
-            #  in the second - Pandas timestamp, and in the third- numeric values of 
-            #  continuous glucose readings.
-
-            #  RETURN: Output is Pandas dataframe that contains numeric value for average HyperE and HypoE.
-
-            #  REFERENCES:
-            # -   T. Battelino, T. Danne, R. M. Bergenstal, S. A. Amiel, R. Beck, T. Biester,E. Bosi,
-            #  B. A. Buckingham, W. T. Cefalu, K. L. Close, et al. Clinical targets for continuous glucose monitoring data interpretation: recommendations from the international consensus on time in range.Diabetes Care,  42(8):1593–1603, 2019.
-            # Code up function to extract Mean24h, day, night - use the function that you already coded up for time stamp.
-            # For PGS - lookup for individuals that have at least one week worth of data to test it out, pick those that have least missing values.
     
     
     def IGC(self, df, unit, lltr = 80, ultr = 140, a = 1.1, b = 2.0, c = 30, d = 30):
         """
+        Index of Glycemic Control
+        Sum of Hyperglycemia Index and Hypoglycemia Index
+
         DESCRIPTION:
         Takes in a sequence of continuous glucose values and computes the IGC, Hypoglycemic Excursions and Hyperglycemic Excursions. This function works with data given either in mmol/L or mg/dL.
 
@@ -1478,6 +1463,10 @@ class glucoCheckOps:
 
     def adrr(self, xx, unit):
         """
+        Average Daily Risk Range
+        The average sum of |HBGI for maximum glucose| plus |LBGI for minimum glucose| for each day.
+        High Blood Glucose Index (HBGI), Low Blood Glucose Index (LBGI)
+
         DESCRIPTION:
         Takes in a sequence of continuous glucose values and computes the ADRR. This function works with data given either in mmol/L or mg/dL.
 
@@ -1529,6 +1518,9 @@ class glucoCheckOps:
                
     def modd(self, data):
         """
+        Mean of Daily Differences
+        Mean difference between glucose values obtained at the same time of day on two consecutive days under standardized conditions
+
         DESCRIPTION:
         Takes in a sequence of continuous glucose values and computes the MODD. This function works with data given either in mmol/L or mg/dL.
 
@@ -1563,23 +1555,21 @@ class glucoCheckOps:
     
     def congaN(self, df, n):
         """
-        ---
+        Continuous Overlapping Net Glycemic Action
+        A measure of within-day glucose variability: SD of differences between any glucose value and another one exactly N hours later.
 
         DESCRIPTION:
-
         Takes in a sequence of continuous glucose values and computes the CONGA. This function works with a value 'n', that is the hour parameter that is usually 1, 2, or 4.
 
         FUNCTION PARAMETERS:
-
         df  Pandas data frame, in the first column, is given Pandas time stamp, 
         in the second - numeric values of continuous glucose readings, and in the third - subject ID    type: pandas DataFrame
         n   hour parameter; usually 1, 2, or 4. type: int
+        
         RETURN:
-
         The output a numeric value for CONGA
 
         REFERENCES:
-
         “C. McDonnell, S. Donath, S. Vidmar, G. Werther, and F. Cameron. A novel approach to continuous glucose analysis utilizing glycemic variation. Diabetes technology & therapeutics, 7(2):253–263, 2005”
         """
         day = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]

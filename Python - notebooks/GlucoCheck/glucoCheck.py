@@ -18,6 +18,8 @@ from keras.callbacks import EarlyStopping
 #from keras.optimizers import Adam
 from keras.layers import LSTM
 
+import seaborn as sns
+
 
 from scipy import stats
 
@@ -49,7 +51,7 @@ class glucoCheckOps:
     
     cwd = os.getcwd()
 
-    consolidatedData = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedDataForPaper.csv')
+    consolidatedData = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedDataForPackage.csv')
 
     consolidated_meta = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedMetadata.csv')
 
@@ -201,15 +203,24 @@ class glucoCheckOps:
         """
         new = data[data['subjectId']==str(uid)]
         new = new.astype({'GlucoseValue':int})
-        plt.figure(figsize=(20, 8))
+        new['Display Time'] = pd.to_datetime(new['Display Time'])
 
-        plt.plot(new['GlucoseValue'], color='#2280f2', linewidth=2.5)
+        plt.figure(figsize=(16,8))
+        sns.set(style="white")
+        fig = sns.lineplot(x = new['Display Time'], y = new['GlucoseValue'],
+                     data=new, palette="tab10", linewidth=0.8)
+        sns.despine()
+        fig.set_xticklabels(labels=new['Display Time'], rotation=60, ha='right')
 
-        plt.title("Glucose Values of "+str(uid))
+        # plt.figure(figsize=(20, 8))
 
-        plt.xlabel('Observation')
-        plt.ylabel('Glucose Values')
-        plt.show();
+        # plt.plot(new['GlucoseValue'], color='#2280f2', linewidth=2.5)
+
+        # plt.title("Glucose Values of "+str(uid))
+
+        # plt.xlabel('Observation')
+        # plt.ylabel('Glucose Values')
+        # plt.show();
 
             
     def impute(self,test_data,flag=0):
@@ -341,19 +352,19 @@ class glucoCheckOps:
                 dates.append(df['Display Time'][i].date())
             df['Date'] = dates
 
-            mage_daily = []
-            excursions = 0
-            for Date, xx in df.groupby('Date'):
-                xx = xx.reset_index(drop=True)
-                m, e = self.mageCalculation(xx,1)
-                mage_daily.append(m)
-                excursions = excursions + e
+            # mage_daily = []
+            # excursions = 0
+            # for Date, xx in df.groupby('Date'):
+            #     xx = xx.reset_index(drop=True)
+            #     m, e = self.mageCalculation(xx,1)
+            #     mage_daily.append(m)
+            #     excursions = excursions + e
 
-            mage = round(mean(mage_daily),3)
-            excusrions = math.floor(excursions)
+            # mage = round(mean(mage_daily),3)
+            # excusrions = math.floor(excursions)
 
             
-            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'MAGE Score':[mage], "Excursions":[excursions],'Days':[day], 'Daytime Mean':[mean_day], 'Nighttime Mean':[mean_night]})
+            temp_df = pd.DataFrame({'Subject ID':[subjectId], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'Days':[day], 'Daytime Mean':[mean_day], 'Nighttime Mean':[mean_night]})
             data_description = pd.concat([data_description, temp_df],ignore_index=True)
 
         # data_description = data_description.iloc[::-1]
@@ -685,7 +696,7 @@ class glucoCheckOps:
             print("Error calculating GCF for: "+str(x["subjectId"]))
             gcf = 0.0
 
-        return gfi, gcf
+        return round(gfi,2), round(gcf,2)
 
 
     def bgri(self, x, units):
@@ -744,7 +755,7 @@ class glucoCheckOps:
             print("Error calculating BGRI for: "+str(x["subjectId"]))
             BGRI = 0.0
 
-        return LBGI, HBGI, BGRI
+        return round(LBGI,2), round(HBGI,2), round(BGRI,2)
 
 
     def grade(self, x, units):
@@ -815,7 +826,7 @@ class glucoCheckOps:
             print("Error calculating HyperG_P for: "+str(x["subjectId"]))
             HyperG_P = 0.0
 
-        return GRADE , HypoG_P, EuG_P, HyperG_P
+        return round(GRADE,2) , round(HypoG_P,2), round(EuG_P,2), round(HyperG_P,2)
 
     
     def j_index(self, x, units):
@@ -862,7 +873,7 @@ class glucoCheckOps:
         if math.isinf(j):
             print("Error calculating J-Index for: "+str(x["subjectId"]))
             j = 0.0
-        return j
+        return round(j,2)
 
 
     def m_value(self, x, units, ref_value):
@@ -928,7 +939,7 @@ class glucoCheckOps:
             print("Error calculating Mvalue for: "+str(x["subjectId"]))
             Mvalue = 0.0
 
-        return Mvalue
+        return round(Mvalue,2)
 
 
     def mag(self, x):
@@ -963,7 +974,7 @@ class glucoCheckOps:
             print("Error calculating MAG for: "+str(x["subjectId"]))
             MAG = 0.0
 
-        return MAG
+        return round(MAG,2)
 
     
     def gvp(self, x, units):
@@ -1012,7 +1023,7 @@ class glucoCheckOps:
             print("Error calculating GVP for: "+str(x["subjectId"]))
             GVP = 0.0
 
-        return GVP
+        return round(GVP,2)
 
 
     def gmi(self, x, units):
@@ -1045,7 +1056,7 @@ class glucoCheckOps:
         elif (units=='mmol'):
             GMI = 12.71 + 4.70587 * np.mean(x.iloc[:, 1])
             # return pd.DataFrame({'GMI(%)': [GMI]})
-            return GMI
+            return round(GMI,2)
         else:
             print('units should be either mmol or mg')
             return 0
@@ -1080,7 +1091,7 @@ class glucoCheckOps:
         MAX = np.max(x.iloc[:, 1])
         LAGE = MAX - MIN
         # return pd.DataFrame({'LAGE': [LAGE], 'MAX': [MAX], 'MIN':[MIN]})
-        return LAGE, MAX, MIN
+        return round(LAGE,2), round(MAX,2), round(MIN,2)
 
 
     def ehba1c(self, x):
@@ -1111,7 +1122,7 @@ class glucoCheckOps:
             print("Error calculating HBA1C for: "+str(x["subjectId"]))
             HBA1C = 0.0
 
-        return HBA1C
+        return round(HBA1C,2)
 
 
     def sumstats(self, x):
@@ -1140,7 +1151,7 @@ class glucoCheckOps:
         iqr = q75 - q25
         
         # return pd.DataFrame({'Mean': [m], 'SD':[sd], 'CV': [cv], 'IQR': [iqr]})
-        return m, sd, cv, iqr
+        return round(m,2), round(sd,2), round(cv,2), round(iqr,2)
 
 
     def rc(self, x):
@@ -1175,7 +1186,7 @@ class glucoCheckOps:
             print("Error calculating SDRC for: "+str(x["subjectId"]))
             sdrc = 0.0
 
-        return sdrc
+        return round(sdrc,2)
 
     
     def pgs(self, x, units):
@@ -1250,7 +1261,7 @@ class glucoCheckOps:
             print("Error calculating PGS for: "+str(x["subjectId"]))
             PGS = 0.0
 
-        return PGS
+        return round(PGS,2)
 
 
     def dt(self,x):
@@ -1278,7 +1289,7 @@ class glucoCheckOps:
 
         """
         dy = np.sum(np.abs(x.iloc[:, 1].diff()))
-        return dy
+        return round(dy,2)
         # return pd.DataFrame({'DT': [dy]})
 
 
@@ -1325,7 +1336,7 @@ class glucoCheckOps:
             TBR_L  = len(x[(x.iloc[:,1]>= 3.0) & (x.iloc[:,1]<= 3.8)])/N*100
             TBR_VL = len(x[x.iloc[:,1]< 3.0])/N*100
             # return pd.DataFrame({'TAR_VH(%)': [TAR_VH], 'TAR_H(%)': [TAR_H], 'TIR(%)': [TIR], 'TBR_L(%)': [TBR_L], 'TBR_VL(%)': [TBR_VL]}
-            return TAR_VH, TAR_H, TIR, TBR_L, TBR_VL
+            return round(TAR_VH,2), round(TAR_H,2), round(TIR,2), round(TBR_L,2), round(TBR_VL,2)
         else:
             return print('units should be either mmol or mg')
 
@@ -1380,7 +1391,7 @@ class glucoCheckOps:
             if gap <= time_diff:
                 hyperglycemia_episodes+=1
                 
-        return hypoglycemic_episodes, hyperglycemia_episodes
+        return round(hypoglycemic_episodes,2), round(hyperglycemia_episodes,2)
 
     
     
@@ -1433,7 +1444,7 @@ class glucoCheckOps:
             hyperglycemicIndex=0
         
         igc = hypoglycemicIndex + hyperglycemicIndex
-        return round(igc,3), round(hypoglycemicIndex,3), round(hyperglycemicIndex,3)
+        return round(igc,2), round(hypoglycemicIndex,2), round(hyperglycemicIndex,2)
 
 
     def glucoseLiabilityIndex(self,data, unit):
@@ -1458,7 +1469,7 @@ class glucoCheckOps:
         if unit == 'mg':
             data['GlucoseValue'] = data['GlucoseValue']/18
         gli = np.sum(np.power(data['GlucoseValue'][i] - data['GlucoseValue'][i+1],2) for i in range(0, len(data.index)-1))
-        return round(gli,3)
+        return round(gli,2)
 
 
     def adrr(self, xx, unit):
@@ -1513,7 +1524,7 @@ class glucoCheckOps:
             ADDR_daily.append(LR+HR)
         
         
-        return round(mean(ADDR_daily),3)
+        return round(mean(ADDR_daily),2)
         
                
     def modd(self, data):
@@ -1550,7 +1561,7 @@ class glucoCheckOps:
             gvDiff = df['GlucoseValue'] - df['GlucoseValue'].shift(-1)
             s = round(gvDiff.sum(),3)
             Modd.append(s)
-        return round(mean(Modd),3) 
+        return round(mean(Modd),2) 
 
     
     def congaN(self, df, n):
@@ -1595,7 +1606,31 @@ class glucoCheckOps:
             
         conga = math.sqrt(s/(k-1))
 
-        return round(conga/day, 3)
+        return round(conga/day, 2)
+
+
+    # Mean Absolute Difference
+    # MAD was proposed as measures of glycemic variability and derived
+    # from self-monitored consecutive blood glucose values over 24 h
+    #
+    # DESCRIPTION: Takes in a sequence of continuous glucose values
+    # and computes mean absolute difference (MAD) of consecutive blood glucose values.
+    # This function accepts data given either in mmol/L or mg/dL.
+    #
+    # FUNCTION PARAMETERS: x - is Pandas dataframe, in the first column is given subject ID, 
+    # in the second - Pandas timestamp, and in the third - numeric values of 
+    # continuous glucose readings taken e.g. over one day (24h);
+    #
+    # RETURN: Output is Pandas dataframe that contains numeric value for MAD.
+    #
+    # REFERENCES:
+    # - Moberg E, Kollind M, Lins P, Adamson U (1993). “Estimation of blood-glucose variability 
+    # in patients with insulin-dependent diabetes mellitus.” Scandinavian journal of clinical 
+    # and laboratory investigation, 53(5), 507–514.
+    def mad_index(self, x):
+        MAD = np.abs(np.sum(x['GlucoseValue'].diff())/len(x))
+        # return pd.DataFrame({'MAD':[MAD]})
+        return round(MAD,2)
 
 
 #==================================================================================================================
@@ -1924,16 +1959,25 @@ class glucoCheckOps:
         """
         #plotting true values and lstm predicted values
         #these are original values
-        
-        plt.figure(figsize=(20, 8))
 
-        plt.plot(data['GlucoseValue'].tolist(), label='True', color='#2280f2', linewidth=2.5)
+        # print(data)
+        data.reset_index(level=0, inplace=True)
+        plt.figure(figsize=(16,8))
+        sns.set(style="white")
+        fig = sns.lineplot(x = data['Display Time'], y = data['GlucoseValue'],
+                     data=data, palette="tab10", linewidth=0.8)
+        sns.despine()
+        fig.set_xticklabels(labels=data['Display Time'], rotation=60, ha='right')
         
-        plt.title("LSTM's Prediction")
+        # plt.figure(figsize=(20, 8))
+
+        # plt.plot(data['GlucoseValue'].tolist(), label='True', color='#2280f2', linewidth=2.5)
         
-        plt.xlabel('Observation')
-        plt.ylabel('Glucose Values')
-        plt.show();
+        # plt.title("LSTM's Prediction")
+        
+        # plt.xlabel('Observation')
+        # plt.ylabel('Glucose Values')
+        # plt.show();
 
 
     def detectGap(self, testing_data):
@@ -1969,6 +2013,7 @@ class glucoCheckOps:
         #print(f-s)
         # print("Gap detected!")
         return b,e,s,f,gap
+
 
 
 #==================================================================================================================
@@ -2066,10 +2111,6 @@ class glucoCheckOps:
         #IOA
         ioa_val = self.index_agreement(lstm_pred,test_val)
         print("Index of Agreement is: " + str(round(ioa_val,3)))
-    
-        #MAE
-        mae_val = self.mae(lstm_pred,test_val)
-        print("Mean Absolute Error is: " + str(mae_val))
     
         #RMSE
         rmse_val = self.rmse(lstm_pred,test_val)

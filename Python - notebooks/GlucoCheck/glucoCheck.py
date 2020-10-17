@@ -58,14 +58,15 @@ class glucoCheckOps:
 #==================================================================================================================
 
     model = None
-    
+    model_history = None
+
     cwd = os.getcwd()
 
     consolidatedData = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedDataForPackage.csv')
 
     consolidated_meta = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedMetadata.csv')
 
-    hall_data = pd.read_csv(cwd+'/GlucoCheck/Data/Hall/Hall_data.csv')
+    hall_data = pd.read_csv(cwd+'/GlucoCheck/Data/Hall/data_hall_raw.csv')
 
     def_training = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedDataForPaper.csv')
 
@@ -152,7 +153,6 @@ class glucoCheckOps:
         return np.array(X), np.array(y)
 
 
-
     def train(self, data = def_training):
         """
             This method is used to train the LSTM imputation model on data. The default data set for the training includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package, and the Ohio University dataset. The user may specify their own data if they wish to. 
@@ -231,11 +231,20 @@ class glucoCheckOps:
         self.model.add(Dense(1))
         self.model.compile(optimizer='adam', loss='mse')
         # fit model
-        self.model.fit(X, y, epochs=20, verbose=0)
+        self.model_history = self.model.fit(X, y, epochs=20, verbose=0)
         print("Model trained successfully!")
 
+    def getModelMetrics(self):
+        print("Model loss on training set:")
+        print(self.model_history.history['loss'])
+        print("Model Accuracy on training set:")
+        print(self.model_history.history['accuracy'])
+        print("Model loss on validation set:")
+        print(self.model_history.history['val_loss'])
+        print("Model accuracy on validation set:")
+        print(self.model_history.history['val_accuracy'])
+        
 
-    
             
     def impute(self,test_data,flag=0):
         """
@@ -265,7 +274,7 @@ class glucoCheckOps:
         n_seq = 2
         n_steps = 2
         k=0
-        while k<g:
+        while k<g+1:
             x_input = x_input.reshape((1, n_seq, 1, n_steps, n_features))
         #     x_input = x_input.reshape((1, n_seq, n_steps, n_features))
             yhat = self.model.predict(x_input, verbose=0)
@@ -275,14 +284,14 @@ class glucoCheckOps:
             x_input = x_input[-N:]
             k+=1
         
-        test_data.GlucoseValue[b:e] = preds
+        test_data.GlucoseValue[b:e+1] = preds
         return test_data
 
         # test_data.to_csv("imputed.csv")
         print("Imputed files written")
 
 
-    def plotIndividual(self, uid, data= consolidatedData):
+    def plotIndividual(self, uid, date = None, data= consolidatedData):
         """
             This method plots the graph of the Glucose Values of a single Subject ID. The subject ID can be found as a part of the description of the data. The default data includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package, and the Ohio University dataset. The user may specify their own data if they wish to. The subject ID is a part of the data supplied by the user. 
 
@@ -299,16 +308,41 @@ class glucoCheckOps:
             A line graph of the Subject ID's Glucose Value fluctuations with respect to the timestamp
 
         """
-        new = data[data['subjectId']==str(uid)]
-        new = new.astype({'GlucoseValue':int})
-        new['Display Time'] = pd.to_datetime(new['Display Time'])
+        if date != None:
+            # print(date)
+            print("Displaying for day: "+str(date))
+            new = data[data['subjectId']==str(uid)]
+            new = new.astype({'GlucoseValue':int})
+            new['Display Time'] = pd.to_datetime(new['Display Time'])
+            new=new.reset_index(drop=True)
+            dates = []
+            
+            for i in range(len(new.index)):
+                dates.append(new['Display Time'][i].date())
+            new['Date'] = dates
+            new['Date'] = new['Date'].astype(str)
 
-        plt.figure(figsize=(16,8))
+            
+            new = new[new['Date']==str(date)]
+            
+        else:
+            # print('full TS')
+            print("Displaying for all days ")
+            new = data[data['subjectId']==str(uid)]
+            new = new.astype({'GlucoseValue':int})
+            new['Display Time'] = pd.to_datetime(new['Display Time'])
+            # display(new)
+        
+        # print(new.head())
+        plt.figure(figsize=(15,10))
         sns.set(style="white")
         fig = sns.lineplot(x = new['Display Time'], y = new['GlucoseValue'],
-                     data=new, palette="tab10", linewidth=0.8)
+                     data=new, palette="tab10", linewidth=1.25)
         sns.despine()
-        fig.set_xticklabels(labels=new['Display Time'], rotation=60, ha='right')
+        fig.set_xticklabels(labels=new['Display Time'], rotation=90, ha='right', weight='bold', fontsize=13)
+        fig.set_yticklabels(labels=new['GlucoseValue'], weight='bold', fontsize=13)
+        fig.set_xlabel('Timestamp', weight='bold', fontsize=16)
+        fig.set_ylabel('Glucose Value', weight='bold', fontsize=16)
 
         # plt.figure(figsize=(20, 8))
 
@@ -344,16 +378,17 @@ class glucoCheckOps:
         data['Display Time'] = pd.to_datetime(data['Display Time'])
         # .apply(lambda x: pd.datetime.strptime(x, '%m/%d/%y %H:%M'))
         data['time_gap'] = data['Display Time']- data['Display Time'].shift(1)
-        cleandata = self.datacleaning(data)
+        # cleandata = self.datacleaning(data)
         # display(cleandata)
-        data_description = self.summaryTable(cleandata)
+        data_description = self.summaryTable(data)
         
 
-        print("Here is the statistical analysis of the data:\n")
-        display(data_description)
-        print("\n\n")
+        # print("Here is the statistical analysis of the data:\n")
+        # # display(data_description)
+        # print("\n\n")
 
-        data_description.to_csv(self.cwd+"/GlucoCheck/Data/Data Description.csv")
+        # data_description.to_csv(self.cwd+"/GlucoCheck/Data/Data Description.csv")
+        return data_description
 
 
     def individualDescribe(self, uid, data = consolidatedData):
@@ -425,6 +460,12 @@ class glucoCheckOps:
                 miss_val = round((totalGapSize['time_gap'].sum()).total_seconds() / (60.0*5))
 
                 days = df['Display Time'].iloc[-1]-df['Display Time'].iloc[1]
+                s = days.seconds
+                h = s//3600
+                h = h/24
+                float_days = days.days + h
+                float_days = round(float_days,2)
+
                 start_time = str(df['Display Time'].iloc[0])
                 end_time = str(df['Display Time'].iloc[-1])
 
@@ -438,60 +479,9 @@ class glucoCheckOps:
                 else:
                     ave_gap_size = miss_val / df_gap.shape[0]
 
-                temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Length of readings':[l_of_r], 'Max. Glucose Value':[maxGV], 'Mean Glucose Value':[meanGV], 'Missing Values':[miss_val], 'Percent of missing values':[P_miss_val], 'Average gap size':[ave_gap_size], 'Days':[days],'Start':[start_time],'End':[end_time]})
+                temp_df = pd.DataFrame({'Subject ID':[subj_id], 'Start':[start_time],'End':[end_time], '# of readings':[l_of_r], '# of Days':[float_days], 'Timestamp Days':[days], '# of Missing Values':[miss_val], 'Percent of missing values':[P_miss_val], 'Average gap size':[ave_gap_size], 'Max. Glucose Value':[maxGV], 'Min. Glucose Value':[minGV], 'Mean Glucose Value':[meanGV]})
                 data_description = pd.concat([temp_df,data_description],ignore_index=True)
-                data_description = data_description.sort_values(by=['Percent of missing values'])
-            
-            days = []
-            for i in data_description['Days']:
-                days.append(i.days)
-
-           
-
-
-            fig, axes = plt.subplots(2, 2, figsize=(15, 10))
-            sns.distplot(days, kde = False, ax=axes[0,0], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
-            fig.axes[0].set_xlabel('Number of Days', weight='bold', fontsize=16)
-            fig.axes[0].set_ylabel('Frequency', weight='bold', fontsize=16)
-            fig.axes[0].tick_params(axis="both", labelsize=16)
-
-            sns.distplot(data_description['Percent of missing values'],kde = False, ax=axes[0,1], hist_kws=dict(edgecolor="k", linewidth=1))
-            fig.axes[1].set_xlabel('Percent of missing valuess', weight='bold', fontsize=16)
-            fig.axes[1].set_ylabel('Frequency', weight='bold', fontsize=16)
-            fig.axes[1].tick_params(axis="both", labelsize=16)
-
-            sns.distplot(data_description['Average gap size'], kde = False,  ax=axes[1,0], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
-            fig.axes[2].set_xlabel('Average gap size', weight='bold', fontsize=16)
-            fig.axes[2].set_ylabel('Frequency', weight='bold', fontsize=16)
-            fig.axes[2].tick_params(axis="both", labelsize=16)
-
-            sns.distplot(data_description['Missing Values'], kde = False, ax=axes[1,1], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
-            fig.axes[3].set_xlabel('# of Missing Values', weight='bold', fontsize=16)
-            fig.axes[3].set_ylabel('Frequency', weight='bold', fontsize=16)
-            fig.axes[3].tick_params(axis="both", labelsize=16)
-
-            sns.despine()
-
-
-            fig, axes = plt.subplots(3, 1, figsize=(20, 39))
-            chart = sns.barplot(ax=axes[0], x = data_description['Subject ID'], y = days, color = 'skyblue', edgecolor="k", linewidth=0.5)
-            chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14);
-            plt.rc('ytick', labelsize=15)  
-            fig.axes[0].set_xlabel('Subject ID', weight='bold', fontsize = 16)
-            fig.axes[0].set_ylabel('Num of days', weight='bold', fontsize = 16)
-
-            chart = sns.barplot(ax=axes[1], x = data_description['Subject ID'], y = data_description['Percent of missing values'], color = 'skyblue', edgecolor="k", linewidth=0.5)
-            chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14);
-            fig.axes[1].set_xlabel('Subject ID', weight='bold', fontsize = 16)
-            fig.axes[1].set_ylabel('Percent of missing values', weight='bold', fontsize = 16)
-
-            chart = sns.barplot(ax=axes[2], x = data_description['Subject ID'], y = data_description['Average gap size'], color = 'skyblue', edgecolor="k", linewidth=0.5)
-            chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14);
-            fig.axes[2].set_xlabel('Subject ID', weight='bold', fontsize = 16)
-            fig.axes[2].set_ylabel('Average gap size', weight='bold', fontsize = 16)
-
-            sns.despine()
-
+                # data_description = data_description.sort_values(by=['Percent of missing values'])
 
             return data_description
     
@@ -543,6 +533,70 @@ class glucoCheckOps:
         newdf = pd.concat([newdf_below50,newdf_above50],ignore_index=True)
 
         return newdf
+
+    
+    def histograms(self, data_description):
+        days = []
+        for i in data_description['Timestamp Days']:
+            days.append(i.days)
+
+        fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+        sns.distplot(days, kde = False, ax=axes[0,0], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
+        fig.axes[0].set_xlabel('Number of Days', weight='bold', fontsize=16)
+        fig.axes[0].set_ylabel('Frequency', weight='bold', fontsize=16)
+        fig.axes[0].tick_params(axis="both", labelsize=16)
+
+        sns.distplot(data_description['Percent of missing values'],kde = False, ax=axes[0,1], hist_kws=dict(edgecolor="k", linewidth=1))
+        fig.axes[1].set_xlabel('Percent of missing valuess', weight='bold', fontsize=16)
+        fig.axes[1].set_ylabel('Frequency', weight='bold', fontsize=16)
+        fig.axes[1].tick_params(axis="both", labelsize=16)
+
+        sns.distplot(data_description['Average gap size'], kde = False,  ax=axes[1,0], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
+        fig.axes[2].set_xlabel('Average gap size', weight='bold', fontsize=16)
+        fig.axes[2].set_ylabel('Frequency', weight='bold', fontsize=16)
+        fig.axes[2].tick_params(axis="both", labelsize=16)
+
+        sns.distplot(data_description['# of Missing Values'], kde = False, ax=axes[1,1], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
+        fig.axes[3].set_xlabel('# of Missing Values', weight='bold', fontsize=16)
+        fig.axes[3].set_ylabel('Frequency', weight='bold', fontsize=16)
+        fig.axes[3].tick_params(axis="both", labelsize=16)
+
+        sns.despine()
+
+
+    # def barplots(self, data_description):
+    #     days = []
+    #     for i in data_description['Timestamp Days']:
+    #         days.append(i.days)
+
+    #     fig, axes = plt.subplots(3, 1, figsize=(20, 39))
+    #     chart = sns.barplot(ax=axes[0], x = data_description['Subject ID'], y = days, color = 'skyblue', edgecolor="k", linewidth=0.5)
+    #     chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14);
+    #     plt.rc('ytick', labelsize=15)  
+    #     fig.axes[0].set_xlabel('Subject ID', weight='bold', fontsize = 16)
+    #     fig.axes[0].set_ylabel('Num of days', weight='bold', fontsize = 16)
+
+    #     chart = sns.barplot(ax=axes[1], x = data_description['Subject ID'], y = data_description['Percent of missing values'], color = 'skyblue', edgecolor="k", linewidth=0.5)
+    #     chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14);
+    #     fig.axes[1].set_xlabel('Subject ID', weight='bold', fontsize = 16)
+    #     fig.axes[1].set_ylabel('Percent of missing values', weight='bold', fontsize = 16)
+
+    #     chart = sns.barplot(ax=axes[2], x = data_description['Subject ID'], y = data_description['Average gap size'], color = 'skyblue', edgecolor="k", linewidth=0.5)
+    #     chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14);
+    #     fig.axes[2].set_xlabel('Subject ID', weight='bold', fontsize = 16)
+    #     fig.axes[2].set_ylabel('Average gap size', weight='bold', fontsize = 16)
+
+    #     sns.despine()
+
+    def barPlot(self, data, n):
+        column = data[''+str(n)]
+        plt.figure(figsize=(16,8))
+        fig = sns.distplot(column, kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
+        fig.set_xlabel(n, weight='bold', fontsize=16)
+        fig.set_ylabel('Frequency', weight='bold', fontsize=16)
+        fig.tick_params(axis="both", labelsize=16)
+
+        sns.despine()
 
 
 #==================================================================================================================

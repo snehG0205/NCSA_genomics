@@ -1,0 +1,103 @@
+---
+title: "DTW - dataset"
+output: html_notebook
+---
+
+
+```{r}
+sc <- read.table("~/Desktop/NCSA/dataset.csv", header=F, sep = ",")[,1:40]
+
+frame = as.data.frame(sc)
+frame
+
+```
+
+
+
+```{r}
+data1 = unlist(list(frame[1,]))
+data2 = unlist(list(frame[2,]))
+data3 = unlist(list(frame[3,]))
+data4 = unlist(list(frame[4,]))
+data5 = unlist(list(frame[5,]))
+
+
+print("600 such time series models - ")
+print(data1)
+
+xrange <- range(0:40)
+yrange <- range(20:40)
+
+plot(xrange,yrange,type='n', xlab='time',ylab='values')
+lines(data1, type = 'l', col='red')
+lines(data2, type = 'l', col='green')
+lines(data3, type = 'l', col='yellow')
+lines(data4, type = 'l', col='blue')
+lines(data5, type = 'l', col='orange')
+
+```
+```{r}
+plot(xrange,yrange,type='n', xlab='time',ylab='values')
+lines(data1, type = 'l')
+```
+
+
+```{r}
+install.packages("dtwclust")
+```
+
+```{r}
+require(dtwclust)
+```
+
+```{r}
+clust.pam <- tsclust(frame, type="partitional", k=6L, distance="dtw2", clustering="pam")
+plot(clust.pam, type = "sc")
+```
+The dashed line represents the medoid time series.
+
+
+```{r}
+t(cbind(frame[,0], cluster = clust.pam@cluster))
+```
+```{r}
+predict(clust.pam,newdata=data1)
+predict(clust.pam,newdata=data2)
+predict(clust.pam,newdata=data3)
+predict(clust.pam,newdata=data4)
+predict(clust.pam,newdata=data5)
+```
+
+
+
+```{r}
+clust.hier <- tsclust(frame, type = "h", k = 6L, distance = "dtw2", trace=TRUE)
+plot(clust.hier)
+
+plot(clust.hier, type="sc")
+```
+
+```{r}
+t(cbind(frame[,0], cluster = clust.hier@cluster))
+```
+
+
+```{r}
+predict(clust.hier,newdata=data1)
+predict(clust.hier,newdata=data2)
+predict(clust.hier,newdata=data3)
+predict(clust.hier,newdata=data4)
+predict(clust.hier,newdata=data5)
+```
+
+ARANDI(c, c')
+ANNOVA
+
+
+cylinder bell funnel patterns => cbf dataset => download timeseriesclassification.com
+instead of normalising try => transformations -> 
+dimensionality scaling
+packages for data cleansing
+glucotypes data
+R knit
+cmwkmfmernvrc

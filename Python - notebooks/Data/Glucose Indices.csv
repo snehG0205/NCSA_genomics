@@ -1,0 +1,228 @@
+Subject ID,ADDR,BGRI,LBGI,HBGI,CONGA1,CONGA2,CONGA4,DT,HBA1C,GFI,GCF,Liability Index,GMI,GRADE,HypoG_P,EuG_P,HyperG_P,GVP,IGC,Hypoglycemic Index,Hyperglycemic Index,J Index,LAGE,Mvalue,MAG,MODD,PGS,SDRC,MEAN,STD-DEV,CV,IQR,MAX,MIN,TAR_VH(%),TAR_H(%),TIR(%),TBR_L(%),TBR_VL(%),Hypoglycemic Episodes,Hyperglycemic Episodes
+1636-69-001,24.63,2.74,1.52,1.23,37.66,51.23,44.12,871.0,5.36,4.61,0.04,100.69,5.875,2.13,0.0,5564.8,1149.84,27.51,3.08,0.98,2.1,20.04,155,36.65,0.13,,5.95,0.92,107.25,34.31,[32.0]%,27.5,225,70,0.0,6.969,93.031,0.0,0.0,0,0
+1636-69-001-2,13.29,1.14,0.48,0.66,8.42,11.19,8.74,2351.0,5.64,4.22,0.04,155.57,6.062,2.31,12.08,15192.1,2454.58,22.62,1.91,1.23,0.68,18.62,117,10.38,0.04,"[nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan]",6.13,0.84,115.05,21.41,[19.0]%,27.0,181,64,0.0,0.122,99.755,0.122,0.0,0,0
+1636-69-026,11.54,0.96,0.36,0.6,3.88,4.15,3.65,4254.0,5.65,4.89,0.04,246.96,6.072,2.27,129.33,28460.64,4275.28,19.68,1.97,1.4,0.58,18.29,120,7.86,0.44,[nan nan nan ... nan nan nan],7.16,0.8,115.45,19.79,[17.0]%,25.0,182,62,0.0,0.134,99.665,0.201,0.0,0,0
+1636-69-028,7.27,0.93,0.64,0.29,2.9,3.39,4.35,3417.0,5.41,3.89,0.04,74.27,5.909,1.58,0.0,41223.72,1052.53,18.49,1.67,1.28,0.38,15.91,93,10.08,0.13,[nan nan nan ... nan nan nan],5.39,0.76,108.65,17.48,[16.0]%,24.0,168,75,0.0,0.0,100.0,0.0,0.0,0,0
+1636-69-032,7.21,0.74,0.6,0.14,2.67,3.53,3.82,3986.0,5.36,4.03,0.04,59.34,5.869,1.34,27.12,52234.8,1287.12,22.53,1.74,1.47,0.27,14.72,89,9.34,0.07,[nan nan nan ... nan nan nan],6.13,0.81,106.99,14.32,[13.0]%,19.0,156,67,0.0,0.0,99.931,0.069,0.0,0,0
+1636-69-035,10.71,1.44,0.63,0.81,1.76,2.76,2.77,4667.0,5.65,5.3,0.05,302.61,6.07,2.48,133.23,32973.63,5825.45,11.02,1.81,1.03,0.78,19.47,125,13.97,0.16,[nan nan nan ... nan nan nan],6.365,0.7,115.4,24.12,[21.0]%,33.0,194,69,0.0,0.414,99.379,0.207,0.0,0,0
+1636-69-048,8.89,1.44,1.42,0.02,2.78,3.44,3.94,3425.0,5.0,3.37,0.03,71.1,5.624,0.65,486.5,109189.59,0.0,16.94,1.21,1.21,0.0,11.9,73,22.47,0.09,[nan nan nan ... nan nan nan],10.03,0.67,96.75,12.32,[13.0]%,16.5,136,63,0.0,0.0,99.233,0.767,0.0,0,0
+1636-69-053,12.16,1.5,1.26,0.24,3.32,4.0,4.26,3503.0,5.12,3.5,0.03,157.42,5.705,0.98,121.16,78908.75,4569.36,14.8,1.97,1.13,0.84,13.98,117,20.56,0.01,[nan nan nan ... nan nan nan],8.86,0.68,100.12,18.13,[18.0]%,17.0,183,66,0.0,0.122,99.512,0.366,0.0,0,0
+1636-69-060,5.82,0.87,0.08,0.79,2.42,2.76,2.92,3636.0,5.94,3.47,0.03,94.35,6.272,3.1,0.0,23700.52,2864.69,15.28,0.58,0.0,0.58,19.7,90,3.81,0.06,[nan nan nan ... nan nan nan],5.45,0.67,123.84,16.52,[13.0]%,20.0,181,91,0.0,0.061,99.939,0.0,0.0,0,0
+1636-69-064,12.82,1.16,0.43,0.73,4.83,5.19,5.35,4789.0,5.67,5.11,0.04,226.41,6.083,2.38,0.0,26435.1,2795.76,30.24,2.12,1.33,0.79,19.12,140,10.17,0.08,[nan nan nan ... nan nan nan],5.97,0.98,115.93,22.33,[19.0]%,28.75,218,78,0.0,1.363,98.637,0.0,0.0,0,0
+1636-69-069,9.12,1.11,0.67,0.44,2.9,3.53,3.37,3771.0,5.42,3.98,0.04,140.72,5.914,1.66,20.48,38427.78,4729.48,17.18,1.91,1.2,0.71,16.64,118,11.9,0.09,[nan nan nan ... nan nan nan],5.92,0.75,108.88,20.11,[18.0]%,22.0,187,69,0.0,0.487,99.444,0.07,0.0,0,0
+1636-69-090,14.08,1.66,1.15,0.51,4.53,6.3,6.35,3441.0,5.37,4.32,0.04,193.75,5.883,1.83,47.84,33141.85,3758.6,18.11,1.92,0.87,1.05,17.19,133,21.24,0.06,[nan nan nan ... nan nan nan],7.69,0.72,107.56,23.57,[22.0]%,34.0,195,62,0.0,0.886,98.818,0.295,0.0,0,0
+1636-69-091,6.88,0.95,0.83,0.12,2.13,2.56,2.9,3185.0,5.2,3.16,0.03,72.37,5.765,0.98,0.0,82266.31,3427.74,11.99,1.89,1.45,0.44,13.62,93,12.85,0.09,[nan nan nan ... nan nan nan],5.27,0.57,102.63,14.06,[14.0]%,13.0,163,70,0.0,0.0,100.0,0.0,0.0,0,0
+1636-69-100,6.96,1.04,0.96,0.08,2.56,2.77,3.81,2400.0,5.17,2.91,0.03,59.73,5.739,0.92,411.43,71913.53,579.03,10.81,1.57,1.23,0.34,13.28,87,14.62,0.07,[nan nan nan ... nan nan nan],9.65,0.56,101.54,13.7,[13.0]%,15.0,153,66,0.0,0.0,99.406,0.594,0.0,0,0
+1636-69-104,9.63,2.43,2.3,0.13,2.81,3.35,4.37,2009.0,4.93,4.66,0.05,83.21,5.581,1.08,475.79,36455.46,556.74,9.94,2.01,1.75,0.26,12.86,91,40.8,0.01,"[nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan]",9.99,0.73,94.93,18.46,[19.0]%,19.0,152,61,0.0,0.0,96.059,3.941,0.0,0,0
+1636-69-104-2,17.44,4.64,4.63,0.01,3.11,2.77,3.18,2638.0,4.55,4.68,0.06,87.5,5.318,1.63,6869.63,19003.5,0.0,15.6,4.4,4.4,0.0,10.02,94,97.28,0.29,"[nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan]",16.6,0.83,83.96,16.12,[19.0]%,24.0,140,46,0.0,0.0,79.693,18.89,1.417,1,0
+1636-69-107,7.67,0.8,0.46,0.34,2.95,3.78,3.9,4281.0,5.52,4.27,0.04,144.79,5.983,1.85,0.0,39127.78,3433.64,19.31,1.39,0.98,0.41,16.58,104,7.97,0.33,[nan nan nan ... nan nan nan],5.41,0.8,111.74,17.04,[15.0]%,20.0,176,72,0.0,0.0,100.0,0.0,0.0,0,0
+1636-69-111,10.99,1.24,1.22,0.02,1.89,2.14,2.63,2785.0,5.05,3.31,0.03,32.77,5.66,0.7,687.87,98194.46,0.0,12.93,1.5,1.5,0.0,12.18,87,18.86,0.19,[nan nan nan ... nan nan nan],13.07,0.6,98.24,12.11,[12.0]%,16.0,135,48,0.0,0.0,99.347,0.581,0.073,0,0
+1636-69-114,5.93,0.67,0.41,0.26,3.25,3.34,3.16,3302.0,5.51,3.65,0.03,88.17,5.974,1.75,0.0,40433.18,305.01,17.69,1.35,1.06,0.29,16.02,78,6.21,0.15,[nan nan nan ... nan nan nan],5.35,0.71,111.36,15.22,[14.0]%,24.0,154,76,0.0,0.0,100.0,0.0,0.0,0,0
+1636-69-123,14.89,3.68,3.66,0.02,1.68,2.2,2.8,4310.0,4.65,4.1,0.05,72.84,5.383,1.12,10658.42,60851.44,0.0,16.63,2.61,2.61,0.0,10.4,89,70.73,0.25,[nan nan nan ... nan nan nan],15.69,0.79,86.68,15.3,[18.0]%,20.0,138,49,0.0,0.0,89.042,10.645,0.313,0,0
+1636-70-1002,13.72,1.62,1.51,0.11,3.63,3.52,3.46,3972.0,5.11,4.53,0.05,120.85,5.7,1.13,2223.64,59290.1,906.66,22.63,2.03,1.82,0.21,13.65,95,26.35,0.37,[nan nan nan ... nan nan nan],10.15,0.83,99.92,16.91,[17.0]%,22.0,152,57,0.0,0.0,97.173,2.827,0.0,0,0
+1636-70-1003,16.14,3.34,3.3,0.04,3.09,3.82,4.25,4241.0,4.78,4.24,0.05,155.82,5.474,1.35,7390.38,49128.66,180.41,19.11,3.58,3.42,0.16,11.74,100,65.89,0.16,[nan nan nan ... nan nan nan],15.41,0.79,90.47,17.86,[20.0]%,27.0,146,46,0.0,0.0,87.573,11.906,0.52,2,0
+1636-70-1005,17.41,1.33,0.8,0.53,4.89,5.35,6.34,4938.0,5.53,4.81,0.04,425.63,5.989,2.16,808.05,35078.65,2690.4,22.55,3.9,2.88,1.02,17.99,173,17.86,0.18,[nan nan nan ... nan nan nan],14.46,0.88,112.0,22.13,[20.0]%,25.0,225,52,0.0,1.437,96.946,1.377,0.24,1,0
+1636-70-1008,17.04,1.99,1.69,0.31,4.1,5.35,5.27,3104.0,5.16,3.65,0.04,175.28,5.739,1.53,3769.64,39793.89,2596.86,16.78,4.51,3.43,1.08,15.18,172,34.44,0.15,[nan nan nan ... nan nan nan],14.08,0.71,101.53,21.66,[21.0]%,17.0,223,51,0.0,0.846,93.159,5.783,0.212,1,0
+1636-70-1010,9.82,0.99,0.2,0.79,5.81,6.41,7.16,3000.0,5.81,3.85,0.03,159.43,6.183,2.74,0.0,16614.8,4170.48,20.64,1.25,0.54,0.71,19.6,111,6.37,0.46,"[nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan]",5.56,0.76,120.11,19.9,[17.0]%,26.0,186,75,0.0,0.438,99.562,0.0,0.0,0,0
+2133-001,16.34,4.53,4.4,0.13,2.65,3.66,2.78,2696.0,4.57,3.55,0.04,103.23,5.328,1.31,6699.88,48361.83,2716.11,11.19,2.75,1.89,0.86,10.63,139,83.82,0.4,[nan nan nan ... nan nan nan],15.49,0.7,84.35,18.75,[22.0]%,15.0,186,47,0.0,0.132,89.065,10.606,0.198,0,0
+2133-002,10.13,2.17,2.1,0.07,2.36,2.81,2.7,3361.0,4.91,2.97,0.03,88.65,5.56,0.83,6517.04,92023.12,2678.57,12.64,2.27,1.67,0.6,12.02,103,36.43,0.06,[nan nan nan ... nan nan nan],10.12,0.58,94.07,15.58,[17.0]%,19.0,163,60,0.0,0.0,95.943,4.057,0.0,0,0
+2133-003,14.46,1.96,1.69,0.27,4.18,4.88,4.91,4341.0,5.09,4.25,0.04,277.5,5.69,1.21,753.86,67443.14,2809.04,21.15,2.12,1.25,0.87,14.4,128,29.75,0.08,[nan nan nan ... nan nan nan],10.08,0.85,99.48,20.53,[21.0]%,22.0,190,62,0.0,0.465,98.604,0.931,0.0,0,0
+2133-004,15.37,2.21,0.36,1.85,5.0,8.33,8.67,2845.0,6.16,3.14,0.02,232.01,6.423,4.19,0.0,11731.98,5370.25,13.97,1.88,0.72,1.16,25.36,171,19.64,0.01,[nan nan nan ... nan nan nan],5.82,0.62,130.13,29.11,[22.0]%,30.0,246,75,0.0,6.202,93.798,0.0,0.0,0,0
+2133-006,12.53,4.08,4.07,0.01,2.71,3.11,2.97,3109.0,4.56,3.9,0.05,67.43,5.326,1.07,3520.13,63236.45,190.65,17.23,2.42,2.12,0.3,9.74,90,77.21,0.03,[nan nan nan ... nan nan nan],11.67,0.78,84.29,14.4,[17.0]%,19.0,148,58,0.0,0.0,86.829,13.171,0.0,0,0
+2133-007,10.75,0.92,0.58,0.34,3.44,4.73,4.56,4627.0,5.48,4.46,0.04,212.47,5.953,1.79,669.12,42601.64,4176.96,20.09,1.92,1.39,0.53,16.51,142,10.63,0.07,[nan nan nan ... nan nan nan],9.84,0.84,110.51,17.98,[16.0]%,19.0,207,65,0.0,0.236,98.821,0.943,0.0,0,0
+2133-008,12.28,2.62,2.6,0.02,2.69,3.25,3.29,3340.0,4.76,3.46,0.04,66.47,5.459,0.65,3581.56,105874.97,0.0,16.98,1.38,1.38,0.0,10.62,83,44.88,0.1,[nan nan nan ... nan nan nan],13.12,0.69,89.84,13.2,[15.0]%,16.0,137,54,0.0,0.0,96.07,3.93,0.0,0,0
+2133-009,9.58,0.89,0.63,0.26,3.43,3.69,4.82,4078.0,5.45,4.2,0.04,115.39,5.933,1.7,85.7,40444.42,1696.83,23.56,1.74,1.29,0.45,16.04,110,10.71,0.18,[nan nan nan ... nan nan nan],9.97,0.83,109.67,16.97,[15.0]%,21.0,174,64,0.0,0.0,99.304,0.696,0.0,0,0
+2133-010,9.06,2.0,1.98,0.02,2.03,2.59,2.45,4281.0,4.87,3.9,0.04,61.59,5.536,0.59,1628.58,136134.45,43.14,19.45,1.15,1.09,0.06,11.2,81,32.34,0.1,[nan nan nan ... nan nan nan],10.36,0.77,93.06,12.78,[14.0]%,16.0,143,62,0.0,0.0,99.013,0.987,0.0,0,0
+2133-011,14.68,2.28,2.15,0.13,2.08,2.46,3.4,4503.0,4.93,4.31,0.05,167.5,5.574,0.94,1339.16,89075.23,2295.96,16.74,2.56,1.62,0.94,12.61,157,37.85,0.21,[nan nan nan ... nan nan nan],,0.83,94.65,17.64,[19.0]%,19.0,204,47,0.0,0.4,97.311,2.002,0.286,0,0
+2133-012,14.67,2.05,1.95,0.09,2.56,3.01,3.53,3776.0,5.01,3.7,0.04,120.31,5.634,1.1,1247.89,69227.45,501.14,16.79,1.61,1.47,0.14,13.18,99,34.34,0.11,[nan nan nan ... nan nan nan],14.37,0.73,97.16,17.63,[18.0]%,26.0,148,49,0.0,0.0,97.185,2.623,0.192,0,0
+2133-013,17.74,2.25,2.13,0.12,3.09,2.74,3.46,3866.0,4.96,5.05,0.05,154.19,5.596,1.13,4051.41,67434.09,1716.65,14.51,4.06,2.82,1.24,12.82,165,41.36,0.09,[nan nan nan ... nan nan nan],14.6,0.72,95.55,17.66,[18.0]%,19.0,206,41,0.0,0.484,95.284,3.265,0.967,0,0
+2133-015,8.41,0.88,0.66,0.22,2.99,3.9,4.4,3882.0,5.39,3.6,0.03,120.77,5.894,1.52,383.46,53089.01,707.89,16.7,2.16,1.39,0.78,15.51,126,11.1,0.01,[nan nan nan ... nan nan nan],9.72,0.7,108.03,16.5,[15.0]%,19.0,190,64,0.0,0.365,99.027,0.608,0.0,0,0
+2133-017,9.13,1.22,0.83,0.39,3.85,4.84,5.43,3296.0,5.39,3.71,0.03,136.59,5.894,1.66,1.3,39442.64,2433.19,16.85,1.36,0.93,0.43,16.39,106,13.77,0.12,[nan nan nan ... nan nan nan],5.91,0.7,108.04,19.97,[18.0]%,26.0,174,68,0.0,0.0,99.928,0.072,0.0,0,0
+2133-018,21.97,2.43,0.29,2.13,7.7,9.7,13.45,3895.0,6.0,4.41,0.04,549.55,6.314,3.62,0.0,15509.26,4236.66,24.11,3.62,1.12,2.5,26.43,197,29.26,0.09,[nan nan nan ... nan nan nan],6.18,0.88,125.6,36.95,[29.0]%,27.0,270,73,0.839,10.971,88.19,0.0,0.0,0,0
+2133-019,9.97,1.48,1.1,0.38,5.54,7.38,7.78,1867.0,5.3,3.38,0.03,60.59,5.831,1.51,0.0,27054.52,1139.34,15.17,1.55,1.1,0.45,15.99,119,17.99,0.6,"[nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan
+ nan nan nan nan nan nan]",5.31,0.66,105.39,21.06,[20.0]%,27.0,192,73,0.0,0.235,99.765,0.0,0.0,0,0
+2133-019-2,9.94,0.57,0.12,0.46,22.81,27.2,25.61,815.0,5.83,4.81,0.04,35.35,6.196,2.68,0.0,4772.4,246.27,25.85,1.05,0.66,0.39,17.88,89,2.62,0.75,,5.79,0.96,120.67,13.04,[11.0]%,16.0,168,79,0.0,0.0,100.0,0.0,0.0,0,0
+2133-020,22.01,3.49,3.13,0.36,5.53,7.19,5.7,3897.0,4.97,4.45,0.05,280.52,5.607,1.98,4435.3,29941.82,1683.5,23.49,4.85,3.72,1.13,14.8,152,66.14,0.08,[nan nan nan ... nan nan nan],15.15,0.89,96.02,25.65,[27.0]%,33.0,195,43,0.0,0.911,88.017,10.021,1.051,3,0
+2133-021,16.55,1.98,0.4,1.58,5.74,7.08,8.14,3890.0,6.07,4.11,0.03,308.35,6.357,3.87,79.64,13071.46,5140.9,22.3,2.97,1.84,1.13,23.99,169,17.67,0.07,[nan nan nan ... nan nan nan],10.32,0.82,127.37,27.5,[22.0]%,31.25,231,62,0.0,3.955,95.268,0.777,0.0,0,0
+2133-022,17.87,1.66,1.11,0.55,4.1,4.82,4.11,4774.0,5.35,4.4,0.04,280.76,5.864,1.74,421.51,41351.69,7153.0,23.31,2.51,1.65,0.86,17.03,149,20.92,0.19,[nan nan nan ... nan nan nan],10.01,0.85,106.79,23.73,[22.0]%,26.0,204,55,0.0,1.118,97.763,1.118,0.0,0,0
+2133-023,13.9,3.3,3.28,0.02,1.87,2.46,3.12,3487.0,4.65,3.33,0.04,87.94,5.388,0.8,5418.29,101647.34,110.78,12.28,1.71,1.65,0.06,10.05,98,59.61,0.02,[nan nan nan ... nan nan nan],15.22,0.64,86.88,13.39,[15.0]%,16.0,142,44,0.0,0.0,93.473,6.469,0.058,1,0
+2133-024,18.11,2.14,1.95,0.19,3.12,3.74,3.75,4398.0,5.11,3.79,0.04,168.75,5.702,1.54,2255.49,49985.72,1617.13,19.1,3.56,2.98,0.58,14.48,139,38.76,0.25,[nan nan nan ... nan nan nan],14.58,0.73,100.01,20.32,[20.0]%,26.0,180,41,0.0,0.0,94.164,5.235,0.602,1,0
+2133-025,17.92,3.14,3.1,0.03,2.88,2.7,2.4,4375.0,4.7,3.92,0.04,144.44,5.418,0.85,4487.06,91671.03,752.09,19.92,3.0,2.09,0.91,10.47,128,57.28,0.2,[nan nan nan ... nan nan nan],15.49,0.78,88.11,14.22,[16.0]%,17.0,175,47,0.0,0.0,93.329,6.367,0.303,0,0
+2133-026,22.18,5.17,5.15,0.01,2.87,3.77,3.74,4644.0,4.46,4.54,0.06,75.53,5.256,1.65,9181.46,34312.17,20.33,27.65,3.85,3.8,0.05,9.35,94,106.2,0.23,[nan nan nan ... nan nan nan],17.81,0.91,81.35,15.35,[19.0]%,20.0,142,48,0.0,0.0,76.896,22.06,1.044,1,0
+2133-027,8.76,1.94,1.89,0.05,1.88,1.81,2.36,2380.0,4.87,2.61,0.03,88.62,5.533,0.51,2563.59,155233.93,498.03,6.71,1.62,1.26,0.36,11.13,95,30.06,0.18,[nan nan nan ... nan nan nan],9.99,0.46,92.95,12.57,[14.0]%,13.0,155,60,0.0,0.0,98.834,1.166,0.0,0,0
+2133-028,14.97,6.07,6.07,0.0,1.54,2.05,2.22,2460.0,4.27,2.51,0.03,36.57,5.122,1.55,12035.24,38948.51,0.0,8.9,2.79,2.79,0.0,7.2,66,121.2,0.01,[nan nan nan ... nan nan nan],18.43,0.5,75.74,9.11,[12.0]%,10.0,111,45,0.0,0.0,76.139,23.481,0.38,1,0
+2133-030,17.56,2.84,2.8,0.04,2.1,2.11,1.99,3394.0,4.86,3.43,0.04,69.62,5.526,1.31,3185.48,57020.42,309.59,14.35,3.12,2.96,0.16,12.05,106,56.78,0.08,[nan nan nan ... nan nan nan],14.8,0.68,92.64,17.14,[19.0]%,27.0,147,41,0.0,0.0,95.289,2.952,1.759,0,0
+2133-032,6.41,1.36,1.3,0.06,2.7,3.23,4.03,2870.0,5.06,2.96,0.03,66.86,5.664,0.77,55.74,93160.36,426.34,13.38,1.52,1.35,0.17,12.61,78,19.9,0.0,[nan nan nan ... nan nan nan],6.02,0.59,98.43,13.87,[14.0]%,17.0,147,69,0.0,0.0,99.93,0.07,0.0,0,0
+2133-033,15.49,3.03,2.95,0.08,2.98,3.4,4.17,4206.0,4.82,4.1,0.04,165.74,5.503,1.19,4200.88,61805.89,1631.5,18.82,2.64,2.32,0.32,12.09,107,56.05,0.21,[nan nan nan ... nan nan nan],14.97,0.77,91.7,18.24,[20.0]%,25.0,156,49,0.0,0.0,91.089,8.663,0.248,0,0
+2133-035,12.29,1.35,1.15,0.19,3.09,3.89,5.4,3759.0,5.14,3.89,0.04,153.81,5.724,1.0,160.83,73555.34,4543.88,16.68,1.9,1.31,0.59,13.89,143,18.63,0.1,[nan nan nan ... nan nan nan],11.98,0.73,100.91,16.93,[17.0]%,15.0,190,47,0.0,0.319,99.171,0.446,0.064,0,0
+2133-036,15.79,2.25,1.59,0.66,2.97,4.51,4.18,5019.0,5.34,4.6,0.04,371.19,5.861,2.09,3196.81,32943.87,6817.57,15.8,3.21,2.27,0.95,17.85,156,32.58,0.15,[nan nan nan ... nan nan nan],,0.7,106.64,26.95,[25.0]%,31.0,214,58,0.0,1.561,92.921,5.518,0.0,0,0
+2133-037,16.77,3.32,3.26,0.05,4.13,4.92,3.31,4252.0,4.8,4.29,0.05,156.61,5.486,1.37,6644.76,44150.63,489.89,24.33,3.34,3.09,0.25,11.98,105,64.54,0.1,[nan nan nan ... nan nan nan],15.23,0.84,90.95,18.52,[20.0]%,26.0,153,48,0.0,0.0,86.538,13.248,0.214,0,0
+2133-039,19.44,2.01,1.53,0.48,3.01,3.41,4.03,6477.0,5.3,6.13,0.06,332.58,5.829,1.89,2398.35,39957.63,4603.75,24.09,3.63,2.85,0.78,16.76,154,30.91,0.06,[nan nan nan ... nan nan nan],,0.93,105.29,24.15,[23.0]%,27.0,204,50,0.0,0.79,95.203,3.837,0.169,0,0
+2133-040,11.54,2.67,2.57,0.11,2.41,2.98,2.8,3264.0,4.83,3.05,0.03,84.87,5.512,0.89,2460.2,90658.36,826.89,12.69,1.74,1.23,0.51,11.98,112,44.2,0.07,[nan nan nan ... nan nan nan],10.24,0.6,92.06,17.41,[19.0]%,18.25,171,59,0.0,0.0,97.602,2.398,0.0,0,0
+2133-041,9.16,1.14,0.73,0.41,3.18,3.94,4.48,4447.0,5.53,4.4,0.04,183.25,5.99,2.07,134.12,35716.56,3345.21,19.47,1.75,1.09,0.66,17.4,137,13.29,0.01,[nan nan nan ... nan nan nan],9.81,0.79,112.05,19.87,[18.0]%,27.0,204,67,0.0,0.247,99.198,0.555,0.0,0,0

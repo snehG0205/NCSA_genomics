@@ -1,0 +1,242 @@
+---
+title: "cbfDTW"
+output: html_notebook
+---
+
+
+```{r}
+load(file = '~/Downloads/CBF.rda')
+#CBF
+```
+
+```{r}
+training_data <- CBF$data_train
+
+test_data <- CBF$data_test
+
+training_labels <- CBF$labels_train
+
+test_labels <- CBF$labels_test
+
+```
+
+```{r}
+require(dtwclust)
+require(mcclust)
+```
+=========== Hierarchical => RAW ================
+```{r}
+clust.hier_raw <- tsclust(training_data, type = "h", k = 3L, distance = "dtw2", trace=TRUE, control = hierarchical_control(method = "ward.D"))
+
+plot(clust.hier_raw, type="sc")
+```
+
+```{r}
+l <- clust.hier_raw@cluster
+l
+
+plot(range(1:30),range(1:3), type='n')
+points(training_labels, col='red')
+lines(l, col='green')
+#l[3]
+```
+
+
+```{r}
+predicted_labels_hier_raw = c()
+
+for (i in 1:900) {
+  #print(test_data[i,])
+  predicted_labels_hier_raw[i] <- predict(clust.hier_raw,newdata=unlist(list(test_data[i,])))
+  #print(n)
+}
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_hier_raw,test_labels)
+```
+
+
+833/900 = 92.556%
+```{r}
+
+index_hier_raw=arandi(predicted_labels_hier_raw,test_labels)
+unadjusted_hier_raw=arandi(predicted_labels_hier_raw,test_labels,adjust=FALSE)
+index_hier_raw
+unadjusted_hier_raw
+
+```
+
+=========== Partitional => RAW ================
+```{r}
+clust.pr_raw <- tsclust(training_data, type = "partitional", k = 3L, distance = "dtw2", trace=TRUE)
+
+plot(clust.pr_raw, type="sc")
+```
+
+
+```{r}
+l <- clust.pr_raw@cluster
+l
+
+plot(range(1:30),range(1:3), type='n')
+points(training_labels, col='red')
+lines(l, col='green')
+
+```
+
+```{r}
+predicted_labels_par_raw = c()
+
+for (i in 1:900) {
+  #print(test_data[i,])
+  predicted_labels_par_raw[i] <- predict(clust.pr_raw,newdata=unlist(list(test_data[i,])))
+  #print(n)
+}
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_par_raw,test_labels)
+```
+```{r}
+#predicted_labels
+#test_labels
+index_par_raw=arandi(predicted_labels_par_raw,test_labels)
+unadjusted_par_raw=arandi(predicted_labels_par_raw,test_labels,adjust=FALSE)
+index_par_raw
+unadjusted_par_raw
+```
+
+
+=========== KMEANS => RAW ================
+```{r}
+require(ClusterR)
+
+kmeans_cluster_raw = KMeans_rcpp(training_data,clusters=3)
+l_kmeans_raw = kmeans_cluster_raw$cluster
+l_kmeans_raw
+```
+
+
+```{r}
+predicted_labels_kmeans_raw = c()
+predicted_labels_kmeans_raw = predict_KMeans(test_data,kmeans_cluster_raw$centroids)
+
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')kmeans.predict
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_kmeans_raw,test_labels)
+```
+
+```{r}
+index_kmeans_raw = arandi(predicted_labels_kmeans_raw,test_labels)
+unadjusted_kmeans_raw = arandi(predicted_labels_kmeans_raw,test_labels,adjust = TRUE)
+index_kmeans_raw
+unadjusted_kmeans_raw
+```
+
+=========== Linear Scaling ================
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+=========== Hierarchical => Scaled ================
+```{r}
+clust.hier_scaled <- tsclust(training_data_scaled, type = "h", k = 3L, distance = "dtw2", trace=TRUE, control = hierarchical_control(method = "ward.D"))
+
+plot(clust.hier_scaled, type="sc")
+```
+
+```{r}
+l <- clust.hier_scaled@cluster
+l
+
+plot(range(1:30),range(1:3), type='n')
+points(training_labels, col='red')
+lines(l, col='green')
+#l[3]
+```
+
+
+```{r}
+predicted_labels_hier_scaled = c()
+
+for (i in 1:900) {
+  #print(test_data[i,])
+  predicted_labels_hier_scaled[i] <- predict(clust.hier_scaled,newdata=unlist(list(test_data_scaled[i,])))
+  #print(n)
+}
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_hier_scaled,test_labels)
+```
+
+
+833/900 = 92.556%
+```{r}
+
+index_hier_scaled=arandi(predicted_labels_hier_scaled,test_labels)
+unadjusted_hier_scaled=arandi(predicted_labels_hier_scaled,test_labels,adjust=FALSE)
+index_hier_scaled
+unadjusted_hier_scaled
+
+```
+
+
+
+
+
+
+
+
+
+
+
+=========== Plotting ================
+```{r}
+colors = c('red','blue','green')
+types = c('Hierarchical Clustering','Partitional Clustering','Kmeans Clustering')
+```
+
+```{r}
+
+plot(NULL,NULL, type='n',ylim=c(0,1), xlim=c(0,2), xlab='Index', ylab='Rand Index', main='Random Index of Hierarchical and Partitional Clustering')
+
+legend("topright",legend = types, col = colors, title = 'Clustering Types', pch=1)
+
+par(new=TRUE)
+
+points(index_hier_raw, col='red')
+points(index_par_raw, col='blue')
+points(index_kmeans_raw, col='green')
+
+
+```
+
+
+```{r}
+
+plot(NULL,NULL, type='n',ylim=c(0,1), xlim=c(0,2), xlab='Index', ylab='Rand Index', main='Adjusted Index of Hierarchical and Partitional Clustering')
+
+legend("topright",legend = types, col = colors, title = 'Clustering Types', pch=1)
+
+par(new=TRUE)
+
+
+points(unadjusted_hier_raw, col='red')
+points(unadjusted_par_raw,col='blue')
+points(unadjusted_kmeans_raw,col='green')
+
+
+```

@@ -1,0 +1,486 @@
+---
+title: "cbfDTW"
+output: html_notebook
+---
+
+==== load file ======
+```{r}
+load(file = '~/Downloads/CBF.rda')
+#CBF
+```
+
+====== store data ======
+```{r}
+training_data <- CBF$data_train
+
+test_data <- CBF$data_test
+
+training_labels <- CBF$labels_train
+
+test_labels <- CBF$labels_test
+
+```
+
+====== Required Packages =======
+```{r}
+require(dtwclust)
+require(mcclust)
+require(ClusterR)
+```
+=========== Hierarchical => RAW ================
+```{r}
+clust.hier_raw <- tsclust(training_data, type = "h", k = 3L, distance = "dtw2", trace=TRUE, control = hierarchical_control(method = "ward.D"))
+
+plot(clust.hier_raw, type="sc")
+```
+
+```{r}
+l <- clust.hier_raw@cluster
+l
+
+plot(range(1:30),range(1:3), type='n')
+points(training_labels, col='red')
+lines(l, col='green')
+#l[3]
+```
+
+
+```{r}
+predicted_labels_hier_raw = c()
+
+for (i in 1:900) {
+  #print(test_data[i,])
+  predicted_labels_hier_raw[i] <- predict(clust.hier_raw,newdata=unlist(list(test_data[i,])))
+  #print(n)
+}
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_hier_raw,test_labels)
+```
+
+
+833/900 = 92.556%
+```{r}
+
+index_hier_raw=arandi(predicted_labels_hier_raw,test_labels)
+unadjusted_hier_raw=arandi(predicted_labels_hier_raw,test_labels,adjust=FALSE)
+index_hier_raw
+unadjusted_hier_raw
+
+```
+
+=========== Partitional => RAW ================
+```{r}
+clust.pr_raw <- tsclust(training_data, type = "partitional", k = 3L, distance = "dtw", trace=TRUE)
+
+plot(clust.pr_raw, type="sc")
+```
+
+
+```{r}
+l <- clust.pr_raw@cluster
+l
+
+plot(range(1:30),range(1:3), type='n')
+points(training_labels, col='red')
+lines(l, col='green')
+
+```
+
+```{r}
+predicted_labels_par_raw = c()
+
+for (i in 1:900) {
+  #print(test_data[i,])
+  predicted_labels_par_raw[i] <- predict(clust.pr_raw,newdata=unlist(list(test_data[i,])))
+  #print(n)
+}
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_par_raw,test_labels)
+```
+```{r}
+#predicted_labels
+#test_labels
+index_par_raw=arandi(predicted_labels_par_raw,test_labels)
+unadjusted_par_raw=arandi(predicted_labels_par_raw,test_labels,adjust=FALSE)
+index_par_raw
+unadjusted_par_raw
+```
+
+
+=========== KMEANS => RAW ================
+```{r}
+
+
+kmeans_cluster_raw = KMeans_rcpp(training_data,clusters=3)
+l_kmeans_raw = kmeans_cluster_raw$cluster
+l_kmeans_raw
+```
+
+
+```{r}
+predicted_labels_kmeans_raw = c()
+predicted_labels_kmeans_raw = predict_KMeans(test_data,kmeans_cluster_raw$centroids)
+
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')kmeans.predict
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_kmeans_raw,test_labels)
+```
+
+```{r}
+index_kmeans_raw = arandi(predicted_labels_kmeans_raw,test_labels)
+unadjusted_kmeans_raw = arandi(predicted_labels_kmeans_raw,test_labels,adjust = TRUE)
+index_kmeans_raw
+unadjusted_kmeans_raw
+```
+
+=========== Linear Scaling ================
+
+```{r}
+linearScaling = function(data){
+  scaled = c()
+  for (i in 1:length(data)) {
+    scaled[i] = (data[i]-min(data))/(max(data)-min(data))
+    #print(scaled[i])
+  }
+  return(scaled)
+}
+```
+
+```{r}
+training_data_scaled = data.frame()
+for(k in 1:nrow(CBF$data_train)){
+  training_data_scaled = rbind(training_data_scaled, linearScaling(CBF$data_train[k,]))
+}
+
+test_data_scaled = data.frame()
+for(k in 1:nrow(CBF$data_test)){
+  test_data_scaled = rbind(test_data_scaled, linearScaling(CBF$data_test[k,]))
+}
+```
+
+
+=========== Hierarchical => Scaled ================
+```{r}
+clust.hier_scaled <- tsclust(training_data_scaled, type = "h", k = 3L, distance = "dtw2", trace=TRUE, control = hierarchical_control(method = "ward.D"))
+
+plot(clust.hier_scaled, type="sc")
+```
+
+```{r}
+l <- clust.hier_scaled@cluster
+l
+
+plot(range(1:30),range(1:3), type='n')
+points(training_labels, col='red')
+lines(l, col='green')
+#l[3]
+```
+
+
+```{r}
+predicted_labels_hier_scaled = c()
+
+for (i in 1:900) {
+  #print(test_data[i,])
+  predicted_labels_hier_scaled[i] <- predict(clust.hier_scaled,newdata=unlist(list(test_data_scaled[i,])))
+  
+  #print(n)
+}
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_hier_scaled,test_labels)
+```
+
+
+
+```{r}
+
+index_hier_scaled=arandi(predicted_labels_hier_scaled,test_labels)
+unadjusted_hier_scaled=arandi(predicted_labels_hier_scaled,test_labels,adjust=FALSE)
+index_hier_scaled
+unadjusted_hier_scaled
+
+```
+
+
+
+=========== Partitional => Scaled ================
+```{r}
+clust.pr_scaled <- tsclust(training_data_scaled, type = "partitional", k = 3L, distance = "dtw2", trace=TRUE)
+
+plot(clust.pr_scaled, type="sc")
+```
+
+
+```{r}
+l <- clust.pr_scaled@cluster
+l
+
+plot(range(1:30),range(1:3), type='n')
+points(training_labels, col='red')
+lines(l, col='green')
+
+```
+
+```{r}
+predicted_labels_par_scaled = c()
+
+for (i in 1:900) {
+  #print(test_data[i,])
+  predicted_labels_par_scaled[i] <- predict(clust.pr_scaled,newdata=unlist(list(test_data_scaled[i,])))
+  #print(n)
+}
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_par_scaled,test_labels)
+```
+```{r}
+#predicted_labels
+#test_labels
+index_par_scaled=arandi(predicted_labels_par_scaled,test_labels)
+unadjusted_par_scaled=arandi(predicted_labels_par_scaled,test_labels,adjust=FALSE)
+index_par_scaled
+unadjusted_par_scaled
+```
+
+
+=========== KMEANS => Scaled ================
+```{r}
+kmeans_cluster_scaled = KMeans_rcpp(training_data_scaled,clusters=3)
+l_kmeans_scaled = kmeans_cluster_scaled$cluster
+l_kmeans_scaled
+```
+
+
+```{r}
+predicted_labels_kmeans_scaled = c()
+predicted_labels_kmeans_scaled = predict_KMeans(test_data_scaled,kmeans_cluster_scaled$centroids)
+
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')kmeans.predict
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_kmeans_scaled,test_labels)
+```
+
+```{r}
+index_kmeans_scaled = arandi(predicted_labels_kmeans_scaled,test_labels)
+unadjusted_kmeans_scaled = arandi(predicted_labels_kmeans_scaled,test_labels,adjust = TRUE)
+index_kmeans_scaled
+unadjusted_kmeans_scaled
+```
+
+
+
+================ ZScore Normalisation ==================
+
+
+```{r}
+training_data_zscore = data.frame()
+for(k in 1:nrow(CBF$data_train)){
+  training_data_zscore = rbind(training_data_zscore, zscore(CBF$data_train[k,]))
+}
+
+test_data_zscore = data.frame()
+for(k in 1:nrow(CBF$data_test)){
+  test_data_zscore = rbind(test_data_zscore, zscore(CBF$data_test[k,]))
+}
+```
+
+=========== Hierarchical => ZScore ================
+```{r}
+clust.hier_zscore <- tsclust(training_data_zscore, type = "h", k = 3L, distance = "dtw2", trace=TRUE, control = hierarchical_control(method = "ward.D"))
+
+plot(clust.hier_zscore, type="sc")
+```
+
+```{r}
+l <- clust.hier_zscore@cluster
+l
+
+plot(range(1:30),range(1:3), type='n')
+points(training_labels, col='red')
+lines(l, col='green')
+#l[3]
+```
+
+
+```{r}
+predicted_labels_hier_zscore = c()
+
+for (i in 1:900) {
+  #print(test_data[i,])
+  predicted_labels_hier_zscore[i] <- predict(clust.hier_zscore,newdata=unlist(list(test_data_zscore[i,])))
+  
+  #print(n)
+}
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_hier_zscore,test_labels)
+```
+
+
+
+```{r}
+
+index_hier_zscore=arandi(predicted_labels_hier_zscore,test_labels)
+unadjusted_hier_zscore=arandi(predicted_labels_hier_zscore,test_labels,adjust=FALSE)
+index_hier_zscore
+unadjusted_hier_zscore
+
+```
+
+
+
+=========== Partitional => zscore ================
+```{r}
+clust.pr_zscore <- tsclust(training_data_zscore, type = "partitional", k = 3L, distance = "dtw2", trace=TRUE)
+
+plot(clust.pr_zscore, type="sc")
+```
+
+
+```{r}
+l <- clust.pr_zscore@cluster
+l
+
+plot(range(1:30),range(1:3), type='n')
+points(training_labels, col='red')
+lines(l, col='green')
+
+```
+
+```{r}
+predicted_labels_par_zscore = c()
+
+for (i in 1:900) {
+  #print(test_data[i,])
+  predicted_labels_par_zscore[i] <- predict(clust.pr_zscore,newdata=unlist(list(test_data_zscore[i,])))
+  #print(n)
+}
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_par_zscore,test_labels)
+```
+```{r}
+#predicted_labels
+#test_labels
+index_par_zscore=arandi(predicted_labels_par_zscore,test_labels)
+unadjusted_par_zscore=arandi(predicted_labels_par_zscore,test_labels,adjust=FALSE)
+index_par_zscore
+unadjusted_par_zscore
+```
+
+
+=========== KMEANS => Zscore ================
+```{r}
+kmeans_cluster_zscore = KMeans_rcpp(training_data_zscore,clusters=3)
+l_kmeans_zscore = kmeans_cluster_zscore$cluster
+l_kmeans_zscore
+```
+
+
+```{r}
+predicted_labels_kmeans_zscore = c()
+predicted_labels_kmeans_zscore = predict_KMeans(test_data_zscore,kmeans_cluster_zscore$centroids)
+
+#predicted_labels
+#plot(range(1:900),range(1:3), type='n')kmeans.predict
+#lines(test_labels, col='red')
+#lines(predicted_labels, col='green')
+table(predicted_labels_kmeans_scaled,test_labels)
+```
+
+```{r}
+index_kmeans_zscore = arandi(predicted_labels_kmeans_zscore,test_labels)
+unadjusted_kmeans_zscore = arandi(predicted_labels_kmeans_zscore,test_labels,adjust = TRUE)
+index_kmeans_zscore
+unadjusted_kmeans_zscore
+```
+
+
+
+
+
+
+=========== Plotting ================
+```{r}
+colors = c('red','blue','green')
+types = c('Hierarchical Clustering','Partitional Clustering','Kmeans Clustering')
+```
+
+```{r}
+
+plot(NULL,NULL, type='n',ylim=c(0,1), xlim=c(0,2), xlab='Index', ylab='Rand Index', main='Random Index of Hierarchical, Partitional and K-Means Clustering')
+
+legend("topright",legend = types, col = colors, title = 'Clustering Types', pch=1)
+
+par(new=TRUE)
+
+points(index_hier_raw, col='red')
+points(index_par_raw, col='blue')
+points(index_kmeans_raw, col='green')
+
+
+```
+
+
+```{r}
+
+plot(NULL,NULL, type='n',ylim=c(0,1), xlim=c(0,2), xlab='Index', ylab='Adjusted Rand Index', main='Adjusted Index of Hierarchical, Partitional and K-Means Clustering')
+
+legend("topright",legend = types, col = colors, title = 'Clustering Types', pch=1)
+
+par(new=TRUE)
+
+
+points(unadjusted_hier_raw, col='red')
+points(unadjusted_par_raw,col='blue')
+points(unadjusted_kmeans_raw,col='green')
+
+
+```
+
+
+
+
+
+
+
+
+
+```{r}
+types_new2 = c('Hierarchical Clustering','Partitional Clustering','K Means Clustering')
+
+index_all = c(index_hier_raw, index_hier_scaled, index_hier_zscore, index_par_raw, index_par_scaled, index_par_zscore, index_kmeans_raw,index_kmeans_scaled, index_kmeans_zscore)
+
+plot(index_all,xaxt='n',type='h', col = c('red','blue','green'), xlab="Clustering Methods", ylab="Adjusted Random Index", main='Adjusted Random Index: Hierarchical, Partitional & K-Means Clustering', lwd=4)
+axis(1, at=seq(2,9,by=3), labels=types_new2[1:3])
+legend("topright",c("Raw","Min-Max Scaling","Z-score Normalisation"), col = c('red','blue','green'), title = 'Transformation Types', lwd=2, cex = .75)
+
+```
+
+```{r}
+unadjusted_all = c(unadjusted_hier_raw, unadjusted_hier_scaled, unadjusted_hier_zscore, unadjusted_par_raw, unadjusted_par_scaled, unadjusted_par_zscore, unadjusted_kmeans_raw,unadjusted_kmeans_scaled, unadjusted_kmeans_zscore)
+
+plot(unadjusted_all,xaxt='n',type='h', col = c('red','blue','green'), xlab="Clustering Methods", ylab="Unadjusted Random Index", main='Unadjusted Index: Hierarchical, Partitional & K-Means Clustering', lwd=4)
+axis(1, at=seq(2,9,by=3), labels=types_new2[1:3])
+legend("topright",c("Raw","Min-Max Scaling","Z-score Normalisation"), col = c('red','blue','green'), title = 'Transformation Types', lwd=2, cex = .75)
+```
+

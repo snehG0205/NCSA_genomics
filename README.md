@@ -1,37 +1,50 @@
-# NCSA_genomics
+# NCSA Genomics #
 
-############# CLUSTERING #############
-
-Contains R notebooks with individual clustering algorithms implemented on different datasets 
+This is a personal repository where I store all my code, research, data and other random files for my work as a research programmer at the NCSA.
 
 
-############# DATA #############
 
-Contains all the datasets
+## Directories: ##
 
+### Data ###
 
-############# Imputations #############
-
-Contains R notebooks with imputations from different libraries implemented on CGM dataset
-
-Contains one final notebook that compares all imputations
+This directory contains data from various R and Python packages, and various other repositiories. The data os generally in the form of CSV files. There are many files that have been modified for various testing purposes.
 
 
-############# Plots #############
+### Plots ###
 
-Contains screenshots and pfs of all the plots
-
-
-############# Python Notebooks #############
-
-Contains python notebooks for LSTM using tensorflow and keras for time-series prediction
+This directory contains test plots (and screenshots) saved from various notebooks and test runs along the course of developments. These plots are used to study the parameters and efficiency of the models (generally using different metrics).
 
 
-############# reference plots #############
+### Python Files ###
 
-Sophia's plots
+This is the directory with all the python code, testing notebooks and the complete 'GlucoCheck' package (with the necessary data files and metric tables saved here).
 
 
-############# Screenshots #############
+### R - Clustering ###
 
-Screenshots of various algorithms in works
+This directory contains R notebooks with code for multiple clustering approaches in conjuction with multiple datasets. 
+
+
+### R - Imputations ###
+
+This directory contains R notebooks with code for multiple impitation approaches in conjuction with multiple datasets. 
+
+
+### Readings ###
+
+This directory contains the literaure surveyed over the course of development.
+
+
+### Reference Plots ###
+
+This directory contains plots that show the ideal performance characteristics.
+
+
+
+## Contributors: ##
+Sneh Gajiwala
+Sophia Ding (https://github.com/sophiaaading)
+Justina Zurauskiene
+
+

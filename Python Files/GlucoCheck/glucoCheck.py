@@ -13,11 +13,6 @@ import math
 import random
 import re
 
-# other operations
-from sklearn.preprocessing import MinMaxScaler
-from scipy import stats
-from statistics import mean
-
 # keras -> deep learning model
 from keras.models import Sequential
 from keras.layers import LSTM
@@ -27,6 +22,13 @@ from keras.layers import ConvLSTM2D
 
 # DCT Classifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay
+
+# other operations
+from scipy import stats
+from statistics import mean
 
 # for plotting
 import matplotlib.pyplot as plt
@@ -44,6 +46,8 @@ warnings.filterwarnings('ignore')
 
 
 
+
+
 class glucoCheckOps:
 
 
@@ -57,21 +61,13 @@ class glucoCheckOps:
 
     cwd = os.getcwd()
 
-    # consolidatedData = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedDataForPackage.csv')
-
-    # consolidated_meta = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedMetadata.csv')
-
     all_data = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedDataForPackage.csv')
     metadata = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedMetadata.csv')
-    hall_data = pd.read_csv(cwd+'/GlucoCheck/Data/Hall/data_hall_raw.csv')
-    gluVarPro_data = pd.read_csv(cwd+'/GlucoCheck/Data/Gluvarpro/Gluvarpro.csv')
-    cgm_data = pd.read_csv(cwd+'/GlucoCheck/Data/CGM/CGManalyzer.csv')
-    ohio_data = pd.read_csv(cwd+'/GlucoCheck/Data/Ohio-Data/OhioFullConsolidated.csv')
-    # /Users/snehgajiwala/Desktop/NCSA_genomics/Python - notebooks/GlucoCheck/Data/Hall
+    hallData = pd.read_csv(cwd+'/GlucoCheck/Data/Hall/data_hall_raw.csv')
+    gluVarProData = pd.read_csv(cwd+'/GlucoCheck/Data/Gluvarpro/Gluvarpro.csv')
+    cgmData = pd.read_csv(cwd+'/GlucoCheck/Data/CGM/CGManalyzer.csv')
+    ohioData = pd.read_csv(cwd+'/GlucoCheck/Data/Ohio-Data/OhioFullConsolidated.csv')
 
-
-
-    # def_training = pd.read_csv(cwd+'/GlucoCheck/Data/consolidatedDataForPaper.csv')
 
 
 
@@ -218,6 +214,21 @@ class glucoCheckOps:
 
     def split_sequence(self,sequence, n_steps):
         """
+        This method is used to split an individual with a very large ap size dataset
+        
+        Function Parameters:
+        sequence: the data of an individual. It should have the following format:
+        Display Time     object
+        GlucoseValue    float64
+        subjectId        object
+        type: pandas DataFrame
+
+        n_steps: the length of gaps above which we would like to split the data
+
+        Return:
+        The output is two pandas data frames 
+
+        
         """
         X, y = list(), list()
         for i in range(len(sequence)):
@@ -273,6 +284,12 @@ class glucoCheckOps:
 
     def getModelMetrics(self):
         '''
+        This method is used to return the model metrics
+        
+        Function Parameters:
+
+        Return:
+        Prints the model metrics
         '''
         print("Model loss on training set:")
         print(self.model_history.history['loss'])
@@ -286,6 +303,17 @@ class glucoCheckOps:
 
     def impute(self, dataWithMissing):
         '''
+        This method is used to impute the gaps in an individual
+        
+        Function Parameters:
+        dataWithMissing: the data of an individual with a gap:
+        Display Time     object
+        GlucoseValue    float64
+        subjectId        object
+        type: pandas DataFrame
+
+        Return:
+        The output is a pandas data frame with gap imputed 
         '''
 
         start,end,gap = self.detectGap(dataWithMissing)
@@ -467,37 +495,6 @@ class glucoCheckOps:
         return data_description
 
 
-    def individualDescribe(self, uid, data):
-        """
-            This method provides a statistical description of the default individual data based on the subject ID passed. This data has been trimmed to have only complete days with no missing values. 
-
-            Function Parameters:
-
-            uid: The subject ID of the user to plot  type: String
-            data:The default dataset (CSV file) includes data from the CGMAnalysis package, Gluvarpro package, CGMAnalyzer package and the Ohio University with the following format:
-            Display Time     object
-            GlucoseValue    float64
-            subjectId        object
-            This data is split based on the subject ID
-            type: pandas DataFrame
-            
-            meta: The dataset (CSV file) with the metadata about the status of the individuals in the following format:
-            ID        object
-            status    object
-            type: pandas DataFrame
-
-            Return:
-            A tabular representation of the statistical analysis of the individual's data. 
-        """
-        df = data[data['subjectId']==str(uid)]
-        df['Display Time'] = pd.to_datetime(df['Display Time'])
-        df['time_gap'] = df['Display Time']- df['Display Time'].shift(1)
-        cleandata = self.datacleaning(df)
-        data_description = self.summaryTable(cleandata)
-        
-        return data_description
-    
-
     def summaryTable(self, inputdata):
         """
             This method provides a summary table for the basic information of input data.
@@ -604,9 +601,26 @@ class glucoCheckOps:
 
     
     def histograms(self, data_description, plot_name, save_value = 0):
+        """
+        This method is used to plot histograms
+        
+        Function Parameters:
+        data_description: the dataframe generated by the dataDescribe function 
+        type: pandas DataFrame
+
+        plot_name: name of the column whos data we wish to visualize
+
+        save_value: flag to check whether to save the plot as an image or not
+
+        Return:
+        The output is histogram 
+        """
+
         days = []
         for i in data_description['Timestamp days']:
             days.append(i.days);
+
+
         # if plot_name == 'All':
         #     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
         #     sns.distplot(days, kde = False, ax=axes[0,0], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
@@ -666,6 +680,18 @@ class glucoCheckOps:
 
     def barplots(self, data_description, plot_name, save_value = 0):
         """
+        This method is used to plot barplots
+        
+        Function Parameters:
+        data_description: the dataframe generated by the dataDescribe function 
+        type: pandas DataFrame
+
+        plot_name: name of the column whos data we wish to visualize
+
+        save_value: flag to check whether to save the plot as an image or not
+
+        Return:
+        The output is barplots 
         """
         # sns.set_theme()
         days = []
@@ -723,20 +749,18 @@ class glucoCheckOps:
                 fig.savefig(self.cwd+'/GlucoCheck/plots/Barplot - Avg gap size.png')
 
 
-    # def columnPlots(self, column, n):
-    #     """
-    #     """
-    #     plt.figure(figsize=(16,8))
-    #     fig = sns.distplot(column, kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
-    #     fig.set_xlabel(n, weight='bold', fontsize=16)
-    #     fig.set_ylabel('Frequency', weight='bold', fontsize=16)
-    #     fig.tick_params(axis="both", labelsize=16)
-
-    #     sns.despine()
-
-
     def classifier(self, individual, training_data=all_data):
         """
+        This method is used to classify an individual as diabetic, prediabetic or healthy
+        
+        Function Parameters:
+        individual: the dataframe of the individual to be classified
+
+
+        training_data: default dataframe we have type: pandas DataFrame
+
+        Return:
+        Class label - diabetic, prediabetic or healthy
         """
         meta = self.metadata
         meta = meta[meta.status != 'NAN']
@@ -749,6 +773,10 @@ class glucoCheckOps:
                  '2133-039','1636-70-1010','1636-69-069'
                 ]
 
+        testSubjects = ['2133-039','1636-70-1010','1636-69-064', '1636-69-001','2133-004',
+                        '1636-69-026','1636-69-032','1636-69-028','1636-69-035','ID01','ID02',
+                         'ID22','ID23','ID30','ID31']
+
         tsdata = []
         for subjectId, d in training_data.groupby('subjectId'):
             l = []
@@ -760,13 +788,19 @@ class glucoCheckOps:
 
         tsdf = pd.DataFrame.from_records(tsdata)
 
+        # tsdf['Y'] = meta['status'].tolist()
+
         tsdf = pd.merge(tsdf,meta,left_on=0,right_on='ID')
         del tsdf['ID']
 
-        tsdf = tsdf.loc[tsdf[0].isin(trainSubjects)]
+        # tsdf = tsdf.loc[tsdf[0].isin(trainSubjects)]
         tsdf = tsdf.set_index([0],drop=True)
 
         trainingSet = tsdf.loc[tsdf.index.isin(trainSubjects)]
+        trainingSet = trainingSet.reset_index(drop=True)
+
+        testingSet = tsdf.loc[tsdf.index.isin(testSubjects)]
+        testingSet = testingSet.reset_index(drop=True)
 
         X_train = trainingSet.drop(['status'], axis=1)
         y_train = trainingSet['status']
@@ -780,6 +814,18 @@ class glucoCheckOps:
 
         clf = DecisionTreeClassifier(random_state=42)
         clf.fit(X_train,y_train)
+
+        X_test = testingSet.drop(['status'], axis=1)
+        y_test = testingSet['status']
+
+        y_pred = clf.predict(X_test)
+
+        cm = confusion_matrix(y_test, y_pred, labels=["diabetic","pre-diabetic","non-diabetic"])
+        print("Confusion Matrix:\n")
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=["diabetic","pre-diabetic","non-diabetic"])
+        disp = disp.plot()
+        plt.show()
+
         y_pred = clf.predict(test)
 
         return y_pred
@@ -889,7 +935,10 @@ class glucoCheckOps:
             conga_2 = self.congaN(df, 2);
             conga_4 = self.congaN(df, 4);
 
-            temp_df = pd.DataFrame({'Subject ID':[subjectId], "ADDR": [adrr_val], 'BGRI':[round(BGRI,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], "CONGA1": [conga_1], "CONGA2": [conga_2], "CONGA4": [conga_4], 'DT':[round(dt,3)], 'HBA1C':[round(HBA1C,3)], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], "Liability Index": [li], 'GMI':[round(GMI,3)],  'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'GVP':[round(GVP,3)], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], 'J Index':[round(j_index,3)], 'LAGE':[round(LAGE,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], "MODD": [modd_val], 'PGS':[round(pgs_value,3)], 'SDRC':[round(sdrc,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':str([round(cv,3)])+"%", 'IQR':[round(iqr,3)], 'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper]})
+            mage, mage_daily = self.mageCalculations(df, 1)
+
+
+            temp_df = pd.DataFrame({'Subject ID':[subjectId], "ADDR": [adrr_val], 'BGRI':[round(BGRI,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], "CONGA1": [conga_1], "CONGA2": [conga_2], "CONGA4": [conga_4], 'DT':[round(dt,3)], 'HBA1C':[round(HBA1C,3)], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], "Liability Index": [li], 'GMI':[round(GMI,3)],  'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'GVP':[round(GVP,3)], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], 'J Index':[round(j_index,3)], 'LAGE':[round(LAGE,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], "MODD": [modd_val], 'PGS':[round(pgs_value,3)], 'SDRC':[round(sdrc,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':str([round(cv,3)])+"%", 'IQR':[round(iqr,3)], 'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], 'MAGE': [round(mage,3)], 'MAGE Daily': [round(mage_daily,3)]})
             data_description = pd.concat([data_description,temp_df],ignore_index=True)
 
         # data_description = data_description.iloc[::-1]
@@ -1000,7 +1049,9 @@ class glucoCheckOps:
         conga_2 = self.congaN(df, 2);
         conga_4 = self.congaN(df, 4);
 
-        data_description = pd.DataFrame({'Subject ID':[uid], "ADDR": [adrr_val], 'BGRI':[round(BGRI,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], "CONGA1": [conga_1], "CONGA2": [conga_2], "CONGA4": [conga_4], 'DT':[round(dt,3)], 'HBA1C':[round(HBA1C,3)], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], "Liability Index": [li], 'GMI':[round(GMI,3)],  'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'GVP':[round(GVP,3)], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], 'J Index':[round(j_index,3)], 'LAGE':[round(LAGE,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], "MODD": [modd_val], 'PGS':[round(pgs_value,3)], 'SDRC':[round(sdrc,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':str([round(cv,3)])+"%", 'IQR':[round(iqr,3)], 'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper]})
+        mage, mage_daily = self.mageCalculations(df, 1)
+
+        data_description = pd.DataFrame({'Subject ID':[uid], "ADDR": [adrr_val], 'BGRI':[round(BGRI,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], "CONGA1": [conga_1], "CONGA2": [conga_2], "CONGA4": [conga_4], 'DT':[round(dt,3)], 'HBA1C':[round(HBA1C,3)], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], "Liability Index": [li], 'GMI':[round(GMI,3)],  'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'GVP':[round(GVP,3)], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], 'J Index':[round(j_index,3)], 'LAGE':[round(LAGE,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], "MODD": [modd_val], 'PGS':[round(pgs_value,3)], 'SDRC':[round(sdrc,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':str([round(cv,3)])+"%", 'IQR':[round(iqr,3)], 'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], 'MAGE': [round(mage,3)], 'MAGE Daily': [round(mage_daily,3)]})
         # data_description = data_description.iloc[::-1]
 
         data_description = data_description.set_index(['Subject ID'], drop=True)
@@ -1738,7 +1789,6 @@ class glucoCheckOps:
         return round(hypoglycemic_episodes,2), round(hyperglycemia_episodes,2)
 
 
-
     def IGC(self, df, unit, lltr = 80, ultr = 140, a = 1.1, b = 2.0, c = 30, d = 30):
         """
         Index of Glycemic Control
@@ -1854,8 +1904,7 @@ class glucoCheckOps:
 
         return ADRR
 
-
-
+    
     def modd(self, data):
         """
         Mean of Daily Differences
@@ -1939,31 +1988,111 @@ class glucoCheckOps:
         return round(conga/day, 2)
 
 
-    # Mean Absolute Difference
-    # MAD was proposed as measures of glycemic variability and derived
-    # from self-monitored consecutive blood glucose values over 24 h
-    #
-    # DESCRIPTION: Takes in a sequence of continuous glucose values
-    # and computes mean absolute difference (MAD) of consecutive blood glucose values.
-    # This function accepts data given either in mmol/L or mg/dL.
-    #
-    # FUNCTION PARAMETERS: x - is Pandas dataframe, in the first column is given subject ID,
-    # in the second - Pandas timestamp, and in the third - numeric values of
-    # continuous glucose readings taken e.g. over one day (24h);
-    #
-    # RETURN: Output is Pandas dataframe that contains numeric value for MAD.
-    #
-    # REFERENCES:
-    # - Moberg E, Kollind M, Lins P, Adamson U (1993). “Estimation of blood-glucose variability
-    # in patients with insulin-dependent diabetes mellitus.” Scandinavian journal of clinical
-    # and laboratory investigation, 53(5), 507–514.
+
     def mad_index(self, x):
         MAD = np.abs(np.sum(x['GlucoseValue'].diff())/len(x))
         # return pd.DataFrame({'MAD':[MAD]})
         return round(MAD,2)
+        # Mean Absolute Difference
+        # MAD was proposed as measures of glycemic variability and derived
+        # from self-monitored consecutive blood glucose values over 24 h
+        #
+        # DESCRIPTION: Takes in a sequence of continuous glucose values
+        # and computes mean absolute difference (MAD) of consecutive blood glucose values.
+        # This function accepts data given either in mmol/L or mg/dL.
+        #
+        # FUNCTION PARAMETERS: x - is Pandas dataframe, in the first column is given subject ID,
+        # in the second - Pandas timestamp, and in the third - numeric values of
+        # continuous glucose readings taken e.g. over one day (24h);
+        #
+        # RETURN: Output is Pandas dataframe that contains numeric value for MAD.
+        #
+        # REFERENCES:
+        # - Moberg E, Kollind M, Lins P, Adamson U (1993). “Estimation of blood-glucose variability
+        # in patients with insulin-dependent diabetes mellitus.” Scandinavian journal of clinical
+        # and laboratory investigation, 53(5), 507–514.
 
 
+    def mageCalculations(self, df, stdev):
+        """
+        """
+    
+        #smoothening the data
+        df = self.fullDay(df)
+        df = self.smoothing(df)
+        
+        length = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
+        length = length.round("d")
+        days = length.days
+        
+        df.GlucoseValue = df.GlucoseValue.round()
+        
+        glucs = df['GlucoseValue'].tolist()
+        indices = [1*i for i in range(len(glucs))]
+        
+        x = indices
+        gvs = glucs
 
+        # detection of local minima and maxima
+
+        # local min & max
+        a = np.diff(np.sign(np.diff(gvs))).nonzero()[0] + 1      
+        # local min
+        valleys = (np.diff(np.sign(np.diff(gvs))) > 0).nonzero()[0] + 1 
+        # local max
+        peaks = (np.diff(np.sign(np.diff(gvs))) < 0).nonzero()[0] + 1 
+        
+        excursion_points = pd.DataFrame(columns=['Index', 'Timestamp', 'GlucoseValue', 'Type'])
+        k=0
+        for i in range(len(peaks)):
+            excursion_points.loc[k] = [peaks[i]] + [df['Display Time'][k]] + [df['GlucoseValue'][k]] + ["P"]
+            k+=1
+
+        for i in range(len(valleys)):
+            excursion_points.loc[k] = [valleys[i]] + [df['Display Time'][k]] + [df['GlucoseValue'][k]] + ["V"]
+            k+=1
+
+        excursion_points = excursion_points.sort_values(by=['Index'])
+        excursion_points = excursion_points.reset_index(drop=True)
+        
+        #stdev = 1
+        turning_points = pd.DataFrame(columns=['Index', 'Timestamp', 'GlucoseValue', 'Type'])
+        k=0
+        for i in range(stdev,len(excursion_points.Index)-stdev):
+            positions = [i-stdev,i,i+stdev]
+            for j in range(0,len(positions)-1):
+                if(excursion_points.Type[positions[j]] == excursion_points.Type[positions[j+1]]):
+                    if(excursion_points.Type[positions[j]]=='P'):
+                        if excursion_points.GlucoseValue[positions[j]]>=(excursion_points.GlucoseValue[positions[j+1]]+2):
+                            turning_points.loc[k] = excursion_points.loc[positions[j+1]]
+                            k+=1
+                        else:
+                            turning_points.loc[k] = excursion_points.loc[positions[j+1]]
+                            k+=1
+                    else:
+                        if (excursion_points.GlucoseValue[positions[j]]-2)<=excursion_points.GlucoseValue[positions[j+1]]:
+                            turning_points.loc[k] = excursion_points.loc[positions[j]]
+                            k+=1
+                        else:
+                            turning_points.loc[k] = excursion_points.loc[positions[j+1]]
+                            k+=1
+      
+        if len(turning_points.index)<10:
+            turning_points = excursion_points.copy()
+
+        turning_points = turning_points.drop_duplicates(subset= "Index", keep= "first")
+        turning_points = turning_points.reset_index(drop=True)
+        turning_points_count = len(turning_points.index)
+        
+        
+        mage = turning_points.GlucoseValue.sum()/turning_points_count
+        #print(mage)
+        mage_per_day = mage/days
+        #print(mage_per_day)
+        
+        return mage, mage_per_day
+
+    
 #==================================================================================================================
 #   Helper Methods
 #==================================================================================================================
@@ -2030,7 +2159,7 @@ class glucoCheckOps:
             A pandas DataFrame with smoothened glucose values
         """ 
         
-        data.GlucoseValue = data.GlucoseValue.ewm(alpha=0.93, adjust=False).mean()
+        data.GlucoseValue = data.GlucoseValue.ewm(alpha=0.05, adjust=False).mean()
         data.GlucoseValue = data.GlucoseValue.round()
         
         return data
@@ -2181,41 +2310,7 @@ class glucoCheckOps:
 #   These methods are not called by the user and only used for internal processing
 #==================================================================================================================
     
-    def plot(self, data):
-        """
-        This method plots the graph for the imputed values for the model. It is called by the impute method itself
-        Function Parameters:
-        data:A data frame of imputed values of the following format:
-        Display Time     object
-        GlucoseValue    float64
-        subjectId        object
-        type: pandas DataFrame
-
-        Return:
-        A plot of the imputed time series
-        """
-        #plotting true values and lstm predicted values
-        #these are original values
-
-        # print(data)
-        data.reset_index(level=0, inplace=True)
-        plt.figure(figsize=(16,8))
-        sns.set(style="white")
-        fig = sns.lineplot(x = data['Display Time'], y = data['GlucoseValue'],
-                     data=data, palette="tab10", linewidth=0.8)
-        sns.despine()
-        fig.set_xticklabels(labels=data['Display Time'], rotation=60, ha='right')
-        
-        # plt.figure(figsize=(20, 8))
-
-        # plt.plot(data['GlucoseValue'].tolist(), label='True', color='#2280f2', linewidth=2.5)
-        
-        # plt.title("LSTM's Prediction")
-        
-        # plt.xlabel('Observation')
-        # plt.ylabel('Glucose Values')
-        # plt.show();
-
+   
 
     def detectGap(self, testing_data):
         l = []

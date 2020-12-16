@@ -44,7 +44,9 @@ This directory contains plots that show the ideal performance characteristics.
 
 ## Contributors: ##
 Sneh Gajiwala
+
 Sophia Ding (https://github.com/sophiaaading)
+
 Justina Zurauskiene
 
 

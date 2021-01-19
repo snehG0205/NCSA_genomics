@@ -384,8 +384,17 @@ class glucoCheckOps:
             x_input = np.append(x_input,x)
             x_input = x_input[-N:]
             k+=1
+        
+        
+        # p = pd.Series(preds)
+        
+        # q = p.ewm(alpha=0.05, adjust=False).mean()
+        # q = q.round()
+        
 
         test_data.GlucoseValue[b:e] = preds
+        test_data[e:] = self.smoothing(test_data[e:])
+        
         return test_data
 
 
@@ -459,7 +468,8 @@ class glucoCheckOps:
             x="X", y="Y",
             hue=df["Y"].isna().cumsum(), 
             palette=["palegreen"]*df["Y"].isna().cumsum().nunique(),
-            legend=False, markers=False
+            legend=False, markers=False,
+            linewidth = 2
         )
         plot.set_xlabel('Timestamp', weight='bold', fontsize=14)
         plot.set_ylabel('Glucose Value', weight='bold', fontsize=14)
@@ -620,31 +630,6 @@ class glucoCheckOps:
         for i in data_description['Timestamp days']:
             days.append(i.days);
 
-
-        # if plot_name == 'All':
-        #     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
-        #     sns.distplot(days, kde = False, ax=axes[0,0], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
-        #     fig.axes[0].set_xlabel('Number of Days', weight='bold', fontsize=16)
-        #     fig.axes[0].set_ylabel('Frequency', weight='bold', fontsize=16)
-        #     fig.axes[0].tick_params(axis="both", labelsize=16)
-
-        #     sns.distplot(data_description['% of missing values'],kde = False, ax=axes[0,1], hist_kws=dict(edgecolor="k", linewidth=1))
-        #     fig.axes[1].set_xlabel('Percent of missing values', weight='bold', fontsize=16)
-        #     fig.axes[1].set_ylabel('Frequency', weight='bold', fontsize=16)
-        #     fig.axes[1].tick_params(axis="both", labelsize=16)
-
-        #     sns.distplot(data_description['Avg gap size'], kde = False,  ax=axes[1,0], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
-        #     fig.axes[2].set_xlabel('Average gap size', weight='bold', fontsize=16)
-        #     fig.axes[2].set_ylabel('Frequency', weight='bold', fontsize=16)
-        #     fig.axes[2].tick_params(axis="both", labelsize=16)
-
-        #     sns.distplot(data_description['# of missing values'], kde = False, ax=axes[1,1], hist_kws=dict(edgecolor="k", linewidth=1), bins=10)
-        #     fig.axes[3].set_xlabel('# of Missing Values', weight='bold', fontsize=16)
-        #     fig.axes[3].set_ylabel('Frequency', weight='bold', fontsize=16)
-        #     fig.axes[3].tick_params(axis="both", labelsize=16)
-
-        #     sns.despine()
-
         if plot_name == '# of days':
             fig = sns.distplot(days, kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10, color='palegreen')
             fig.set_xlabel('Number of Days', weight='bold', fontsize=16)
@@ -676,6 +661,14 @@ class glucoCheckOps:
             sns.despine()
             if save_value == 1:
                 plt.savefig(self.cwd+'/GlucoCheck/plots/Histogram - Number of missing values.png')
+
+        if plot_name == '# of readings':
+            fig = sns.distplot(data_description['# of readings'], kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10, color='palegreen')
+            fig.set_xlabel('Number of readings', weight='bold', fontsize=16)
+            fig.set_ylabel('Frequency', weight='bold', fontsize=16)
+            sns.despine()
+            if save_value == 1:
+                plt.savefig(self.cwd+'/GlucoCheck/plots/Histogram - Number of days.png')
 
 
     def barplots(self, data_description, plot_name, save_value = 0):

@@ -25,6 +25,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn import tree
 
 # other operations
 from scipy import stats
@@ -609,6 +610,56 @@ class glucoCheckOps:
 
         return newdf
 
+
+    def gapHeatMap(self):
+        data = self.hallData
+        data['Display Time'] = pd.to_datetime(data['Display Time'])
+        gap_counts = pd.DataFrame()
+        gap_counts['Subject ID'] = ""
+
+        for subjectId, df in data.groupby('subjectId'):
+            df['time_gap'] = df['Display Time'] - df['Display Time'].shift(1)
+            df['gaps'] = (df['time_gap'].dt.total_seconds() / (5*60))
+            xx = pd.DataFrame()
+            xx = df.groupby(['gaps']).count()
+            xx = xx.reset_index()
+            xx = xx[xx['gaps']>1]
+            xx['gaps'] = xx['gaps'].astype(int)
+            xx = xx.drop(['Display Time','GlucoseValue','time_gap'], axis=1)
+            xx.rename(columns = {'subjectId':'count'}, inplace = True)
+            xx = xx.transpose()
+            xx = xx.reset_index(drop=True)
+            new_header = xx.iloc[0] #grab the first row for the header
+            xx = xx[1:] #take the data less the header row
+            xx.columns = new_header #set the header row as the df header
+            xx = xx.groupby(level=0, axis=1).sum()
+            xx['Subject ID'] =  str(subjectId)
+            #     print(subjectId)
+            gap_counts = pd.concat([gap_counts,xx], axis=0, ignore_index=True)
+
+        gap_counts = gap_counts.set_index(['Subject ID'], drop=True)   
+        cols = gap_counts.columns.tolist()
+        cols.sort()
+        gap_counts = gap_counts.ix[:, cols]
+        gap_counts = gap_counts.fillna(0)
+
+        p = sns.cm.rocket_r
+
+        sns.set(font_scale=1.5)
+
+        f, ax = plt.subplots(figsize=(24, 24))
+        sns.heatmap(gap_counts, annot=True, linewidths=0.5, cmap=p, ax=ax, annot_kws={"fontsize":12})
+
+        plt.title('Heatmap of Gap Analysis', fontsize = 28) # title with fontsize 20
+        plt.xlabel('Gap Size', fontsize = 18) # x-axis label with fontsize 15
+        plt.ylabel('Subject ID', fontsize = 18) # y-axis label with fontsize 15
+
+        # f.savefig('hmap.png')
+
+        plt.show()
+
+
+
     
     def histograms(self, data_description, plot_name, save_value = 0):
         """
@@ -742,7 +793,7 @@ class glucoCheckOps:
                 fig.savefig(self.cwd+'/GlucoCheck/plots/Barplot - Avg gap size.png')
 
 
-    def classifier(self, individual, training_data=all_data):
+    def classifier(self, individual, c_mat = 0, d_tree = 0, training_data=all_data):
         """
         This method is used to classify an individual as diabetic, prediabetic or healthy
         
@@ -811,13 +862,18 @@ class glucoCheckOps:
         X_test = testingSet.drop(['status'], axis=1)
         y_test = testingSet['status']
 
-        y_pred = clf.predict(X_test)
+        if c_mat == 1:
+            y_pred = clf.predict(X_test)
 
-        cm = confusion_matrix(y_test, y_pred, labels=["diabetic","pre-diabetic","non-diabetic"])
-        print("Confusion Matrix:\n")
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=["diabetic","pre-diabetic","non-diabetic"])
-        disp = disp.plot()
-        plt.show()
+            cm = confusion_matrix(y_test, y_pred, labels=["diabetic","pre-diabetic","non-diabetic"])
+            print("Confusion Matrix:\n")
+            disp = ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=["diabetic","pre-diabetic","non-diabetic"])
+            disp = disp.plot()
+            plt.show()
+
+        if d_tree == 1:
+            fig = plt.figure(figsize=(8,10))
+            _ = tree.plot_tree(clf, filled=True)
 
         y_pred = clf.predict(test)
 

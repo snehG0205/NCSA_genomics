@@ -41,6 +41,24 @@ from dateutil.parser import parse
 from datetime import timedelta
 from datetime import datetime
 
+# stuff for PCA and LDA plots
+from sklearn import datasets
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.feature_selection import chi2
+from sklearn.svm import LinearSVC
+from sklearn.feature_selection import SelectFromModel
+from sklearn.ensemble import ExtraTreesClassifier
+import numpy as np
+import matplotlib as plt
+from matplotlib import figure
+from matplotlib.gridspec import GridSpec
+from pylab import *
+
 # suppress warnings
 import warnings  
 warnings.filterwarnings('ignore')
@@ -468,13 +486,14 @@ class glucoCheckOps:
             data=df, 
             x="X", y="Y",
             hue=df["Y"].isna().cumsum(), 
-            palette=["palegreen"]*df["Y"].isna().cumsum().nunique(),
+            palette=["steelblue"]*df["Y"].isna().cumsum().nunique(),
             legend=False, markers=False,
             linewidth = 2
         )
-        plot.set_xlabel('Timestamp', weight='bold', fontsize=14)
-        plot.set_ylabel('Glucose Value', weight='bold', fontsize=14)
+        plot.set_xlabel('Timestamp', weight='bold', fontsize=16)
+        plot.set_ylabel('Glucose Value', weight='bold', fontsize=16)
         # ax.set_xticklabels([])
+        sns.despine(top = True, right = True)
 
         plt.show()
 
@@ -524,7 +543,7 @@ class glucoCheckOps:
 
         for subjectId, df in inputdata.groupby('subjectId'):
 
-            df['time_gap'].iloc[0] = pd.NaT
+            df['time_gap'].loc[0] = pd.NaT
             subj_id = str(subjectId)
             l_of_r = df['GlucoseValue'].count()
             maxGV = str(df['GlucoseValue'].max())
@@ -581,8 +600,8 @@ class glucoCheckOps:
         newdf_above50 = pd.DataFrame()
 
         summary_table = self.summaryTable(inputdata)
-        temp_below50 = summary_table.loc[summary_table['Percent of missing values'] < 30]
-        temp_above50 = summary_table.loc[summary_table['Percent of missing values'] >= 30]
+        temp_below50 = summary_table.loc[summary_table['% of missing values'] < 30]
+        temp_above50 = summary_table.loc[summary_table['% of missing values'] >= 30]
 
         id_below50 = list(temp_below50['Subject ID'])
         id_above50 = list(temp_above50['Subject ID'])
@@ -611,8 +630,8 @@ class glucoCheckOps:
         return newdf
 
 
-    def gapHeatMap(self):
-        data = self.hallData
+    def gapHeatMap(self, inputData):
+        data = inputData
         data['Display Time'] = pd.to_datetime(data['Display Time'])
         gap_counts = pd.DataFrame()
         gap_counts['Subject ID'] = ""
@@ -642,6 +661,7 @@ class glucoCheckOps:
         cols.sort()
         gap_counts = gap_counts.ix[:, cols]
         gap_counts = gap_counts.fillna(0)
+        gap_counts = gap_counts.iloc[:, :-1]
 
         p = sns.cm.rocket_r
 
@@ -658,8 +678,125 @@ class glucoCheckOps:
 
         plt.show()
 
+    def visualizeGroups(self):
+        data = self.hallData
+        data['Display Time'] = pd.to_datetime(data['Display Time']) # Ensures that displayTime column is converted to datetime format.
+        data['GlucoseValue'] = pd.to_numeric(data['GlucoseValue'])# Ensures that gluvoseValue is numeric
 
+        meta = self.metadata
 
+        ids = data['subjectId'].unique()
+
+        meta = meta[meta['ID'].isin(ids)]
+
+        diabetic = pd.DataFrame()
+        nondiabetic = pd.DataFrame()
+        prediabetic = pd.DataFrame()
+
+        for subjectId, df in data.groupby('subjectId'):
+            df = df.reset_index()
+            xx = meta[meta['ID'] == subjectId]
+            xx['status'] = xx['status'].astype('str')
+            status = xx['status'].values[0]
+            if status == 'diabetic':
+                diabetic[subjectId] = df['GlucoseValue']
+            elif status == 'non-diabetic':
+                nondiabetic[subjectId] = df['GlucoseValue']
+            elif status == 'pre-diabetic':
+                prediabetic[subjectId] = df['GlucoseValue']
+        
+        diabetic = diabetic.replace(0, np.nan)
+        d_mean = diabetic.mean(axis=1, skipna=True)
+
+        nondiabetic = nondiabetic.replace(0, np.nan)
+        n_mean = nondiabetic.mean(axis=1, skipna=True)
+
+        prediabetic = prediabetic.replace(0, np.nan)
+        p_mean = prediabetic.mean(axis=1, skipna=True)
+
+        fig, (ax1,ax2,ax3) = plt.subplots(1, 3,figsize=(20,8),sharex=True,sharey=True)
+
+        diabetic.plot.line(legend=None, color=['black'], ax=ax1)
+        d_mean.plot.line(legend=None, color=['red'], ax=ax1)
+
+        prediabetic.plot.line(legend=None, color=['blue'], ax=ax2)
+        p_mean.plot.line(legend=None, color=['red'], ax=ax2)
+
+        nondiabetic.plot.line(legend=None, color=['yellow'], ax=ax3)
+        n_mean.plot.line(legend=None, color=['red'], ax=ax3)
+
+        # plt.tight_layout()
+        fig.suptitle('Visualizing Individuals from all groups', fontsize=18)
+
+        ax1.set_title("Diabetic", fontsize=14)
+        ax2.set_title("Prediabetic", fontsize=14)
+        ax3.set_title("Nondiabetic", fontsize=14)
+
+        ax2.set_xlabel("Individuals", fontsize=18)
+        ax1.set_ylabel("Glucose Values", fontsize=18)
+
+    def PCA_and_LDA(self, gvi, data, metadata):
+        meta = metadata
+        diabetic = pd.DataFrame()
+        nondiabetic = pd.DataFrame()
+        prediabetic = pd.DataFrame()
+        for subjectId, df in data.groupby('subjectId'):
+            df = df.reset_index()
+            xx = meta[meta['ID'] == subjectId]
+            xx['status'] = xx['status'].astype('str')
+            status = xx['status'].values[0]
+            if status == 'diabetic':
+                diabetic[subjectId] = df['GlucoseValue']
+            elif status == 'non-diabetic':
+                nondiabetic[subjectId] = df['GlucoseValue']
+            elif status == 'pre-diabetic':
+                prediabetic[subjectId] = df['GlucoseValue']
+
+        dia_id = diabetic.columns.tolist()
+        predia_id = prediabetic.columns.tolist()
+        nondia_id = nondiabetic.columns.tolist()
+        gvi['class'] = 3
+        dia = gvi.loc[gvi.index.isin(dia_id)]
+        dia['class'] = 0
+        predia = gvi.loc[gvi.index.isin(predia_id)]
+        predia['class'] = 1
+        nondia = gvi.loc[gvi.index.isin(nondia_id)]
+        nondia['class'] = 2
+        frames = [dia, predia, nondia]
+        gvi_new = pd.concat(frames)
+        gvi_new = gvi_new.sort_index()
+
+        gvi_new = gvi_new.apply(pd.to_numeric, errors='coerce')
+        gvi_new = gvi_new.replace([np.inf, -np.inf], 0)
+        gvi_new = gvi_new.replace(np.nan, 0)
+
+        gvi_norm = MinMaxScaler().fit_transform(np.array(gvi_new.iloc[:, :-1]))
+
+        X = np.array(gvi_norm)
+        y = gvi_new['class'].to_numpy()
+        target_names = np.array(['diabetic', 'prediabetic', 'nondiabetic'])
+
+        pca = PCA(n_components=2)
+        X_r = pca.fit(X).transform(X)
+        lda = LinearDiscriminantAnalysis(n_components=2)
+        X_r2 = lda.fit(X, y).transform(X)
+        print('explained variance ratio (first two components): %s'
+              % str(pca.explained_variance_ratio_))
+        plt.figure()
+        colors = ['navy', 'turquoise', 'darkorange']
+        lw = 2
+        for color, i, target_name in zip(colors, [0, 1, 2], target_names):
+            plt.scatter(X_r[y == i, 0], X_r[y == i, 1], color=color, alpha=.8, lw=lw,
+                        label=target_name)
+        plt.legend(loc='best', shadow=False, scatterpoints=1)
+        plt.title('PCA of Hall dataset')
+        plt.figure()
+        for color, i, target_name in zip(colors, [0, 1, 2], target_names):
+            plt.scatter(X_r2[y == i, 0], X_r2[y == i, 1], alpha=.8, color=color,
+                        label=target_name)
+        plt.legend(loc='best', shadow=False, scatterpoints=1)
+        plt.title('LDA of Hall dataset')
+        plt.show()
     
     def histograms(self, data_description, plot_name, save_value = 0):
         """
@@ -682,7 +819,7 @@ class glucoCheckOps:
             days.append(i.days);
 
         if plot_name == '# of days':
-            fig = sns.distplot(days, kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10, color='palegreen')
+            fig = sns.distplot(days, kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10, color='steelblue')
             fig.set_xlabel('Number of Days', weight='bold', fontsize=16)
             fig.set_ylabel('Frequency', weight='bold', fontsize=16)
             sns.despine()
@@ -690,7 +827,7 @@ class glucoCheckOps:
                 plt.savefig(self.cwd+'/GlucoCheck/plots/Histogram - Number of days.png')
 
         if plot_name == '% of missing values':
-            fig = sns.distplot(data_description['% of missing values'],kde = False, hist_kws=dict(edgecolor="k", linewidth=1), color='palegreen')
+            fig = sns.distplot(data_description['% of missing values'],kde = False, hist_kws=dict(edgecolor="k", linewidth=1), color='steelblue')
             fig.set_xlabel('Percent of missing values', weight='bold', fontsize=16)
             fig.set_ylabel('Frequency', weight='bold', fontsize=16)
             sns.despine()
@@ -698,7 +835,7 @@ class glucoCheckOps:
                 plt.savefig(self.cwd+'/GlucoCheck/plots/Histogram - % of missing values.png')
 
         if plot_name == 'Avg gap size':
-            fig = sns.distplot(data_description['Avg gap size'],kde = False, hist_kws=dict(edgecolor="k", linewidth=1), color='palegreen')
+            fig = sns.distplot(data_description['Avg gap size'],kde = False, hist_kws=dict(edgecolor="k", linewidth=1), color='steelblue')
             fig.set_xlabel('Percent of missing valuess', weight='bold', fontsize=16)
             fig.set_ylabel('Frequency', weight='bold', fontsize=16)
             sns.despine()
@@ -706,7 +843,7 @@ class glucoCheckOps:
                 plt.savefig(self.cwd+'/GlucoCheck/plots/Histogram - Avg gap size.png')
 
         if plot_name == '# of missing values':
-            fig = sns.distplot(data_description['# of missing values'], kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10, color='palegreen')
+            fig = sns.distplot(data_description['# of missing values'], kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10, color='steelblue')
             fig.set_xlabel('# of Missing Values', weight='bold', fontsize=16)
             fig.set_ylabel('Frequency', weight='bold', fontsize=16)
             sns.despine()
@@ -714,12 +851,13 @@ class glucoCheckOps:
                 plt.savefig(self.cwd+'/GlucoCheck/plots/Histogram - Number of missing values.png')
 
         if plot_name == '# of readings':
-            fig = sns.distplot(data_description['# of readings'], kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10, color='palegreen')
+            fig = sns.distplot(data_description['# of readings'], kde = False, hist_kws=dict(edgecolor="k", linewidth=1), bins=10, color='steelblue')
             fig.set_xlabel('Number of readings', weight='bold', fontsize=16)
             fig.set_ylabel('Frequency', weight='bold', fontsize=16)
             sns.despine()
             if save_value == 1:
                 plt.savefig(self.cwd+'/GlucoCheck/plots/Histogram - Number of days.png')
+
 
 
     def barplots(self, data_description, plot_name, save_value = 0):
@@ -763,8 +901,9 @@ class glucoCheckOps:
 
         if plot_name == '# of days':
             fig, axes = plt.subplots(1, 1, figsize=(20, 13))
-            chart = sns.barplot(x = data_description['Subject ID'], y = days, color = 'palegreen', edgecolor="k", linewidth=0.5)
-            chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14);
+            chart = sns.barplot(x = data_description['Subject ID'], y = days, color = 'steelblue', edgecolor="k", linewidth=0.5)
+            chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14)
+            chart.set_yticklabels(chart.get_yticks(), size = 14)
             plt.rc('ytick', labelsize=15)
             fig.axes[0].set_xlabel('Subject ID', weight='bold', fontsize = 16)
             fig.axes[0].set_ylabel('Num of days', weight='bold', fontsize = 16)
@@ -774,8 +913,9 @@ class glucoCheckOps:
 
         if plot_name == '% of missing values':
             fig, axes = plt.subplots(1, 1, figsize=(20, 13))
-            chart = sns.barplot(x = data_description['Subject ID'], y = data_description['% of missing values'], color = 'palegreen', edgecolor="k", linewidth=0.5)
-            chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14);
+            chart = sns.barplot(x = data_description['Subject ID'], y = data_description['% of missing values'], color = 'steelblue', edgecolor="k", linewidth=0.5)
+            chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14)
+            chart.set_yticklabels(chart.get_yticks(), size = 14)
             fig.axes[0].set_xlabel('Subject ID', weight='bold', fontsize = 16)
             fig.axes[0].set_ylabel('Percent of missing values', weight='bold', fontsize = 16)
             sns.despine()
@@ -784,8 +924,9 @@ class glucoCheckOps:
 
         if plot_name == 'Avg gap size':
             fig, axes = plt.subplots(1, 1, figsize=(20, 13))
-            chart = sns.barplot(x = data_description['Subject ID'], y = data_description['Avg gap size'], color = 'palegreen', edgecolor="k", linewidth=0.5)
-            chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14);
+            chart = sns.barplot(x = data_description['Subject ID'], y = data_description['Avg gap size'], color = 'steelblue', edgecolor="k", linewidth=0.5)
+            chart.set_xticklabels(chart.get_xticklabels(), rotation=90, fontsize = 14)
+            chart.set_yticklabels(chart.get_yticks(), size = 14)
             fig.axes[0].set_xlabel('Subject ID', weight='bold', fontsize = 16)
             fig.axes[0].set_ylabel('Average gap size', weight='bold', fontsize = 16)
             sns.despine()
@@ -1031,6 +1172,8 @@ class glucoCheckOps:
 
         LBGI, HBGI, BGRI = self.bgri(df, units = 'mg');
 
+        if math.isinf(BGRI): BGRI=0
+
         GRADE , HypoG_P, EuG_P, HyperG_P = self.grade(df, units='mg');
 
         j_index = self.j_index(df, units="mg");
@@ -1087,8 +1230,9 @@ class glucoCheckOps:
         adrr_daily = []
         for Date, xx in df.groupby('Date'):
             xx = xx.reset_index(drop=True)
-            z = self.adrr(xx,'mg');
-            adrr_daily.append(z)
+            z = self.adrr(xx,'mg')
+            if not math.isinf(z):
+                adrr_daily.append(z)
 
         adrr_val = round(mean(adrr_daily),2)
 
@@ -1100,7 +1244,7 @@ class glucoCheckOps:
 
         mage, mage_daily = self.mageCalculations(df, 1)
 
-        data_description = pd.DataFrame({'Subject ID':[uid], "ADDR": [adrr_val], 'BGRI':[round(BGRI,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], "CONGA1": [conga_1], "CONGA2": [conga_2], "CONGA4": [conga_4], 'DT':[round(dt,3)], 'HBA1C':[round(HBA1C,3)], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], "Liability Index": [li], 'GMI':[round(GMI,3)],  'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'GVP':[round(GVP,3)], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], 'J Index':[round(j_index,3)], 'LAGE':[round(LAGE,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], "MODD": [modd_val], 'PGS':[round(pgs_value,3)], 'SDRC':[round(sdrc,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':str([round(cv,3)])+"%", 'IQR':[round(iqr,3)], 'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], 'MAGE': [round(mage,3)], 'MAGE Daily': [round(mage_daily,3)]})
+        data_description = pd.DataFrame({'Subject ID':[uid], "ADDR": [adrr_val], 'BGRI':[round(BGRI,3)], 'LBGI':[round(LBGI,3)], 'HBGI':[round(HBGI,3)], "CONGA1": [conga_1], "CONGA2": [conga_2], "CONGA4": [conga_4], 'DT':[round(dt,3)], 'HBA1C':[round(HBA1C,3)], 'GFI':[round(gfi,3)], 'GCF':[round(gcf,3)], "Liability Index": [li], 'GMI':[round(GMI,3)],  'GRADE':[round(GRADE,3)], 'HypoG_P':[round(HypoG_P,3)],'EuG_P':[round(EuG_P,3)], 'HyperG_P':[round(HyperG_P,3)], 'GVP':[round(GVP,3)], "IGC": [igc], "Hypoglycemic Index": [hypoglycemicIndex], "Hyperglycemic Index": [hyperglycemicIndex], 'J Index':[round(j_index,3)], 'LAGE':[round(LAGE,3)], 'Mvalue':[round(Mvalue,3)], 'MAG':[round(MAG,3)], "MODD": [modd_val], 'PGS':[round(pgs_value,3)], 'SDRC':[round(sdrc,3)], 'MEAN':[round(m,3)], 'STD-DEV':[round(sd,3)],'CV':str([round(cv,3)]), 'IQR':[round(iqr,3)], 'MAX':[round(MAX,3)], 'MIN':[round(MIN,3)], 'TAR_VH(%)': [round(TAR_VH,3)], 'TAR_H(%)': [round(TAR_H,3)], 'TIR(%)': [round(TIR,3)], 'TBR_L(%)': [round(TBR_L,3)], 'TBR_VL(%)': [round(TBR_VL,3)], 'Hypoglycemic Episodes': [hypo], 'Hyperglycemic Episodes': [hyper], 'MAGE': [round(mage,3)], 'MAGE Daily': [round(mage_daily,3)]})
         # data_description = data_description.iloc[::-1]
 
         data_description = data_description.set_index(['Subject ID'], drop=True)
@@ -1949,6 +2093,9 @@ class glucoCheckOps:
         s_right = s.where(s == 1, 0)
         rhBG = rBG * s_right # called BG risk function right branch
 
+        # if math.isinf(rlBG): rlBG = 0
+        # if math.isinf(rhBG): rhBG = 0
+
         ADRR = max(rlBG) + max(rhBG) # !!amend the code to output average across days !!!!!
 
         return ADRR
@@ -2069,6 +2216,8 @@ class glucoCheckOps:
         #smoothening the data
         df = self.fullDay(df)
         df = self.smoothing(df)
+
+        # print(df.subjectId)
         
         length = df['Display Time'].iloc[-1]-df['Display Time'].iloc[0]
         length = length.round("d")

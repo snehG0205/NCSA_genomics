@@ -540,6 +540,7 @@ class glucoCheckOps:
             A consolidated table of all the summary statistics of the input data, including Length of reading, Max Glucose Value, Mean Glucose Value, Missing Values, Percentage of missing values, Average gap size, Days, Start and End.
         """
         data_description = pd.DataFrame()
+        inputdata['time_gap'] = inputdata['Display Time'] - inputdata['Display Time'].shift(1)
 
         for subjectId, df in inputdata.groupby('subjectId'):
 
@@ -627,6 +628,8 @@ class glucoCheckOps:
         newdf_below50 = inputdata.loc[inputdata['subjectId'].isin(id_below50)]
         newdf = pd.concat([newdf_below50,newdf_above50],ignore_index=True)
 
+        del newdf['time_gap']
+
         return newdf
 
 
@@ -670,9 +673,9 @@ class glucoCheckOps:
         f, ax = plt.subplots(figsize=(24, 24))
         sns.heatmap(gap_counts, annot=True, linewidths=0.5, cmap=p, ax=ax, annot_kws={"fontsize":12})
 
-        plt.title('Heatmap of Gap Analysis', fontsize = 28) # title with fontsize 20
-        plt.xlabel('Gap Size', fontsize = 18) # x-axis label with fontsize 15
-        plt.ylabel('Subject ID', fontsize = 18) # y-axis label with fontsize 15
+        plt.title('Heatmap of Gap Analysis', fontsize = 28, fontweight='bold') # title with fontsize 20
+        plt.xlabel('Gap Size', fontsize = 18, fontweight='bold') # x-axis label with fontsize 15
+        plt.ylabel('Subject ID', fontsize = 18, fontweight='bold') # y-axis label with fontsize 15
 
         # f.savefig('hmap.png')
 
@@ -715,6 +718,12 @@ class glucoCheckOps:
         p_mean = prediabetic.mean(axis=1, skipna=True)
 
         fig, (ax1,ax2,ax3) = plt.subplots(1, 3,figsize=(20,8),sharex=True,sharey=True)
+        ax1.spines['right'].set_visible(False)
+        ax1.spines['top'].set_visible(False)
+        ax2.spines['right'].set_visible(False)
+        ax2.spines['top'].set_visible(False)
+        ax3.spines['right'].set_visible(False)
+        ax3.spines['top'].set_visible(False)
 
         diabetic.plot.line(legend=None, color=['black'], ax=ax1)
         d_mean.plot.line(legend=None, color=['red'], ax=ax1)
@@ -735,7 +744,7 @@ class glucoCheckOps:
         ax2.set_xlabel("Individuals", fontsize=18)
         ax1.set_ylabel("Glucose Values", fontsize=18)
 
-    def PCA_and_LDA(self, gvi, data, metadata):
+    def LDA(self, gvi, data, metadata):
         meta = metadata
         diabetic = pd.DataFrame()
         nondiabetic = pd.DataFrame()
@@ -788,14 +797,16 @@ class glucoCheckOps:
         for color, i, target_name in zip(colors, [0, 1, 2], target_names):
             plt.scatter(X_r[y == i, 0], X_r[y == i, 1], color=color, alpha=.8, lw=lw,
                         label=target_name)
-        plt.legend(loc='best', shadow=False, scatterpoints=1)
-        plt.title('PCA of Hall dataset')
-        plt.figure()
+        # plt.legend(loc='upper left', shadow=False, scatterpoints=1)
+        # plt.title('PCA of Hall dataset')
+        # sns.despine()
+        # plt.figure()
         for color, i, target_name in zip(colors, [0, 1, 2], target_names):
             plt.scatter(X_r2[y == i, 0], X_r2[y == i, 1], alpha=.8, color=color,
                         label=target_name)
         plt.legend(loc='best', shadow=False, scatterpoints=1)
         plt.title('LDA of Hall dataset')
+        sns.despine()
         plt.show()
     
     def histograms(self, data_description, plot_name, save_value = 0):
